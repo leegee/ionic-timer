@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Home</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <main>
+
+    <ion-button on-click=[[toggleTimer()]] shape="round" size="large" color="{{ this.active ? 'danger' : 'success' }}"
+      fill="solid">
+      {{ this.active ? 'Stop' : 'Start' }}
+    </ion-button>
+
+  </main>
+</ion-content>
