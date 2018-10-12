@@ -5,12 +5,15 @@
 </ion-header>
 
 <ion-content padding>
-  <main>
+  <ion-button on-click=[[toggleTimer()]] shape="round" size="large" color="{{ this.active ? 'danger' : 'success' }}"
+    fill="solid">
+    {{ this.active ? 'Stop' : 'Start' }}
+  </ion-button>
 
-    <ion-button on-click=[[toggleTimer()]] shape="round" size="large" color="{{ this.active ? 'danger' : 'success' }}"
-      fill="solid">
-      {{ this.active ? 'Stop' : 'Start' }}
-    </ion-button>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button on-click="[[addNew($event)]]">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 
-  </main>
 </ion-content>

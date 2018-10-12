@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { TimerService } from '../timer/timer.service';
+import { PopoverController, FabButton } from '@ionic/angular';
+import { AddNewComponent } from '../add-new/add-new.component';
 
 @Component({
   selector: 'app-home',
@@ -11,7 +13,8 @@ export class HomePage {
   private active = false;
 
   constructor(
-    private timerService: TimerService
+    private timerService: TimerService,
+    private popoverController: PopoverController
   ) { }
 
   toggleTimer() {
@@ -22,4 +25,15 @@ export class HomePage {
       this.timerService.stop();
     }
   }
+
+  async addNew(e: Event): Promise<void> {
+    // e.target.activated = false;
+    const popover = await this.popoverController.create({
+      component: AddNewComponent,
+      event: e,
+      componentProps: { popoverController: this.popoverController }
+    });
+    return await popover.present();
+  }
+
 }

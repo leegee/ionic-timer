@@ -27,4 +27,12 @@ describe('TimerService', () => {
     const numberOfEntries = await service.storage.keys();
     expect(numberOfEntries.length).toBe(1);
   }));
+
+  it('should list', inject([TimerService], async (service: TimerService) => {
+    await service.clear();
+    service.start();
+    await service.stop();
+    const list = await service.list();
+    expect(Object.keys(list).length).toBe(1);
+  }));
 });
