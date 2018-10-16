@@ -2,6 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 
 import { TimerService } from './timer.service';
 import { IonicStorageModule } from '@ionic/storage';
+import { Platform } from '@ionic/angular';
 
 describe('TimerService', () => {
   beforeEach(() => {
@@ -12,7 +13,10 @@ describe('TimerService', () => {
           driverOrder: ['indexeddb', 'sqlite', 'websql']
         }),
       ],
-      providers: [TimerService]
+      providers: [
+        Platform,
+        TimerService
+      ]
     });
   });
 
@@ -20,18 +24,23 @@ describe('TimerService', () => {
     expect(service).toBeTruthy();
   }));
 
+  it('should be create a db', inject([TimerService], async (service: TimerService) => {
+    await service.connect();
+    expect(service.timers).toBeTruthy();
+  }));
+
   it('should start/stop', inject([TimerService], async (service: TimerService) => {
-    await service.clear();
-    service.start();
-    await service.stop();
-    const numberOfEntries = await service.storage.keys();
-    expect(numberOfEntries.length).toBe(1);
+    await service.clear('foo');
+    await service.addNew('foo');
+    await service.start('foo');
+    await service.stop('foo');
   }));
 
   it('should list', inject([TimerService], async (service: TimerService) => {
-    await service.clear();
-    service.start();
-    await service.stop();
+    await service.clear('foo');
+    await service.addNew('foo');
+    await service.start('foo');
+    await service.stop('foo');
     const list = await service.list();
     expect(Object.keys(list).length).toBe(1);
   }));

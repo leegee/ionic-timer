@@ -10,6 +10,15 @@
     {{ this.active ? 'Stop' : 'Start' }}
   </ion-button>
 
+  <ion-list reorder="true" (ionItemReorder)="reorderItems($event)">
+    <ion-item *ngFor="let timer of list()">
+        <ion-button on-click=[[toggleTimer()]] shape="round" size="large" color="{{ timer.stop ? 'danger' : 'success' }}"
+        fill="solid">
+        {{ timer.stop ? 'Stop' : 'Start' }} {{ timer.name }}
+      </ion-button>
+        </ion-item>
+  </ion-list>
+
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button on-click="[[addNew($event)]]">
       <ion-icon name="add"></ion-icon>

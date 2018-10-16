@@ -1,5 +1,6 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
 
 import { HomePage } from './home.page';
 import { IonicStorageModule } from '@ionic/storage';
@@ -18,6 +19,11 @@ describe('HomePage', () => {
           driverOrder: ['indexeddb', 'sqlite', 'websql']
         }),
       ],
+      providers: [
+        Platform,
+        PopoverController,
+        AngularDelegate
+      ]
     }).compileComponents();
   }));
 

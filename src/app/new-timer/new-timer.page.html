@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>New Timer</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-item>
+    <ion-label position="stacked">Give your timer a name</ion-label>
+    <ion-input required type="text" [(ngModel)]="name"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="stacked">You may choose a colour</ion-label>
+    <ion-input type="color" [style.background]="colour" [(ngModel)]="colour">{{colour}}</ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-button type="cancel" shape="round" color="primary" fill="clear" (click)="submit()">
+      <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+    <ion-button type="submit" shape="round" color="primary" fill="solid" (click)="submit()">
+      <ion-icon slot="icon-only" name="checkbox"></ion-icon>
+    </ion-button>
+  </ion-item>
+</ion-content>

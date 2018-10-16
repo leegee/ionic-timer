@@ -10,6 +10,7 @@ import { TabsPage } from './tabs.page';
 import { TagsPageModule } from '../tags/tags.module';
 import { AboutPageModule } from '../about/about.module';
 import { HomePageModule } from '../home/home.module';
+import { AddNewPopoverModule } from '../add-new/add-new.module';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import { HomePageModule } from '../home/home.module';
     FormsModule,
     TabsPageRoutingModule,
     HomePageModule,
+    AddNewPopoverModule,
     AboutPageModule,
     TagsPageModule
   ],
