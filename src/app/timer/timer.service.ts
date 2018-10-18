@@ -14,7 +14,7 @@ export interface Timer {
 export class TimerService {
   static dbName = 'emit-draddog.db';
   private names: string[];
-  public timers: { [key: string]: Timer | undefined } = {};
+  public timerNames2starts: { [key: string]: number } = {};
 
   private changeSource = new Subject();
   public changeAnnounced$ = this.changeSource.asObservable();
@@ -36,26 +36,26 @@ export class TimerService {
     this.names.forEach(async (name) => {
       const promise = this.storage.get(name).then(record => {
         if (record.length === 0 || record[record.length - 1].hasOwnProperty('stop')) {
-          this.timers[name] = undefined;
+          this.timerNames2starts[name] = undefined;
         } else {
-          this.timers[name] = record[record.length - 1]; // .start;
+          this.timerNames2starts[name] = record[record.length - 1].start;
         }
       });
       promises.push(promise);
     });
 
     await Promise.all(promises);
-    this.changeSource.next(this.timers);
+    this.changeSource.next(this.timerNames2starts);
   }
 
   async deleteAll(): Promise<void> {
     await this.storage.clear();
-    this.changeSource.next(this.timers);
+    this.changeSource.next(this.timerNames2starts);
   }
 
   toggle(name: string): void {
     console.log('toggle', name);
-    if (this.timers[name] === undefined) {
+    if (this.timerNames2starts[name] === undefined) {
       this.start(name);
     } else {
       this.stop(name);
@@ -64,17 +64,15 @@ export class TimerService {
 
   async start(name: string): Promise<void> {
     console.log('start', name);
-    if (!this.timers.hasOwnProperty(name)) {
+    if (!this.timerNames2starts.hasOwnProperty(name)) {
       throw new Error('No such timer as ' + name);
     }
 
-    this.timers[name] = {
-      start: new Date().getTime()
-    };
+    this.timerNames2starts[name] = new Date().getTime();
     const record = await this.storage.get(name);
-    record.push(this.timers[name]);
+    record.push({ start: this.timerNames2starts[name] });
     this.storage.set(name, record);
-    this.changeSource.next(this.timers);
+    this.changeSource.next(this.timerNames2starts);
   }
 
   async stop(name: string): Promise<void> {
@@ -82,8 +80,8 @@ export class TimerService {
     const record = await this.storage.get(name);
     record[record.length - 1].stop = new Date().getTime();
     this.storage.set(name, record);
-    this.timers[name] = undefined;
-    this.changeSource.next(this.timers);
+    this.timerNames2starts[name] = undefined;
+    this.changeSource.next(this.timerNames2starts);
   }
 
   async getAll(): Promise<{ [key: string]: Array<Timer> }> {
@@ -95,19 +93,19 @@ export class TimerService {
   }
 
   async clear(name: string): Promise<void> {
-    if (this.timers.hasOwnProperty(name)) {
-      delete this.timers[name];
+    if (this.timerNames2starts.hasOwnProperty(name)) {
+      delete this.timerNames2starts[name];
       this.storage.set(name, null);
-      this.changeSource.next(this.timers);
+      this.changeSource.next(this.timerNames2starts);
     }
   }
 
   addNew(name: string, color: string = 'transparent'): void {
-    if (this.timers.hasOwnProperty(name)) {
+    if (this.timerNames2starts.hasOwnProperty(name)) {
       throw new Error('Timer already exists with name ' + name);
     }
-    this.timers[name] = undefined;
+    this.timerNames2starts[name] = undefined;
     this.storage.set(name, []);
-    this.changeSource.next(this.timers);
+    this.changeSource.next(this.timerNames2starts);
   }
 }

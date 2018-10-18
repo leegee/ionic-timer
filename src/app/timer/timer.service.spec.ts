@@ -24,10 +24,10 @@ describe('TimerService', () => {
     expect(service).toBeTruthy();
   }));
 
-  it('should be create a db', inject([TimerService], async (service: TimerService) => {
-    await service.connect();
-    expect(service.timers).toBeTruthy();
-  }));
+  // it('should connect', inject([TimerService], async (service: TimerService) => {
+  //   await service.connect();
+  //   expect(service.timerNames2starts).toBeTruthy();
+  // }));
 
   it('should getAll', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
