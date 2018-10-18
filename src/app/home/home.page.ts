@@ -49,7 +49,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   get timerNames() {
-    return Object.keys(this.timers) || [];
+    return this.timerService.getNames();
   }
 
   getTimer(name) {

@@ -29,6 +29,10 @@ export class TimerService {
     });
   }
 
+  getNames(): any {
+    return Object.keys(this.timerNames2starts) || [];
+  }
+
   async connect(): Promise<void> {
     console.log('timer-service.connect');
     this.names = await this.storage.keys();
@@ -108,4 +112,5 @@ export class TimerService {
     this.storage.set(name, []);
     this.changeSource.next(this.timerNames2starts);
   }
+
 }
