@@ -21,7 +21,7 @@ describe('NewTimerPage', () => {
       imports: [
         IonicStorageModule.forRoot({
           name: 'goddard-timer-db-test',
-          driverOrder: ['indexeddb', 'sqlite', 'websql']
+          driverOrder: ['indexeddb']
         }),
       ],
       providers: [
@@ -43,38 +43,3 @@ describe('NewTimerPage', () => {
   });
 });
 
-/*
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { NewTimerPage } from './new-timer.page';
-import { NavParams } from '@ionic/angular';
-
-describe('NewTimerPage (popover)', () => {
-    let component: NewTimerPage;
-    let fixture: ComponentFixture<NewTimerPage>;
-
-    const data = { data: '' };
-    const navParams = new NavParams(data);
-
-    beforeEach(async(() => {
-        TestBed.configureTestingModule({
-            declarations: [NewTimerPage],
-            providers: [
-                { provide: NavParams, useValue: navParams },
-            ]
-        })
-            .compileComponents();
-    }));
-
-    beforeEach(() => {
-        fixture = TestBed.createComponent(NewTimerPage);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
-
-    it('should create', () => {
-        expect(component).toBeTruthy();
-    });
-});
-
-*/

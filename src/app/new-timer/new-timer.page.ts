@@ -30,5 +30,4 @@ export class NewTimerPage {
   close() {
     this.popoverController.dismiss();
   }
-
 }

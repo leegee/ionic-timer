@@ -10,7 +10,7 @@ import { TabsPage } from './tabs.page';
 import { TagsPageModule } from '../tags/tags.module';
 import { AboutPageModule } from '../about/about.module';
 import { HomePageModule } from '../home/home.module';
-import { AddNewPopoverModule } from '../add-new/add-new.module';
+import { NewTimerPageModule } from '../new-timer/new-timer.module';
 
 @NgModule({
   imports: [
@@ -19,7 +19,7 @@ import { AddNewPopoverModule } from '../add-new/add-new.module';
     FormsModule,
     TabsPageRoutingModule,
     HomePageModule,
-    AddNewPopoverModule,
+    NewTimerPageModule,
     AboutPageModule,
     TagsPageModule
   ],

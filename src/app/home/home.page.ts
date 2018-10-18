@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TimerService } from '../timer/timer.service';
 import { PopoverController, FabButton, Platform } from '@ionic/angular';
 import { NewTimerPage } from '../new-timer/new-timer.page';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss']
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
 
   private active = false;
-  timers: Object;
+  public timersSubscription: Subscription;
+  public timers: { [key: string]: Object[] } = {};
 
   constructor(
     private platform: Platform,
@@ -19,22 +21,26 @@ export class HomePage implements OnInit {
     private popoverController: PopoverController
   ) { }
 
-  async ngOnInit() {
-    await this.platform.ready();
-    this.timers = await this.timerService.list();
+  ngOnDestroy() {
+    this.timersSubscription.unsubscribe();
   }
 
-  toggleTimer() {
-    this.active = !this.active;
-    // if (this.active) {
-    //   this.timerService.start(name);
-    // } else {
-    //   this.timerService.stop(name);
-    // }
+  async ngOnInit() {
+    await this.platform.ready();
+    this.timersSubscription = this.timerService.changeAnnounced$.subscribe(
+      (changed: { [key: string]: any }) => {
+        console.log(`**** `, changed);
+        this.timers = Object.assign(this.timers, changed);
+      }
+    );
+    console.log('this.timers', this.timers);
+  }
+
+  toggleTimer(timerName: string): void {
+    this.timerService.toggle(timerName);
   }
 
   async addNew(e: Event): Promise<void> {
-    // e.target.activated = false;
     const popover = await this.popoverController.create({
       component: NewTimerPage,
       event: e,
@@ -43,12 +49,12 @@ export class HomePage implements OnInit {
     return await popover.present();
   }
 
-  list() {
-    // const rv = Object.keys(this.timers).sort().map((v, i, a) => {
-    //   console.log(':::', v, i, a);
-    //   return a.push(this.timers[v]);
-    // });
-    // console.log('rv', rv);
+  get timerNames() {
+    return Object.keys(this.timers) || [];
+  }
+
+  getTimer(name) {
+    return this.timers[name];
   }
 
   reorderItems(indexes) {

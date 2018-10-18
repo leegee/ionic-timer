@@ -1,21 +1,11 @@
-import { Injectable, OnInit } from '@angular/core';
+import { Injectable, OnInit, Output } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { createEmptyStateSnapshot } from '@angular/router/src/router_state';
+import { Subject } from 'rxjs';
 
-class Timer {
-  name: string;
+export interface Timer {
   start: number;
-  stop: number;
-
-  constructor(name: string) {
-    this.name = name;
-    this.start = new Date().getTime();
-  }
-
-  stopNow() {
-    this.stop = new Date().getTime();
-  }
+  stop?: number;
 }
 
 @Injectable({
@@ -24,21 +14,28 @@ class Timer {
 export class TimerService implements OnInit {
   static dbName = 'goddard-time.db';
   private names: string[];
+  public connected = false;
   public timers: { [key: string]: Timer[] } = {};
-  // timers$: Observable<Timer[]>;
+
+  private changeSource = new Subject();
+  public changeAnnounced$ = this.changeSource.asObservable();
 
   constructor(
     public storage: Storage,
     private platform: Platform
   ) {
+    console.log(`timer-service new`);
   }
 
-  async ngOnInit() {
-    await this.platform.ready();
-    await this.connect();
+  ngOnInit() {
+    console.log('timer-service.ngOnit');
+    this.platform.ready().then(() => {
+      this.connect();
+    });
   }
 
   async connect(): Promise<void> {
+    console.log('timer-service.connect');
     this.names = await this.storage.keys();
     const promises = [];
     this.names.forEach(async (name) => {
@@ -49,22 +46,52 @@ export class TimerService implements OnInit {
     });
 
     await Promise.all(promises);
+    this.connected = true;
+  }
+
+  async deleteAll(): Promise<void> {
+    await this.storage.clear();
+    this.changeSource.next(this.timers);
+  }
+
+  latestTimer(name: string): Object {
+    return this.timers[name][
+      this.timers[name].length - 1
+    ];
+  }
+
+  toggle(name: string): void {
+    console.log('toggle', name);
+    const latestTimer = this.latestTimer(name);
+    console.log('latestTimer ', latestTimer);
+    if (latestTimer.hasOwnProperty('stop')) {
+      this.stop(name);
+    } else {
+      this.start(name);
+    }
   }
 
   async start(name: string): Promise<void> {
     if (!this.timers.hasOwnProperty(name)) {
       throw new Error('No such timer as ' + name);
     }
-    this.timers[name].push(new Timer(name));
+
+    this.timers[name].push({
+      start: new Date().getTime()
+    });
+    this.storage.set(name, this.timers[name]);
+    this.changeSource.next(this.timers);
   }
 
   async stop(name: string): Promise<void> {
     this.timers[name][
       this.timers[name].length - 1
-    ].stopNow();
+    ].stop = new Date().getTime();
+    this.storage.set(name, this.timers[name]);
+    this.changeSource.next(this.timers);
   }
 
-  async list(): Promise<{ [key: string]: Array<Timer> }> {
+  getAll(): { [key: string]: Array<Timer> } {
     return this.timers;
   }
 
@@ -72,6 +99,7 @@ export class TimerService implements OnInit {
     if (this.timers.hasOwnProperty(name)) {
       this.timers[name] = [];
       this.storage.set(name, null);
+      this.changeSource.next(this.timers);
     }
   }
 
@@ -81,5 +109,6 @@ export class TimerService implements OnInit {
     }
     this.timers[name] = [];
     this.storage.set(name, []);
+    this.changeSource.next(this.timers);
   }
 }
