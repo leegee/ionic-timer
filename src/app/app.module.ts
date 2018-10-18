@@ -23,7 +23,9 @@ import { AppComponent } from './app.component';
     IonicModule.forRoot(),
     IonicStorageModule.forRoot({
       name: 'goddard-timer-db',
-      driverOrder: ['indexeddb', 'sqlite', 'websql']
+      version: 0.1,
+      storeName: 'goddard-timer-db',
+      driverOrder: ['indexeddb']
     }),
     AppRoutingModule
   ],

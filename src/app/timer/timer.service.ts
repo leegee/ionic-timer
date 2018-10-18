@@ -1,8 +1,4 @@
-/**
- * This little service keeps an object in memory
- * synced with indexdb.
- */
-import { Injectable, OnInit, Output } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
@@ -15,11 +11,10 @@ export interface Timer {
 @Injectable({
   providedIn: 'root'
 })
-export class TimerService implements OnInit {
+export class TimerService {
   static dbName = 'emit-draddog.db';
   private names: string[];
-  public connected = false;
-  public timers: { [key: string]: Timer|undefined } = {};
+  public timers: { [key: string]: Timer | undefined } = {};
 
   private changeSource = new Subject();
   public changeAnnounced$ = this.changeSource.asObservable();
@@ -29,17 +24,9 @@ export class TimerService implements OnInit {
     private platform: Platform
   ) {
     console.log(`timer-service new`);
-  }
-
-  ngOnInit() {
-    console.log('timer-service.ngOnit');
     this.platform.ready().then(() => {
       this.connect();
     });
-  }
-
-  tailOf(record): Timer | undefined {
-    return record.length > 0 ? record[record.length - 1] : undefined;
   }
 
   async connect(): Promise<void> {
@@ -48,13 +35,17 @@ export class TimerService implements OnInit {
     const promises = [];
     this.names.forEach(async (name) => {
       const promise = this.storage.get(name).then(record => {
-        this.timers[name] = this.tailOf(record);
+        if (record.length === 0 || record[record.length - 1].hasOwnProperty('stop')) {
+          this.timers[name] = undefined;
+        } else {
+          this.timers[name] = record[record.length - 1]; // .start;
+        }
       });
       promises.push(promise);
     });
 
     await Promise.all(promises);
-    this.connected = true;
+    this.changeSource.next(this.timers);
   }
 
   async deleteAll(): Promise<void> {
@@ -97,7 +88,7 @@ export class TimerService implements OnInit {
 
   async getAll(): Promise<{ [key: string]: Array<Timer> }> {
     const rv = {};
-    await this.storage.forEach( (val, key) => {
+    await this.storage.forEach((val, key) => {
       rv[key] = val;
     });
     return rv;
@@ -105,7 +96,7 @@ export class TimerService implements OnInit {
 
   async clear(name: string): Promise<void> {
     if (this.timers.hasOwnProperty(name)) {
-      delete  this.timers[name];
+      delete this.timers[name];
       this.storage.set(name, null);
       this.changeSource.next(this.timers);
     }

@@ -10,7 +10,7 @@ describe('TimerService', () => {
       imports: [
         IonicStorageModule.forRoot({
           name: 'goddard-timer-db-test',
-          driverOrder: ['indexeddb', 'sqlite', 'websql']
+          driverOrder: ['indexeddb']
         }),
       ],
       providers: [
@@ -29,17 +29,7 @@ describe('TimerService', () => {
     expect(service.timers).toBeTruthy();
   }));
 
-  // it('should getAll', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   await service.addNew('bar');
-  //   await service.addNew('foo');
-  //   await service.start('foo');
-  //   await service.stop('foo');
-  //   const list = await service.getAll();
-  //   expect(Object.keys(list).length).toBe(2);
-  // }));
-
-  it('should getSubscription', inject([TimerService], async (service: TimerService) => {
+  it('should getAll', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
     await service.addNew('bar');
     await service.addNew('foo');
