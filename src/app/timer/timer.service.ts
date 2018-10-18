@@ -1,3 +1,7 @@
+/**
+ * This little service keeps an object in memory
+ * synced with indexdb.
+ */
 import { Injectable, OnInit, Output } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
@@ -12,7 +16,7 @@ export interface Timer {
   providedIn: 'root'
 })
 export class TimerService implements OnInit {
-  static dbName = 'goddard-time.db';
+  static dbName = 'emit-draddog.db';
   private names: string[];
   public connected = false;
   public timers: { [key: string]: Timer[] } = {};
@@ -54,17 +58,11 @@ export class TimerService implements OnInit {
     this.changeSource.next(this.timers);
   }
 
-  latestTimer(name: string): Object {
-    return this.timers[name][
-      this.timers[name].length - 1
-    ];
-  }
-
   toggle(name: string): void {
     console.log('toggle', name);
-    const latestTimer = this.latestTimer(name);
-    console.log('latestTimer ', latestTimer);
-    if (latestTimer.hasOwnProperty('stop')) {
+    if (this.timers[name] && this.timers[name].length > 0
+      && this.timers[name][this.timers[name].length - 1].hasOwnProperty('start')
+    ) {
       this.stop(name);
     } else {
       this.start(name);
@@ -72,6 +70,7 @@ export class TimerService implements OnInit {
   }
 
   async start(name: string): Promise<void> {
+    console.log('start', name);
     if (!this.timers.hasOwnProperty(name)) {
       throw new Error('No such timer as ' + name);
     }
@@ -84,6 +83,7 @@ export class TimerService implements OnInit {
   }
 
   async stop(name: string): Promise<void> {
+    console.log('stop', name);
     this.timers[name][
       this.timers[name].length - 1
     ].stop = new Date().getTime();
