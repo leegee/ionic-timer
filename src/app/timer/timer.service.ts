@@ -19,7 +19,7 @@ export class TimerService implements OnInit {
   static dbName = 'emit-draddog.db';
   private names: string[];
   public connected = false;
-  public timers: { [key: string]: Timer[] } = {};
+  public timers: { [key: string]: Timer|undefined } = {};
 
   private changeSource = new Subject();
   public changeAnnounced$ = this.changeSource.asObservable();
@@ -38,13 +38,17 @@ export class TimerService implements OnInit {
     });
   }
 
+  tailOf(record): Timer | undefined {
+    return record.length > 0 ? record[record.length - 1] : undefined;
+  }
+
   async connect(): Promise<void> {
     console.log('timer-service.connect');
     this.names = await this.storage.keys();
     const promises = [];
     this.names.forEach(async (name) => {
       const promise = this.storage.get(name).then(record => {
-        this.timers[name] = record;
+        this.timers[name] = this.tailOf(record);
       });
       promises.push(promise);
     });
@@ -60,12 +64,10 @@ export class TimerService implements OnInit {
 
   toggle(name: string): void {
     console.log('toggle', name);
-    if (this.timers[name] && this.timers[name].length > 0
-      && this.timers[name][this.timers[name].length - 1].hasOwnProperty('start')
-    ) {
-      this.stop(name);
-    } else {
+    if (this.timers[name] === undefined) {
       this.start(name);
+    } else {
+      this.stop(name);
     }
   }
 
@@ -75,29 +77,31 @@ export class TimerService implements OnInit {
       throw new Error('No such timer as ' + name);
     }
 
-    this.timers[name].push({
+    this.timers[name] = {
       start: new Date().getTime()
-    });
-    this.storage.set(name, this.timers[name]);
+    };
+    const record = await this.storage.get(name);
+    record.push(this.timers[name]);
+    this.storage.set(name, record);
     this.changeSource.next(this.timers);
   }
 
   async stop(name: string): Promise<void> {
     console.log('stop', name);
-    this.timers[name][
-      this.timers[name].length - 1
-    ].stop = new Date().getTime();
-    this.storage.set(name, this.timers[name]);
+    const record = await this.storage.get(name);
+    record[record.length - 1].stop = new Date().getTime();
+    this.storage.set(name, record);
+    this.timers[name] = undefined;
     this.changeSource.next(this.timers);
   }
 
-  getAll(): { [key: string]: Array<Timer> } {
-    return this.timers;
-  }
+  // getAll(): { [key: string]: Array<Timer> } {
+  //   return this.timers;
+  // }
 
   async clear(name: string): Promise<void> {
     if (this.timers.hasOwnProperty(name)) {
-      this.timers[name] = [];
+      delete  this.timers[name];
       this.storage.set(name, null);
       this.changeSource.next(this.timers);
     }
@@ -107,7 +111,7 @@ export class TimerService implements OnInit {
     if (this.timers.hasOwnProperty(name)) {
       throw new Error('Timer already exists with name ' + name);
     }
-    this.timers[name] = [];
+    this.timers[name] = undefined;
     this.storage.set(name, []);
     this.changeSource.next(this.timers);
   }

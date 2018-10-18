@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TimerService } from '../timer/timer.service';
-import { PopoverController, FabButton, Platform } from '@ionic/angular';
+import { PopoverController, Platform } from '@ionic/angular';
 import { NewTimerPage } from '../new-timer/new-timer.page';
 import { Subscription } from 'rxjs';
 
@@ -11,7 +11,6 @@ import { Subscription } from 'rxjs';
 })
 export class HomePage implements OnInit, OnDestroy {
 
-  private active = false;
   public timersSubscription: Subscription;
   public timers: { [key: string]: Object[] } = {};
 
@@ -31,9 +30,9 @@ export class HomePage implements OnInit, OnDestroy {
       (changed: { [key: string]: any }) => {
         console.log(`**** `, changed);
         this.timers = Object.assign(this.timers, changed);
+        console.log('this.timers', this.timers);
       }
     );
-    console.log('this.timers', this.timers);
   }
 
   toggleTimer(timerName: string): void {
