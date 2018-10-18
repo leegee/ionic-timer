@@ -95,9 +95,13 @@ export class TimerService implements OnInit {
     this.changeSource.next(this.timers);
   }
 
-  // getAll(): { [key: string]: Array<Timer> } {
-  //   return this.timers;
-  // }
+  async getAll(): Promise<{ [key: string]: Array<Timer> }> {
+    const rv = {};
+    await this.storage.forEach( (val, key) => {
+      rv[key] = val;
+    });
+    return rv;
+  }
 
   async clear(name: string): Promise<void> {
     if (this.timers.hasOwnProperty(name)) {

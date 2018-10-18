@@ -40,18 +40,14 @@ describe('TimerService', () => {
   // }));
 
   it('should getSubscription', inject([TimerService], async (service: TimerService) => {
-    console.log(`---------------start`);
-    // service.timers.subscribe({
-    //   next: x => console.log('Observer got a next value: ' + x),
-    //   error: err => console.error('Observer got an error: ' + err),
-    //   complete: () => console.log('Observer got a complete notification'),
-    // });
     await service.deleteAll();
     await service.addNew('bar');
     await service.addNew('foo');
     await service.start('foo');
     await service.stop('foo');
-    console.log(`---------------done`);
-    // expect(Object.keys(list).length).toBe(2);
+    const all = await service.getAll();
+    console.log(all);
+    expect(Object.keys(all).length).toBe(2);
+    expect(all.foo.length).toBe(1);
   }));
 });
