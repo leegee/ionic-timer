@@ -22,9 +22,9 @@ import { AppComponent } from './app.component';
     BrowserModule,
     IonicModule.forRoot(),
     IonicStorageModule.forRoot({
-      name: 'goddard-timer-db',
-      version: 0.1,
-      storeName: 'goddard-timer-db',
+      // name: 'goddard-timer-db',
+      // version: 3,
+      // storeName: 'goddard-timer-db',
       driverOrder: ['indexeddb']
     }),
     AppRoutingModule

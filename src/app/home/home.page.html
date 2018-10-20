@@ -6,10 +6,10 @@
 
 <ion-content padding>
   <ion-list reorder="true" (ionItemReorder)="reorderItems($event)">
-    <ion-item *ngFor="let timerName of timerNames">
-      <ion-button on-click=[[toggleTimer(timerName)]] shape="round" size="large" color="{{ timers[timerName] === undefined ? 'success' : 'danger' }}"
+    <ion-item *ngFor="let timer of timers">
+      <ion-button on-click=[[toggleTimer(timer.id)]] shape="round" size="large" color="{{ timer.start === undefined ? 'success' : 'danger' }}"
         fill="solid">
-        {{ timers[timerName] === undefined ? 'Start' : 'Stop' }} {{ timerName }}
+        {{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}
       </ion-button>
     </ion-item>
   </ion-list>

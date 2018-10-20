@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TimerService } from '../timer/timer.service';
+import { TimerService, TimerMetaRecord } from '../timer/timer.service';
 import { PopoverController, Platform } from '@ionic/angular';
 import { NewTimerPage } from '../new-timer/new-timer.page';
 import { Subscription } from 'rxjs';
@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 export class HomePage implements OnInit, OnDestroy {
 
   public timersSubscription: Subscription;
-  public timers: { [key: string]: Object[] } = {};
+  public timers: TimerMetaRecord[];
 
   constructor(
     private platform: Platform,
@@ -26,17 +26,16 @@ export class HomePage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
-    this.timersSubscription = this.timerService.changeAnnounced$.subscribe(
-      (changed: { [key: string]: any }) => {
-        console.log(`**** `, changed);
-        this.timers = Object.assign(this.timers, changed);
-        console.log('this.timers', this.timers);
+    this.timersSubscription = this.timerService.timersMeta$.subscribe(
+      (changed: TimerMetaRecord[]) => {
+        console.log(`Updated timers`, changed);
+        this.timers = new Array(...changed);
       }
     );
   }
 
-  toggleTimer(timerName: string): void {
-    this.timerService.toggle(timerName);
+  toggleTimer(timerId: string): void {
+    this.timerService.toggle(timerId);
   }
 
   async addNew(e: Event): Promise<void> {
@@ -46,14 +45,6 @@ export class HomePage implements OnInit, OnDestroy {
       componentProps: { popoverController: this.popoverController }
     });
     return await popover.present();
-  }
-
-  get timerNames() {
-    return this.timerService.getNames();
-  }
-
-  getTimer(name) {
-    return this.timers[name];
   }
 
   reorderItems(indexes) {

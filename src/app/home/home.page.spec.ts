@@ -15,8 +15,7 @@ describe('HomePage', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
         IonicStorageModule.forRoot({
-          name: 'goddard-timer-db-test',
-          driverOrder: ['indexeddb', 'sqlite', 'websql']
+          driverOrder: ['indexeddb']
         }),
       ],
       providers: [

@@ -3,6 +3,13 @@ import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
+export interface TimerMetaRecord {
+  id: string;
+  name: string;
+  color?: string;
+  start?: number; // Date.getTime()
+}
+
 export interface Timer {
   start: number;
   stop?: number;
@@ -13,104 +20,176 @@ export interface Timer {
 })
 export class TimerService {
   static dbName = 'emit-draddog.db';
-  private names: string[];
-  public timerNames2starts: { [key: string]: number } = {};
+  public stores: { [key: string]: Storage } = {
+    ids2pastTimers: new Storage({
+      name: TimerService.dbName + '-ids2timers',
+      storeName: 'ids2timers',
+      driverOrder: ['indexeddb']
+    }),
+    ids2meta: new Storage({
+      name: TimerService.dbName + '-ids2meta',
+      storeName: 'ids2meta',
+      driverOrder: ['indexeddb']
+    })
+  };
 
-  private changeSource = new Subject();
-  public changeAnnounced$ = this.changeSource.asObservable();
+  public ids2metaCache: TimerMetaRecord[] = [];
+
+  public timersMeta$ = new Subject();
+  public timersChanged$ = this.timersMeta$.asObservable();
+
+  public calendarChangeSource = new Subject();
+  public calendarChanged$ = this.calendarChangeSource.asObservable();
+
+  public monthChangeSource = new Subject();
+  public monthChanged$ = this.monthChangeSource.asObservable();
 
   constructor(
-    public storage: Storage,
     private platform: Platform
   ) {
     console.log(`timer-service new`);
     this.platform.ready().then(() => {
-      this.connect();
+      this.init();
     });
   }
 
-  getNames(): any {
-    return Object.keys(this.timerNames2starts) || [];
-  }
-
-  async connect(): Promise<void> {
-    console.log('timer-service.connect');
-    this.names = await this.storage.keys();
-    const promises = [];
-    this.names.forEach(async (name) => {
-      const promise = this.storage.get(name).then(record => {
-        if (record.length === 0 || record[record.length - 1].hasOwnProperty('stop')) {
-          this.timerNames2starts[name] = undefined;
-        } else {
-          this.timerNames2starts[name] = record[record.length - 1].start;
-        }
-      });
-      promises.push(promise);
-    });
-
-    await Promise.all(promises);
-    this.changeSource.next(this.timerNames2starts);
+  async addNew(name: string, color: string = 'transparent'): Promise<string> {
+    console.log('Enter addNew');
+    const id = name + new Date().getTime();
+    const record = <TimerMetaRecord>{
+      id: id,
+      color: color,
+      name: name
+    };
+    await this.stores.ids2meta.set(id, record);
+    await this.stores.ids2pastTimers.set(id, []);
+    this.ids2metaCache.push(record);
+    this.timersMeta$.next(this.ids2metaCache);
+    console.log('Leave addNew with id from new record', id, record);
+    return id;
   }
 
   async deleteAll(): Promise<void> {
-    await this.storage.clear();
-    this.changeSource.next(this.timerNames2starts);
-  }
-
-  toggle(name: string): void {
-    console.log('toggle', name);
-    if (this.timerNames2starts[name] === undefined) {
-      this.start(name);
-    } else {
-      this.stop(name);
-    }
-  }
-
-  async start(name: string): Promise<void> {
-    console.log('start', name);
-    if (!this.timerNames2starts.hasOwnProperty(name)) {
-      throw new Error('No such timer as ' + name);
-    }
-
-    this.timerNames2starts[name] = new Date().getTime();
-    const record = await this.storage.get(name);
-    record.push({ start: this.timerNames2starts[name] });
-    this.storage.set(name, record);
-    this.changeSource.next(this.timerNames2starts);
-  }
-
-  async stop(name: string): Promise<void> {
-    console.log('stop', name);
-    const record = await this.storage.get(name);
-    record[record.length - 1].stop = new Date().getTime();
-    this.storage.set(name, record);
-    this.timerNames2starts[name] = undefined;
-    this.changeSource.next(this.timerNames2starts);
-  }
-
-  async getAll(): Promise<{ [key: string]: Array<Timer> }> {
-    const rv = {};
-    await this.storage.forEach((val, key) => {
-      rv[key] = val;
+    const promises: Promise<any>[] = [];
+    Object.keys(this.stores).forEach(store => {
+      promises.push(this.stores[store].clear());
     });
-    return rv;
+    await Promise.all(promises);
+    this.timersMeta$.next(this.ids2metaCache);
   }
 
-  async clear(name: string): Promise<void> {
-    if (this.timerNames2starts.hasOwnProperty(name)) {
-      delete this.timerNames2starts[name];
-      this.storage.set(name, null);
-      this.changeSource.next(this.timerNames2starts);
+  async _buildIds2metaCache() {
+    this.ids2metaCache = [];
+    await this.stores.ids2meta.forEach(meta => {
+      this.ids2metaCache.push(meta);
+    });
+  }
+
+  async init(): Promise<void> {
+    await this._buildIds2metaCache();
+    this.timersMeta$.next(this.ids2metaCache);
+  }
+
+  toggle(id: string): void {
+    console.log('toggle', id);
+    const idx = this.getMetaCacheIndexById(id);
+    console.log('idx', idx, this.ids2metaCache[idx]);
+    if (this.ids2metaCache[idx].start === undefined) {
+      this._start(idx);
+    } else {
+      this._stop(idx);
     }
   }
 
-  addNew(name: string, color: string = 'transparent'): void {
-    if (this.timerNames2starts.hasOwnProperty(name)) {
-      throw new Error('Timer already exists with name ' + name);
-    }
-    this.timerNames2starts[name] = undefined;
-    this.storage.set(name, []);
-    this.changeSource.next(this.timerNames2starts);
+  getMetaCacheIndexById(id) {
+    const idx = this.ids2metaCache.findIndex(timer => {
+      console.log('CHECK ', id, timer.id, timer);
+      return timer.id === id;
+    });
+    console.log('found id at index ', idx);
+    return idx;
   }
 
+  async _start(idx: number): Promise<void> {
+    this.ids2metaCache[idx].start = new Date().getTime();
+    console.log('Start ', idx, this.ids2metaCache[idx].id);
+    await this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx]);
+    this.timersMeta$.next(this.ids2metaCache);
+  }
+
+  async _stop(idx: number): Promise<void> {
+    console.log('Stop ', idx, this.ids2metaCache[idx].id);
+    let pastRecord = await this.stores.ids2pastTimers.get(this.ids2metaCache[idx].id);
+    pastRecord = pastRecord || [];
+    pastRecord.push(<Timer>{
+      start: this.ids2metaCache[idx].start,
+      stop: new Date().getTime()
+    });
+    await this.stores.ids2pastTimers.set(this.ids2metaCache[idx].id, pastRecord);
+    delete this.ids2metaCache[idx].start;
+    await this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx]),
+      this.timersMeta$.next(this.ids2metaCache);
+  }
+
+  // async getAll(): Promise<{ [key: string]: Array<Timer> }> {
+  //   const rv = {};
+  //   await this.storage.forEach((val, key) => {
+  //     rv[key] = val;
+  //   });
+  //   return rv;
+  // }
+
+  // async clear(name: string): Promise<void> {
+  //   if (this.timerNames2starts.hasOwnProperty(name)) {
+  //     delete this.timerNames2starts[name];
+  //     this.storage.set(name, null);
+  //     this.timersChangeSource.next(this.timerNames2starts);
+  //   }
+  // }
+
+  // async updateCalendar() {
+  //   const rv = {};
+  //   const names2startStopArray = await this.getAll();
+  //   Object.keys(names2startStopArray).forEach(name => {
+  //     names2startStopArray[name].forEach(i => {
+  //       const o = {
+  //         start: new Date(i.start),
+  //         stop: new Date(i.stop)
+  //       };
+  //       rv[o.start.getFullYear()] = rv[o.start.getFullYear()] || {};
+  //       rv[o.start.getFullYear()][o.start.getMonth()] = rv[o.start.getFullYear()][o.start.getMonth()] || {};
+  //       rv[o.start.getFullYear()][o.start.getMonth()][o.start.getDate()] =
+  //         rv[o.start.getFullYear()][o.start.getMonth()][o.start.getDate()] || []; // {};
+  //       // rv[o.start.getFullYear()][o.start.getMonth()][o.start.getDate()][o.start.getHours()] =
+  //       //   rv[o.start.getFullYear()][o.start.getMonth()][o.start.getHours()] || [];
+
+  //       rv[o.start.getFullYear()]
+  //       [o.start.getMonth()]
+  //       [o.start.getDate()]
+  //         // [o.start.getHours()]
+  //         .push({
+  //           duration: i.stop - i.start,
+  //           name: name,
+  //           startTime: o.start.getHours(),
+  //           stopDateTime: o.stop,
+  //           dow: o.start.getDay()
+  //         });
+  //     });
+  //   });
+
+  //   this.calendarChangeSource.next(rv);
+  // }
+
+  // // Refactor db to index by date!
+  // async updateMonth(startDate?: Date) {
+  //   if (startDate === undefined) {
+  //     startDate = new Date();
+  //   }
+
+  //   const rv = {};
+  //   const startYear = startDate.getFullYear();
+  //   const startMonth = startDate.getMonth();
+
+  //   const names2startStopArray = await this.getAll();
+  // }
 }
