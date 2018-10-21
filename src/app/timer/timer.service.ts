@@ -4,17 +4,10 @@ import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
 export interface TimerCalendar {
-  year: {
-    month: {
-      weeks: {
-        dow: {
-          [key: number]: [
-            {
-              times: PastTimerRecord,
-              id: string
-            }
-          ]
-        }
+  number /* year */: {
+    number /* month */: {
+      number /* weeks */: {
+        number /* dow */: PastTimerRecord[]
       }
     }
   };
@@ -29,7 +22,8 @@ export interface TimerMetaRecord {
 
 export interface PastTimerRecord {
   start: number; // Date().getTime()
-  stop?: number; // Date().getTime()
+  stop: number; // Date().getTime()
+  parentId: string;
 }
 
 @Injectable({
@@ -148,7 +142,7 @@ export class TimerService {
     const pastRecord = <PastTimerRecord>{
       start: this.ids2metaCache[idx].start,
       stop: new Date().getTime(),
-      id: this.ids2metaCache[idx].id
+      parentId: this.ids2metaCache[idx].id
     };
     await this.stores.ids2pastTimers.set(pastRecord.start.toString(), pastRecord);
 
@@ -167,9 +161,29 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
+  /**
+   *
+   * @param year The actual `fullYear` (ie 2018)
+   * @param month Zero-based index of the month for `new Date`, January = 0
+   */
   async getMonth(year: number, month: number) {
-    const rv = {
-    };
+    const rv = <TimerCalendar>{};
+    rv[year] = {};
+    rv[year][month] = {};
+    const targetMonth = new Date(year, month).getTime();
+    const nextMonth = new Date(year, month + 1).getTime();
+    await this.stores.ids2pastTimers.forEach(record => {
+      if ((record.start >= targetMonth && record.start < nextMonth)
+        || (record.stop >= targetMonth && record.stop < nextMonth)
+      ) {
+        const start = new Date(record.start);
+        const weekInMonth = Math.ceil((start.getDate() - 1) / 7);
+        rv[year][month][weekInMonth] = rv[year][month][weekInMonth] || [];
+        const dow = Math.ceil(start.getDay());
+        rv[year][month][weekInMonth][dow] = rv[year][month][weekInMonth][dow] || [];
+        rv[year][month][weekInMonth][dow].push(record);
+      }
+    });
   }
 
 }
