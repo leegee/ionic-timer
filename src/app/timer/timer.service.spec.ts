@@ -3,7 +3,33 @@ import { TestBed, inject } from '@angular/core/testing';
 import { TimerService, TimerMetaRecord } from './timer.service';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
-import { Server } from 'net';
+
+const loadFixtures = async (service) => {
+  await service.deleteAll();
+  const totalTimers = 5;
+  const totalEntries = 10;
+  const ids = [];
+  let promises = [];
+  for (let id = 0; id < totalTimers; id++) {
+    ids.push('test-' + id);
+    promises.push(service.addNew(ids[ids.length - 1]));
+  }
+  await Promise.all(promises);
+
+  promises = [];
+  ids.forEach(id => {
+    const record = [];
+    for (let i = 1; i <= totalEntries; i++) {
+      record.push({
+        start: new Date().getTime() - (i * 3600),
+        stop: new Date().getTime() - (i * 3600) + 120
+      });
+      promises.push(service.stores.ids2pastTimers.set(record));
+    }
+  });
+
+  await Promise.all(promises);
+};
 
 describe('TimerService', () => {
   beforeEach(() => {
@@ -40,7 +66,7 @@ describe('TimerService', () => {
 
   it('should emit a list when db empty', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
-    service.timersMeta$.subscribe((changed: TimerMetaRecord[]) => {
+    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
       expect(changed instanceof Array).toBe(true);
       expect(changed.length).toBe(0);
     });
@@ -64,7 +90,7 @@ describe('TimerService', () => {
     const testName = 'another-test-name';
     let id;
     await service.deleteAll();
-    service.timersMeta$.subscribe((changed: TimerMetaRecord[]) => {
+    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
       expect(changed.length).toBe(1);
       expect(changed[0].id).toBe(id);
     });
@@ -111,23 +137,24 @@ describe('TimerService', () => {
     expect(pastRecord.stop).toBeDefined();
     expect(pastRecord.start).toMatch(/^\d+$/);
     expect(pastRecord.stop).toMatch(/^\d+$/);
-    expect(pastRecord.stop - pastRecord.start ).toBeGreaterThan(0);
+    expect(pastRecord.stop - pastRecord.start).toBeGreaterThan(0);
   }));
 
-  // it('should getAll', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   await service.addNew('bar');
-  //   await service.addNew('foo');
-  //   await service.start('foo');
-  //   await service.stop('foo');
-  //   const all = await service.getAll();
-  //   console.log(all);
-  //   expect(Object.keys(all).length).toBe(2);
-  //   expect(all.foo.length).toBe(1);
-  // }));
+  it('removes a record', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    const id = await service.addNew('test');
+    await service._start(0);
+    await service._stop(0);
+    await service.remove(id);
+    const metaLength = await service.stores.ids2meta.length();
+    expect(metaLength).toEqual(0);
+    const timersLength = await service.stores.ids2pastTimers.length();
+    expect(timersLength).toEqual(0);
+  }));
 
-  // it('should getCalendar', inject([TimerService], async (service: TimerService) => {
-  //   const calendar = await service.updateCalendar();
-  //   expect(calendar).toBeTruthy();
-  // }));
+  it('should get a month of data', inject([TimerService], async (service: TimerService) => {
+    loadFixtures(service);
+    const month = await service.getMonth(new Date().getFullYear(), new Date().getMonth());
+    expect(month).toBeTruthy();
+  }));
 });

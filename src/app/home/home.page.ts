@@ -26,7 +26,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
-    this.timersSubscription = this.timerService.timersMeta$.subscribe(
+    this.timersSubscription = this.timerService.timersMeta.subscribe(
       (changed: TimerMetaRecord[]) => {
         console.log(`Updated timers`, changed);
         this.timers = new Array(...changed);
