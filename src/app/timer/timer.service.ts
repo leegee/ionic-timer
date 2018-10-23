@@ -4,13 +4,14 @@ import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
 export interface TimerCalendar {
-  [key: number]: {/* year */
-    [key: number]: [/* month */
-      [ /* weeks */
-        [ /* days */
-          TimerPastRecord[]?
-        ]
-      ]
+  [key: number]: { // year
+    [key: number]: [ // zero-indexed months
+      // zero-indexed days within zero-indexed weeks
+      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]]
     ]
   };
 }
@@ -158,46 +159,37 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
-  /**
-   *
-   * @param year The actual `fullYear` (ie 2018)
-   * @param month Zero-based index of the month for `new Date`, January = 0
-   */
+  // @param year The actual `fullYear` (ie 2018)
+  // @param month Zero-based index of the month for `new Date`, January = 0
   getMonthOfPastRecords(year: number, month: number) {
-    const rv = {};
-    rv[year] = {};
-    rv[year][month] = [ // 5 weeks
-      [
-        [], [], [], [], [], [], [] // 7 days
-      ], [
-        [], [], [], [], [], [], []
-      ], [
-        [], [], [], [], [], [], []
-      ], [
-        [], [], [], [], [], [], []
-      ], [
-        [], [], [], [], [], [], []
-      ]
-    ];
+    const rv: TimerCalendar = {
+      [year]: {
+        [month]: [
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []]
+        ]
+      }
+    };
     const targetMonth = new Date(year, month).getTime();
     const nextMonth = new Date(year, month + 1).getTime();
     const totalRecords = 0;
 
-    this.stores.ids2pastTimers.forEach(record => {
+    this.stores.ids2pastTimers.forEach((record) => {
       if ((record.start >= targetMonth && record.start < nextMonth)
         || (record.stop >= targetMonth && record.stop < nextMonth)
       ) {
         const start = new Date(record.start);
         rv[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
-        console.log('calendar - add');
       }
-    }).then( () => {
-      console.log('calendar.next');
+    }).then(() => {
       this.calendar.next({ calendar: rv, count: totalRecords });
     });
   }
 
   zeroIndexedWeekInMonth(date: Date): number {
-    return Math.ceil(( date.getDate() - date.getDay()) / 7);
+    return Math.ceil((date.getDate() - date.getDay()) / 7);
   }
 }

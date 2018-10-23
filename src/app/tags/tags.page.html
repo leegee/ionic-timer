@@ -27,11 +27,9 @@
       <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
         <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]">
           <sup>{{ calendar[year][month][week][day].dom }}</sup>
-          {{ 
-              calendar[year][month][week][day].data 
-                && calendar[year][month][week][day].data.length ?
-                  calendar[year][month][week][day].data.length : ''
-          }}
+          <ng-template *ngIf="calendar[year][month][week][day].data && calendar[year][month][week][day].data.length">
+            {{ calendar[year][month][week][day].data.length }}
+          </ng-template>
         </ion-col>
       </ion-row>
 
