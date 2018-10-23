@@ -1,68 +1,54 @@
 .calendar {
---ion-grid-columns: 7;
+    --ion-grid-columns: 7;
 }
 
-ul {list-style-type: none;}
 
-/* Month header */
 .month {
-    padding: 70px 25px;
+    padding: 30pt 15pt;
     width: 100%;
     background: #1abc9c;
     text-align: center;
-}
-
-/* Month list */
-.month ul {
-    margin: 0;
-    padding: 0;
-}
-
-.month ul li {
     color: white;
-    font-size: 20px;
+    font-size: 20pt;
     text-transform: uppercase;
-    letter-spacing: 3px;
+    letter-spacing: 3pt;
 }
 
 /* Previous button inside month header */
 .month .prev {
     float: left;
-    padding-top: 10px;
+    padding-top: 10pt;
 }
 
 /* Next button */
 .month .next {
     float: right;
-    padding-top: 10px;
+    padding-top: 10pt;
 }
 
 .weekdays {
     margin: 0;
-    padding: 10px 0;
+    padding: 10pt 0;
+    text-align: center;
     background-color:#ddd;
+}
+
+.week:last-of-type {
+    border-bottom: 1pt solid #1abc9c;
 }
 
 /* Days (1-31) */
 .days {
-    padding: 10px 0;
+    padding: 10pt 0;
     background: #eee;
     margin: 0;
-}
-
-.days li {
-    list-style-type: none;
-    display: inline-block;
-    width: 13.6%;
     text-align: center;
-    margin-bottom: 5px;
-    font-size:12px;
-    color: #777;
+    border: 1pt solid #1abc9caa;
 }
 
 /* Highlight the "current" day */
-.days li .active {
-    padding: 5px;
+.days .active {
+    padding: 5pt;
     background: #1abc9c;
     color: white !important
 }

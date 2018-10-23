@@ -40,7 +40,7 @@ describe('TagsPage', () => {
                 [], [], [], [], [], [], []
             ]
         ];
-        const months = component.months(2018);
+        const months = component.monthsWithData(2018);
         expect(months instanceof Array).toBe(true);
         expect(months.length).toEqual(1);
     });

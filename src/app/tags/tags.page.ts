@@ -15,11 +15,14 @@ export class TagsPage implements OnInit, OnDestroy {
   public year = new Date().getFullYear();
   public month = new Date().getMonth();
 
+  public monthName = [
+    'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'Octoboer', 'Novemeber', 'December'
+  ];
+
   constructor(
     private platform: Platform,
     private timerService: TimerService
   ) { }
-
 
   ngOnDestroy() {
     this.calendarSubscription.unsubscribe();
@@ -27,27 +30,22 @@ export class TagsPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
-    // this.timerService.init();
     this.timerService.getMonthOfPastRecords(this.year, this.month);
-
-    this.calendarSubscription = this.timerService.calendar$.subscribe(
-      ({ calendar }) => {
-        console.log('got updated calendar', calendar);
-        this.setCalendar(calendar);
-      }
-    );
+    this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
+      this.setCalendar(calendar);
+    });
   }
 
-  get years() {
-    return [this.year];
+  get yearsWithData() {
+    return Object.keys(this.calendar || {});
   }
 
-  months(year = this.year): string[] {
+  monthsWithData(year = this.year): string[] {
     return Object.keys(this.calendar[year] || {});
   }
 
   setCalendar(calendar): void {
-    // TODO itterate 
+    // TODO itterate
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
     this.calendar = {
@@ -75,7 +73,7 @@ export class TagsPage implements OnInit, OnDestroy {
       const weekInMonth = this.timerService.zeroIndexedWeekInMonth(dayOfMonthDate);
       this.calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] = {
         dom: dayOfMonth,
-        data: calendar[year][month][weekInMonth][dayOfMonth]
+        data: calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] || []
       };
     }
   }

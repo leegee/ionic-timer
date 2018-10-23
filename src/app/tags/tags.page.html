@@ -7,13 +7,13 @@
 </ion-header>
 
 <ion-content>
-  <div *ngFor="let year of years">
-    <ion-grid class='month calendar' *ngFor="let month of months(year)">
-      <!-- <ion-row class=''>
+  <div *ngFor="let year of yearsWithData">
+    <ion-grid class='calendar' *ngFor="let month of monthsWithData(year)">
+      <ion-row class='month'>
         <ion-col size="7">
-          <div>Month {{ month + 1 }}</div>
+          {{ monthName[month] + ' ' + year}}
         </ion-col>
-      </ion-row> -->
+      </ion-row>
       <ion-row class='weekdays'>
         <ion-col>S</ion-col>
         <ion-col>M</ion-col>
@@ -24,9 +24,14 @@
         <ion-col>S</ion-col>
       </ion-row>
 
-      <ion-row *ngFor="let week of [0, 1, 2, 3, 4]">
+      <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
         <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]">
-          {{ calendar[year][month][week][day].dom }}.
+          <sup>{{ calendar[year][month][week][day].dom }}</sup>
+          {{ 
+              calendar[year][month][week][day].data 
+                && calendar[year][month][week][day].data.length ?
+                  calendar[year][month][week][day].data.length : ''
+          }}
         </ion-col>
       </ion-row>
 

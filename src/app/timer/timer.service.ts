@@ -112,10 +112,8 @@ export class TimerService {
 
   getMetaCacheIndexById(id) {
     const idx = this.ids2metaCache.findIndex(timer => {
-      console.log('CHECK ', id, timer.id, timer);
       return timer.id === id;
     });
-    console.log('found id at index ', idx);
     return idx;
   }
 
@@ -165,7 +163,7 @@ export class TimerService {
    * @param year The actual `fullYear` (ie 2018)
    * @param month Zero-based index of the month for `new Date`, January = 0
    */
-  async getMonthOfPastRecords(year: number, month: number) {
+  getMonthOfPastRecords(year: number, month: number) {
     const rv = {};
     rv[year] = {};
     rv[year][month] = [ // 5 weeks
@@ -185,21 +183,21 @@ export class TimerService {
     const nextMonth = new Date(year, month + 1).getTime();
     const totalRecords = 0;
 
-    await this.stores.ids2pastTimers.forEach(record => {
+    this.stores.ids2pastTimers.forEach(record => {
       if ((record.start >= targetMonth && record.start < nextMonth)
         || (record.stop >= targetMonth && record.stop < nextMonth)
       ) {
         const start = new Date(record.start);
         rv[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
+        console.log('calendar - add');
       }
+    }).then( () => {
+      console.log('calendar.next');
+      this.calendar.next({ calendar: rv, count: totalRecords });
     });
-
-    this.calendar.next({ calendar: rv, count: totalRecords });
   }
 
   zeroIndexedWeekInMonth(date: Date): number {
-    const rv = Math.ceil(( date.getDate() - date.getDay()) / 7) ;
-    console.log('date', date.getDate(), 'day', date.getDay(), 'week', rv);
-    return rv;
+    return Math.ceil(( date.getDate() - date.getDay()) / 7);
   }
 }
