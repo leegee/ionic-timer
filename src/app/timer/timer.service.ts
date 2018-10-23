@@ -183,8 +183,10 @@ export class TimerService {
       ) {
         const start = new Date(record.start);
         rv[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
+        console.log('calendar - add');
       }
     }).then(() => {
+      console.log('calendar.next');
       this.calendar.next({ calendar: rv, count: totalRecords });
     });
   }

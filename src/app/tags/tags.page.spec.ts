@@ -44,23 +44,4 @@ describe('TagsPage', () => {
         expect(months instanceof Array).toBe(true);
         expect(months.length).toEqual(1);
     });
-
-    it('should start 2018-10 on Monday with 6 empty days', () => {
-        let blankDays = 0;
-        let daysNotBlank = 0;
-        const days = component.daysOfMonth(2018, 9);
-        expect(days instanceof Array).toBe(true);
-        days.forEach(day => {
-            expect(day instanceof Array).toBe(true);
-            if (day.length > 0) {
-                daysNotBlank++;
-            } else {
-                blankDays++;
-            }
-        });
-        expect(blankDays).toEqual(6);
-        expect(daysNotBlank).toEqual(31);
-        expect(days.length - blankDays).toEqual(31);
-    });
-
 });

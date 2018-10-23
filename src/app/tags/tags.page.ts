@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 export class TagsPage implements OnInit, OnDestroy {
 
   public calendarSubscription: Subscription;
-  public calendar = {}; // : TimerCalendar = {} as TimerCalendar;
+  public calendar = {};
   public year = new Date().getFullYear();
   public month = new Date().getMonth();
 
@@ -32,7 +32,7 @@ export class TagsPage implements OnInit, OnDestroy {
     await this.platform.ready();
     this.timerService.getMonthOfPastRecords(this.year, this.month);
     this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
-      this.setCalendar(calendar);
+      this.setCalendar(calendar as TimerCalendar);
     });
   }
 
@@ -44,38 +44,33 @@ export class TagsPage implements OnInit, OnDestroy {
     return Object.keys(this.calendar[year] || {});
   }
 
-  setCalendar(calendar): void {
-    // TODO itterate
-    const year = new Date().getFullYear();
-    const month = new Date().getMonth();
-    this.calendar = {
-      [year]: {
-        [month]: [ // 5 weeks
-          [
-            [], [], [], [], [], [], [] // 7 days
-          ], [
-            [], [], [], [], [], [], []
-          ], [
-            [], [], [], [], [], [], []
-          ], [
-            [], [], [], [], [], [], []
-          ], [
-            [], [], [], [], [], [], []
-          ]
-        ]
-      }
-    }; //  as <TimerCalendar>;
+  setCalendar(calendar: TimerCalendar): void {
+    this.calendar = {};
 
-    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    Object.keys(calendar).forEach(_year => {
+      const year = Number(_year);
+      this.calendar[year] = {};
+      Object.keys(calendar[year]).forEach(_month => {
+        const month = Number(_month);
+        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+        this.calendar[year][month] = [ // 5 weeks
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []],
+          [[], [], [], [], [], [], []]
+        ];
 
-    for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
-      const dayOfMonthDate = new Date(year, month, dayOfMonth);
-      const weekInMonth = this.timerService.zeroIndexedWeekInMonth(dayOfMonthDate);
-      this.calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] = {
-        dom: dayOfMonth,
-        data: calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] || []
-      };
-    }
+        for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
+          const dayOfMonthDate = new Date(year, month, dayOfMonth);
+          const weekInMonth = this.timerService.zeroIndexedWeekInMonth(dayOfMonthDate);
+          this.calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] = {
+            dom: dayOfMonth,
+            data: calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] || []
+          };
+        }
+      });
+    });
   }
 
 }
