@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 export class TagsPage implements OnInit, OnDestroy {
 
   public calendarSubscription: Subscription;
-  public calendar: TimerCalendar = {} as TimerCalendar;
+  public calendar = {}; // : TimerCalendar = {} as TimerCalendar;
   public year = new Date().getFullYear();
   public month = new Date().getMonth();
 
@@ -33,7 +33,7 @@ export class TagsPage implements OnInit, OnDestroy {
     this.calendarSubscription = this.timerService.calendar$.subscribe(
       ({ calendar }) => {
         console.log('got updated calendar', calendar);
-        this.calendar = calendar;
+        this.setCalendar(calendar);
       }
     );
   }
@@ -46,37 +46,38 @@ export class TagsPage implements OnInit, OnDestroy {
     return Object.keys(this.calendar[year] || {});
   }
 
-  // calendar from timerservice is year.month.dayOfMonth
-  // convert to 
-  // setPaddedCalendar(calendar): void {
-  //   console.log(this.calendar);
-  //   const year = new Date().getFullYear();
-  //   const month = new Date().getMonth();
-  //   const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-  //   let weekContent = [];
+  setCalendar(calendar): void {
+    // TODO itterate 
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth();
+    this.calendar = {
+      [year]: {
+        [month]: [ // 5 weeks
+          [
+            [], [], [], [], [], [], [] // 7 days
+          ], [
+            [], [], [], [], [], [], []
+          ], [
+            [], [], [], [], [], [], []
+          ], [
+            [], [], [], [], [], [], []
+          ], [
+            [], [], [], [], [], [], []
+          ]
+        ]
+      }
+    }; //  as <TimerCalendar>;
 
-  //   for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
-  //     const dayOfMonthDate = new Date(year, month, dayOfMonth);
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
 
-  //     if (dayOfMonth === 1) {
-  //       const dayOfMonthDow = dayOfMonthDate.getDay();
-  //       if (dayOfMonthDow !== 0) { // if month not beginning on a Sunday
-  //         // Pad the calendar's first week
-  //         for (let emptyDay = 7 - dayOfMonthDow; emptyDay > 0; emptyDay--) {
-  //           weekContent.push({});
-  //         }
-  //       }
-  //     }
-
-  //     // dayContent = this.calendar[year][month][dayOfMonth % 5][dayOfMonth % ];
-  //     const weekInMonth = Math.ceil((dayOfMonth) / 7);
-  //     let dayContent = {
-  //       dom: dayOfMonth,
-  //       data: calendar[year][month][weekInMonth][dayOfMonth]
-  //     };
-
-  //     this.calendar[year][month][weekInMonth][dayOfMonth]
-  //   }
-  // }
+    for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
+      const dayOfMonthDate = new Date(year, month, dayOfMonth);
+      const weekInMonth = this.timerService.zeroIndexedWeekInMonth(dayOfMonthDate);
+      this.calendar[year][month][weekInMonth][dayOfMonthDate.getDay()] = {
+        dom: dayOfMonth,
+        data: calendar[year][month][weekInMonth][dayOfMonth]
+      };
+    }
+  }
 
 }

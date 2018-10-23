@@ -4,11 +4,11 @@ import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
 export interface TimerCalendar {
-  number: {/* year */
-    number: [/* month */
+  [key: number]: {/* year */
+    [key: number]: [/* month */
       [ /* weeks */
-        [
-          TimerPastRecord[]
+        [ /* days */
+          TimerPastRecord[]?
         ]
       ]
     ]
@@ -190,12 +190,16 @@ export class TimerService {
         || (record.stop >= targetMonth && record.stop < nextMonth)
       ) {
         const start = new Date(record.start);
-        const weekInMonth = Math.ceil((start.getDate() - 1) / 7);
-        const dow = Math.ceil(start.getDay());
-        rv[year][month][weekInMonth][dow].push(record);
+        rv[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
       }
     });
 
     this.calendar.next({ calendar: rv, count: totalRecords });
+  }
+
+  zeroIndexedWeekInMonth(date: Date): number {
+    const rv = Math.ceil(( date.getDate() - date.getDay()) / 7) ;
+    console.log('date', date.getDate(), 'day', date.getDay(), 'week', rv);
+    return rv;
   }
 }
