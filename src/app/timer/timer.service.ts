@@ -4,12 +4,14 @@ import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
 export interface TimerCalendar {
-  number /* year */: {
-    number /* month */: {
-      number /* weeks */: {
-        number /* dow */: PastTimerRecord[]
-      }
-    }
+  number: {/* year */
+    number: [/* month */
+      [ /* weeks */
+        [
+          TimerPastRecord[]
+        ]
+      ]
+    ]
   };
 }
 
@@ -20,7 +22,7 @@ export interface TimerMetaRecord {
   start?: number; // Date.getTime()
 }
 
-export interface PastTimerRecord {
+export interface TimerPastRecord {
   start: number; // Date().getTime()
   stop: number; // Date().getTime()
   parentId: string;
@@ -47,10 +49,10 @@ export class TimerService {
   public ids2metaCache: TimerMetaRecord[] = [];
 
   public timersMeta = new Subject();
-  public timersChanged$ = this.timersMeta.asObservable();
+  public timersMeta$ = this.timersMeta.asObservable();
 
-  public calendarChangeSource = new Subject();
-  public calendarChanged$ = this.calendarChangeSource.asObservable();
+  public calendar = new Subject();
+  public calendar$ = this.calendar.asObservable();
 
   constructor(
     private platform: Platform
@@ -61,8 +63,7 @@ export class TimerService {
     });
   }
 
-  async addNew(name: string, color: string = 'transparent'): Promise<string> {
-    console.log('Enter addNew');
+  async addNewTimer(name: string, color: string = 'transparent'): Promise<string> {
     const id = name + new Date().getTime();
     const record = <TimerMetaRecord>{
       id: id,
@@ -70,10 +71,8 @@ export class TimerService {
       name: name
     };
     await this.stores.ids2meta.set(id, record);
-    await this.stores.ids2pastTimers.set(id, []);
     this.ids2metaCache.push(record);
     this.timersMeta.next(this.ids2metaCache);
-    console.log('Leave addNew with id from new record', id, record);
     return id;
   }
 
@@ -89,6 +88,7 @@ export class TimerService {
 
   async _buildIds2metaCache() {
     this.ids2metaCache = [];
+    console.log('loading... ');
     await this.stores.ids2meta.forEach(meta => {
       this.ids2metaCache.push(meta);
     });
@@ -128,36 +128,35 @@ export class TimerService {
 
   async _stop(idx: number): Promise<void> {
     console.log('Stop ', idx, this.ids2metaCache[idx].id);
-
-    /**
-    let pastRecord = await this.stores.ids2pastTimers.get(this.ids2metaCache[idx].id);
-    pastRecord = pastRecord || [];
-    pastRecord.push(<PastTimerRecord>{
-      start: this.ids2metaCache[idx].start,
-      stop: new Date().getTime()
-    });
-    await this.stores.ids2pastTimers.set(this.ids2metaCache[idx].id, pastRecord);
-    */
-
-    const pastRecord = <PastTimerRecord>{
-      start: this.ids2metaCache[idx].start,
-      stop: new Date().getTime(),
-      parentId: this.ids2metaCache[idx].id
-    };
-    await this.stores.ids2pastTimers.set(pastRecord.start.toString(), pastRecord);
-
+    await this.addNewPastRecord(this.ids2metaCache[idx].id, this.ids2metaCache[idx].start);
     delete this.ids2metaCache[idx].start;
     await this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx]),
       this.timersMeta.next(this.ids2metaCache);
   }
 
-  async remove(id: string): Promise<void> {
-    const promises = [];
-    Object.keys(this.stores).forEach(storeName => {
-      promises.push(this.stores[storeName].remove(id));
+  addNewPastRecord(parentId: string, start: number, stop = new Date().getTime()): Promise<void> {
+    return this.stores.ids2pastTimers.set(start.toString(), <TimerPastRecord>{
+      parentId: parentId,
+      start: start,
+      stop: stop
     });
-    await Promise.all(promises);
+  }
+
+  async remove(id: string): Promise<void> {
+    console.log('remove ', id);
+    const promises: Promise<void>[] = [];
+    promises.push(this.stores.ids2meta.remove(id));
     delete this.ids2metaCache[id];
+    const done = this.stores.ids2pastTimers.forEach(record => {
+      if (record.parentId === id) {
+        console.log('remove ', record);
+        promises.push(
+          this.stores.ids2pastTimers.remove(record.start.toString())
+        );
+      }
+    });
+    promises.push(done);
+    await Promise.all(promises);
     this.timersMeta.next(this.ids2metaCache);
   }
 
@@ -166,24 +165,37 @@ export class TimerService {
    * @param year The actual `fullYear` (ie 2018)
    * @param month Zero-based index of the month for `new Date`, January = 0
    */
-  async getMonth(year: number, month: number) {
-    const rv = <TimerCalendar>{};
+  async getMonthOfPastRecords(year: number, month: number) {
+    const rv = {};
     rv[year] = {};
-    rv[year][month] = {};
+    rv[year][month] = [ // 5 weeks
+      [
+        [], [], [], [], [], [], [] // 7 days
+      ], [
+        [], [], [], [], [], [], []
+      ], [
+        [], [], [], [], [], [], []
+      ], [
+        [], [], [], [], [], [], []
+      ], [
+        [], [], [], [], [], [], []
+      ]
+    ];
     const targetMonth = new Date(year, month).getTime();
     const nextMonth = new Date(year, month + 1).getTime();
+    const totalRecords = 0;
+
     await this.stores.ids2pastTimers.forEach(record => {
       if ((record.start >= targetMonth && record.start < nextMonth)
         || (record.stop >= targetMonth && record.stop < nextMonth)
       ) {
         const start = new Date(record.start);
         const weekInMonth = Math.ceil((start.getDate() - 1) / 7);
-        rv[year][month][weekInMonth] = rv[year][month][weekInMonth] || [];
         const dow = Math.ceil(start.getDay());
-        rv[year][month][weekInMonth][dow] = rv[year][month][weekInMonth][dow] || [];
         rv[year][month][weekInMonth][dow].push(record);
       }
     });
-  }
 
+    this.calendar.next({ calendar: rv, count: totalRecords });
+  }
 }

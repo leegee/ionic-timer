@@ -25,6 +25,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    console.log('Home init');
     await this.platform.ready();
     this.timersSubscription = this.timerService.timersMeta.subscribe(
       (changed: TimerMetaRecord[]) => {
@@ -32,6 +33,7 @@ export class HomePage implements OnInit, OnDestroy {
         this.timers = new Array(...changed);
       }
     );
+    this.timerService.init();
   }
 
   toggleTimer(timerId: string): void {

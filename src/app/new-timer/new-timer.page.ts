@@ -23,7 +23,7 @@ export class NewTimerPage {
   submit() {
     this.close();
     if (this.colour.length + this.name.length > 0) {
-      this.timerService.addNew(this.name, this.colour);
+      this.timerService.addNewTimer(this.name, this.colour);
     }
   }
 

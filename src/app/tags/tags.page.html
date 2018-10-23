@@ -1,56 +1,19 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Reults
+      Reults {{ year }} {{ month + 1}}
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-
-  <ion-list>
-    <ion-item *ngFor="let timerName of timerNames">
-      <ion-list-header>
-        <ion-label>{{timerName}}</ion-label>
-      </ion-list-header>
-
-      <ion-list>
-        <ion-item *ngFor="let dateRange of names2times[timerName]">
-          <span>
-            from {{ dateRange.start | date }} ... to {{dateRange.stop | date}}
-          </span>
-        </ion-item>
-      </ion-list>
-
-    </ion-item>
-  </ion-list>
-
-  <ion-list *ngFor="let year of years">
-    <ion-list-header>
-      <ion-label>{{year}}</ion-label>
-    </ion-list-header>
-    <ion-list *ngFor="let month of months(year)">
-
-      <ion-list-header>
-        <ion-label>Month {{month}}</ion-label>
-      </ion-list-header>
-
-      <ion-list *ngFor="let day of days(year, month)">
-        <ion-item>{{day}}</ion-item>
-      </ion-list>
-    </ion-list>
-  </ion-list>
-
   <div *ngFor="let year of years">
-    <ion-label>
-      <h1>{{year}}</h1>
-    </ion-label>
     <ion-grid class='month calendar' *ngFor="let month of months(year)">
-      <ion-row class=''>
+      <!-- <ion-row class=''>
         <ion-col size="7">
-          <div>Month</div>
+          <div>Month {{ month + 1 }}</div>
         </ion-col>
-      </ion-row>
+      </ion-row> -->
       <ion-row class='weekdays'>
         <ion-col>S</ion-col>
         <ion-col>M</ion-col>
@@ -60,11 +23,13 @@
         <ion-col>F</ion-col>
         <ion-col>S</ion-col>
       </ion-row>
-      <ion-row class='days' *ngFor="let week of weeks(year,month)">
-        <ion-col *ngFor="let dow of dow(year,month,week)">
-            x
+
+      <ion-row *ngFor="let week of [0, 1, 2, 3, 4]">
+        <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]">
+          {{ calendar[year][month][week][day] }}.
         </ion-col>
       </ion-row>
+
     </ion-grid>
   </div>
 
