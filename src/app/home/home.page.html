@@ -4,22 +4,23 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
-  <ion-list reorder="true" (ionItemReorder)="reorderItems($event)">
-    <ion-item *ngFor="let timer of timers">
-      <div [ngStyle]="{ 'margin-bottom': '4pt', width: '100%', 'background-color': timer.color }">
-        <ion-button on-click="toggleTimer(timer.id)" on-press="editTimer(timer.id, $event)" size="large" expand="full"
-          fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}">
-          {{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}
-        </ion-button>
-      </div>
-    </ion-item>
-  </ion-list>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button on-click="addNew($event)">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
-
+<ion-content padding *ngIf="timers.length">
+  <ion-chip *ngFor="let timer of timers" reorder="true" (ionItemReorder)="reorderItems($event)" [ngStyle]="{ 'margin-bottom': '4pt', width: '100%', 'background-color': timer.color }"
+    on-click="toggleTimer(timer.id)" on-press="editTimer(timer.id, $event)" 
+  >
+    <ion-chip-button expand="full" fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}">
+      <ion-icon color="{{ timer.start === undefined ? 'success' : 'danger' }}" name="{{ timer.start === undefined ? 'checkmark-circle' : 'close-circle'}}"></ion-icon>
+    </ion-chip-button>
+    <ion-label>{{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}</ion-label>
+  </ion-chip>
 </ion-content>
+
+<ion-content padding *ngIf="!timers.length">
+  No timers!
+</ion-content>
+
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab-button on-click="addNew($event)">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>

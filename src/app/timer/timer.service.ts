@@ -89,7 +89,6 @@ export class TimerService {
 
   async _buildIds2metaCache() {
     this.ids2metaCache = [];
-    console.log('loading... ');
     await this.stores.ids2meta.forEach(meta => {
       this.ids2metaCache.push(meta);
     });
@@ -101,9 +100,7 @@ export class TimerService {
   }
 
   toggle(id: string): void {
-    console.log('toggle', id);
     const idx = this._getMetaCacheIndexById(id);
-    console.log('idx', idx, this.ids2metaCache[idx]);
     if (this.ids2metaCache[idx].start === undefined) {
       this._start(idx);
     } else {
