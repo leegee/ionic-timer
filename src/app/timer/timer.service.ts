@@ -102,7 +102,7 @@ export class TimerService {
 
   toggle(id: string): void {
     console.log('toggle', id);
-    const idx = this.getMetaCacheIndexById(id);
+    const idx = this._getMetaCacheIndexById(id);
     console.log('idx', idx, this.ids2metaCache[idx]);
     if (this.ids2metaCache[idx].start === undefined) {
       this._start(idx);
@@ -111,11 +111,15 @@ export class TimerService {
     }
   }
 
-  getMetaCacheIndexById(id) {
-    const idx = this.ids2metaCache.findIndex(timer => {
+  _getMetaCacheIndexById(id: string) {
+    return this.ids2metaCache.findIndex(timer => {
       return timer.id === id;
     });
-    return idx;
+  }
+
+  getMeta(id: string): TimerMetaRecord {
+    const idx = this._getMetaCacheIndexById(id);
+    return this.ids2metaCache[idx];
   }
 
   async _start(idx: number): Promise<void> {
@@ -189,6 +193,10 @@ export class TimerService {
       console.log('calendar.next');
       this.calendar.next({ calendar: rv, count: totalRecords });
     });
+  }
+
+  async updateMeta(timer: TimerMetaRecord): Promise<void> {
+    this.stores.ids2meta.set(timer.id, timer);
   }
 
   zeroIndexedWeekInMonth(date: Date): number {

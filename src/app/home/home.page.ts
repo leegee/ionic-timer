@@ -1,8 +1,10 @@
+import 'hammerjs';
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { TimerService, TimerMetaRecord } from '../timer/timer.service';
 import { PopoverController, Platform } from '@ionic/angular';
 import { NewTimerPage } from '../new-timer/new-timer.page';
-import { Subscription } from 'rxjs';
+import { EditTimerPage } from '../edit-timer/edit-timer.page';
 
 @Component({
   selector: 'app-home',
@@ -25,11 +27,9 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    console.log('Home init');
     await this.platform.ready();
     this.timersSubscription = this.timerService.timersMeta.subscribe(
       (changed: TimerMetaRecord[]) => {
-        console.log(`Updated timers`, changed);
         this.timers = new Array(...changed);
       }
     );
@@ -40,11 +40,26 @@ export class HomePage implements OnInit, OnDestroy {
     this.timerService.toggle(timerId);
   }
 
+  async editTimer(timerId: string, e: Event): Promise<void> {
+    e.preventDefault();
+    const popover = await this.popoverController.create({
+      component: EditTimerPage,
+      event: e,
+      componentProps: {
+        popoverController: this.popoverController,
+        timerId: timerId
+      }
+    });
+    return await popover.present();
+  }
+
   async addNew(e: Event): Promise<void> {
     const popover = await this.popoverController.create({
       component: NewTimerPage,
       event: e,
-      componentProps: { popoverController: this.popoverController }
+      componentProps: {
+        popoverController: this.popoverController,
+      }
     });
     return await popover.present();
   }

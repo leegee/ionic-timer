@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TimerService, TimerCalendar } from '../timer/timer.service';
-import { Platform } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { DayDetailsPage } from '../day-details/day-details.page';
 
 @Component({
   selector: 'app-tags',
@@ -21,7 +22,8 @@ export class TagsPage implements OnInit, OnDestroy {
 
   constructor(
     private platform: Platform,
-    private timerService: TimerService
+    private timerService: TimerService,
+    private popoverController: PopoverController
   ) { }
 
   ngOnDestroy() {
@@ -71,6 +73,15 @@ export class TagsPage implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  async showDetails(e: Event): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: DayDetailsPage,
+      event: e,
+      componentProps: { popoverController: this.popoverController }
+    });
+    return await popover.present();
   }
 
 }

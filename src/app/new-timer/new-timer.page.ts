@@ -11,19 +11,19 @@ export class NewTimerPage {
 
   popoverController: PopoverController;
   name = '';
-  colour = '#ffffff';
+  color = '#ffffff';
 
   constructor(
     private navParams: NavParams,
     private timerService: TimerService
   ) {
-    this.popoverController = navParams.get('popoverController');
+    this.popoverController = this.navParams.get('popoverController');
   }
 
   submit() {
     this.close();
-    if (this.colour.length + this.name.length > 0) {
-      this.timerService.addNewTimer(this.name, this.colour);
+    if (this.color.length + this.name.length > 0) {
+      this.timerService.addNewTimer(this.name, this.color);
     }
   }
 
