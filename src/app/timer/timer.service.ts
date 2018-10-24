@@ -199,6 +199,10 @@ export class TimerService {
     this.stores.ids2meta.set(timer.id, timer);
   }
 
+  async delete(timer: TimerMetaRecord): Promise<void> {
+    this.stores.ids2meta.remove(timer.id);
+  }
+
   zeroIndexedWeekInMonth(date: Date): number {
     return Math.ceil((date.getDate() - date.getDay()) / 7);
   }

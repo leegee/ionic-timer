@@ -44,6 +44,15 @@ export class EditTimerPage implements OnInit {
     this.close();
   }
 
+  async delete() {
+    try {
+      await this.timerService.delete(this.timer);
+    } catch (e) {
+      throw e;
+    }
+    this.close();
+  }
+
   async submit() {
     this.timer.name = this.name.value;
     this.timer.color = this.color.value;
