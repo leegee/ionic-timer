@@ -6,38 +6,39 @@
 
 <ion-content padding>
   <form [formGroup]="timerForm" (ngSubmit)="submit()">
+    <ion-list>
+      <ion-item>
+        <ion-label position="stacked">Name</ion-label>
+        <ion-input formControlName="name" type="text"></ion-input>
+      </ion-item>
+      <ion-item *ngIf="name && name.invalid && (name.dirty || name.touched)">
+        <ion-text required minlength=1 color="danger" class="form-error">
+          This timer needs to be called something
+        </ion-text>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">Name</ion-label>
-      <ion-input formControlName="name" type="text"></ion-input>
-    </ion-item>
-    <ion-item *ngIf="name && name.invalid && (name.dirty || name.touched)">
-      <ion-text required minlength=1 color="danger" class="form-error">
-        This timer needs to be called something
-      </ion-text>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">Color</ion-label>
+        <ion-input formControlName="color" type="color" [style.background]="color.value" [style.color]="color.value"></ion-input>
+      </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">color</ion-label>
-      <!-- <ion-input type="color" [style.background]="timer.color" [style.color]="color" [(ngModel)]="color">{{color}}</ion-input> -->
-    </ion-item>
+      <ion-item>
+        <ion-button size='large' type="submit" expand="full" shape="round" color="primary" fill="solid">
+          Done
+        </ion-button>
+      </ion-item>
 
-    <ion-item>
-      <ion-button size='large' type="submit" expand="fill" shape="round" color="primary" fill="solid">
-        Done
-      </ion-button>
-    </ion-item>
+      <ion-item>
+        <ion-button size='large' type="button" expand="full" shape="round" color="primary" fill="outline" (click)="cancel()">
+          Cancel
+        </ion-button>
+      </ion-item>
 
-    <ion-item>
-      <ion-button size='large' type="button" expand="fill" shape="round" color="primary" fill="outline" (click)="cancel()">
-        Cancel
-      </ion-button>
-    </ion-item>
-
-    <ion-item>
-      <ion-button size='large' shape="round" expand="fill" color="danger" fill="solid" (click)="delete()">
-        Remove
-      </ion-button>
-    </ion-item>
+      <ion-item>
+        <ion-button size='large' shape="round" expand="full" color="danger" fill="solid" (click)="delete()">
+          Remove
+        </ion-button>
+      </ion-item>
+    </ion-list>
   </form>
 </ion-content>

@@ -28,7 +28,8 @@ export class EditTimerPage implements OnInit {
   ngOnInit() {
     this.timer = this.timerService.getMeta(this.timerId);
     this.timerForm = this.formBuilder.group({
-      name: new FormControl(this.timer.name, Validators.required)
+      name: new FormControl(this.timer.name, Validators.required),
+      color: new FormControl(this.timer.color)
     });
   }
 
@@ -37,7 +38,7 @@ export class EditTimerPage implements OnInit {
   }
 
   get color() {
-    return this.timerForm.get('name');
+    return this.timerForm.get('color');
   }
 
   cancel() {

@@ -14,7 +14,7 @@ import { EditTimerPage } from '../edit-timer/edit-timer.page';
 export class HomePage implements OnInit, OnDestroy {
 
   public timersSubscription: Subscription;
-  public timers: TimerMetaRecord[];
+  public timers: TimerMetaRecord[] = [];
 
   constructor(
     private platform: Platform,

@@ -1,16 +1,18 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Home</ion-title>
+    <ion-title>Start and Stop Timers</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
   <ion-list reorder="true" (ionItemReorder)="reorderItems($event)">
     <ion-item *ngFor="let timer of timers">
-      <ion-button on-click="toggleTimer(timer.id)" on-press="editTimer(timer.id, $event)" shape="round" size="large" color="{{ timer.start === undefined ? 'success' : 'danger' }}"
-        fill="solid">
-        {{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}
-      </ion-button>
+      <div [ngStyle]="{ 'margin-bottom': '4pt', width: '100%', 'background-color': timer.color }">
+        <ion-button on-click="toggleTimer(timer.id)" on-press="editTimer(timer.id, $event)" size="large" expand="full"
+          fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}">
+          {{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}
+        </ion-button>
+      </div>
     </ion-item>
   </ion-list>
 
