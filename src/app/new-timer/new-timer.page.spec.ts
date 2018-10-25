@@ -10,9 +10,16 @@ import { NewTimerPage } from './new-timer.page';
 describe('NewTimerPage', () => {
   let component: NewTimerPage;
   let fixture: ComponentFixture<NewTimerPage>;
+  const argsFixture = {
+    popoverController: {},
+    timer: {
+      id: 'someId',
+      name: 'a name',
+      color: '#ffddee'
+    }
+  };
 
-  const data = { data: '' };
-  const navParams = new NavParams(data);
+  const navParams = new NavParams(argsFixture);
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({

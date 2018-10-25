@@ -65,6 +65,7 @@ export class TimerService {
   }
 
   async addNewTimer(name: string, color: string = 'transparent'): Promise<string> {
+    console.log('Enter addNewTimer');
     const id = name + new Date().getTime();
     const record = <TimerMetaRecord>{
       id: id,
@@ -74,6 +75,7 @@ export class TimerService {
     await this.stores.ids2meta.set(id, record);
     this.ids2metaCache.push(record);
     this.timersMeta.next(this.ids2metaCache);
+    console.log('Leave addNewTimer with %s', id);
     return id;
   }
 

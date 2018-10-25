@@ -12,7 +12,6 @@ export class EditTimerPage implements OnInit {
 
   private timerForm: FormGroup;
 
-  public timerId: string;
   public timer: TimerMetaRecord;
   public popoverController: PopoverController;
 
@@ -22,11 +21,10 @@ export class EditTimerPage implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.popoverController = this.navParams.get('popoverController');
-    this.timerId = this.navParams.get('timerId');
+    this.timer = this.navParams.get('timer');
   }
 
   ngOnInit() {
-    this.timer = this.timerService.getMeta(this.timerId);
     this.timerForm = this.formBuilder.group({
       name: new FormControl(this.timer.name, Validators.required),
       color: new FormControl(this.timer.color)

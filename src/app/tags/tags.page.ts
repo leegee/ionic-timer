@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TimerService, TimerCalendar } from '../timer/timer.service';
+import { TimerService, TimerCalendar, TimerMetaRecord } from '../timer/timer.service';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { DayDetailsPage } from '../day-details/day-details.page';
@@ -83,5 +83,9 @@ export class TagsPage implements OnInit, OnDestroy {
     });
     return await popover.present();
   }
+
+  // hsl(timer: TimerMetaRecord): string {
+  //   const rgb = timercolor.match(/^(..)(..)(..)/);
+  // }
 
 }

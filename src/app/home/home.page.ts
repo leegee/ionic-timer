@@ -30,8 +30,8 @@ export class HomePage implements OnInit, OnDestroy {
     await this.platform.ready();
     this.timersSubscription = this.timerService.timersMeta.subscribe((timers: TimerMetaRecord[]) => {
       this.timers = timers;
+      console.log('Got %d timers', this.timers.length);
     });
-    this.timerService.init();
   }
 
   toggleTimer(timerId: string): void {
@@ -40,12 +40,15 @@ export class HomePage implements OnInit, OnDestroy {
 
   async editTimer(timerId: string, e: Event): Promise<void> {
     e.preventDefault();
+
+    const timer = await this.timerService.getMeta(timerId);
+
     const popover = await this.popoverController.create({
       component: EditTimerPage,
       event: e,
       componentProps: {
         popoverController: this.popoverController,
-        timerId: timerId
+        timer: timer
       }
     });
     return await popover.present();

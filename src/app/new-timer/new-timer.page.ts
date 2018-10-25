@@ -23,6 +23,7 @@ export class NewTimerPage {
   submit() {
     this.close();
     if (this.color.length + this.name.length > 0) {
+      console.log('Call addNewTimer');
       this.timerService.addNewTimer(this.name, this.color);
     }
   }

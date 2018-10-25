@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
@@ -51,80 +51,80 @@ describe('TimerService', () => {
     });
   });
 
-  // it('should be created', inject([TimerService], (service: TimerService) => {
-  //   expect(service).toBeTruthy();
-  // }));
+  it('should be created', inject([TimerService], (service: TimerService) => {
+    expect(service).toBeTruthy();
+  }));
 
-  // it('should init', inject([TimerService], async (service: TimerService) => {
-  //   const p = service.init();
-  //   expect(p instanceof Promise).toBe(true);
-  //   await p;
-  // }));
+  it('should init', inject([TimerService], async (service: TimerService) => {
+    const p = service.init();
+    expect(p instanceof Promise).toBe(true);
+    await p;
+  }));
 
-  // it('should have no records after deleteAll', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   Object.keys(service.stores).forEach(async (storeName) => {
-  //     const len = await service.stores[storeName].length();
-  //     expect(len).toEqual(0);
-  //   });
-  // }));
+  it('should have no records after deleteAll', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    Object.keys(service.stores).forEach(async (storeName) => {
+      const len = await service.stores[storeName].length();
+      expect(len).toEqual(0);
+    });
+  }));
 
-  // it('should emit a list when db empty', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
-  //     expect(changed instanceof Array).toBe(true);
-  //     expect(changed.length).toBe(0);
-  //   });
-  //   await service.init();
-  // }));
+  it('should emit a list when db empty', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
+      expect(changed instanceof Array).toBe(true);
+      expect(changed.length).toBe(0);
+    });
+    await service.init();
+  }));
 
-  // it('should create records with addNew', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   const testName = 'test-name';
-  //   const id = await service.addNewTimer(testName);
-  //   const ids = await service.stores.ids2meta.keys();
-  //   expect(ids.length).toEqual(1);
-  //   expect(ids[0]).toEqual(id);
-  //   const ids2MetaEntry = await service.stores.ids2meta.get(ids[0]);
-  //   expect(ids2MetaEntry).toBeDefined();
-  //   expect(ids2MetaEntry.id).toBe(ids[0]);
-  //   expect(ids2MetaEntry.name).toBe(testName);
-  // }));
+  it('should create records with addNew', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    const testName = 'test-name';
+    const id = await service.addNewTimer(testName);
+    const ids = await service.stores.ids2meta.keys();
+    expect(ids.length).toEqual(1);
+    expect(ids[0]).toEqual(id);
+    const ids2MetaEntry = await service.stores.ids2meta.get(ids[0]);
+    expect(ids2MetaEntry).toBeDefined();
+    expect(ids2MetaEntry.id).toBe(ids[0]);
+    expect(ids2MetaEntry.name).toBe(testName);
+  }));
 
-  // it('should init with records if they exist', inject([TimerService], async (service: TimerService) => {
-  //   await loadFixtures(service);
-  //   await service.deleteAll();
-  //   const testName = 'another-test-name';
-  //   const id = await service.addNewTimer(testName);
-  //   service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
-  //     expect(changed.length).toBe(1);
-  //     expect(changed[0].id).toBe(id);
-  //   });
-  //   await service.init();
-  // }));
+  it('should init with records if they exist', inject([TimerService], async (service: TimerService) => {
+    await loadFixtures(service);
+    await service.deleteAll();
+    const testName = 'another-test-name';
+    const id = await service.addNewTimer(testName);
+    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
+      expect(changed.length).toBe(1);
+      expect(changed[0].id).toBe(id);
+    });
+    await service.init();
+  }));
 
-  // it('timersIndexById', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   const id0 = await service.addNewTimer('test1');
-  //   const id1 = await service.addNewTimer('test2');
-  //   const id2 = await service.addNewTimer('test3');
-  //   await service._buildIds2metaCache();
-  //   expect(service.getMetaCacheIndexById(id0)).toBe(0);
-  //   expect(service.getMetaCacheIndexById(id1)).toBe(1);
-  //   expect(service.getMetaCacheIndexById(id2)).toBe(2);
-  // }));
+  it('timersIndexById', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    const id0 = await service.addNewTimer('test1');
+    const id1 = await service.addNewTimer('test2');
+    const id2 = await service.addNewTimer('test3');
+    await service._buildIds2metaCache();
+    expect(service._getMetaCacheIndexById(id0)).toBe(0);
+    expect(service._getMetaCacheIndexById(id1)).toBe(1);
+    expect(service._getMetaCacheIndexById(id2)).toBe(2);
+  }));
 
-  // it('removes a record', inject([TimerService], async (service: TimerService) => {
-  //   await service.deleteAll();
-  //   const id = await service.addNewTimer('test');
-  //   await service._start(0);
-  //   await service._stop(0);
-  //   await service.remove(id);
-  //   const metaLength = await service.stores.ids2meta.length();
-  //   expect(metaLength).toEqual(0);
-  //   const timersLength = await service.stores.ids2pastTimers.length();
-  //   expect(timersLength).toEqual(0);
-  // }));
+  it('removes a record', inject([TimerService], async (service: TimerService) => {
+    await service.deleteAll();
+    const id = await service.addNewTimer('test');
+    await service._start(0);
+    await service._stop(0);
+    await service.remove(id);
+    const metaLength = await service.stores.ids2meta.length();
+    expect(metaLength).toEqual(0);
+    const timersLength = await service.stores.ids2pastTimers.length();
+    expect(timersLength).toEqual(0);
+  }));
 
   it('should get a month of data', inject([TimerService], async (service: TimerService) => {
     await loadFixtures(service);
