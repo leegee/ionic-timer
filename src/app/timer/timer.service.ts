@@ -134,6 +134,13 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
+  id2name(id: string): string {
+    const record = this.ids2metaCache.find(r => {
+      return r.id === id;
+    });
+    return record ? record.name : null;
+  }
+
   async _buildIds2metaCache() {
     this.ids2metaCache = [];
     await this.stores.ids2meta.forEach(meta => {
@@ -168,17 +175,31 @@ export class TimerService {
 
   async _start(idx: number): Promise<void> {
     this.ids2metaCache[idx].start = new Date().getTime();
-    console.log('Start ', idx, this.ids2metaCache[idx].id);
     await this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx]);
     this.timersMeta.next(this.ids2metaCache);
   }
 
   async _stop(idx: number): Promise<void> {
-    console.log('Stop ', idx, this.ids2metaCache[idx].id);
-    await this.addNewPastRecord(this.ids2metaCache[idx].id, this.ids2metaCache[idx].start);
+    const promises: Promise<void>[] = [];
+    const stopTimestamp = new Date().getTime();
+    const date = new Date(this.ids2metaCache[idx].start);
+
+    do {
+      promises.push(
+        this.addNewPastRecord(this.ids2metaCache[idx].id, this.ids2metaCache[idx].start, stopTimestamp)
+      );
+      date.setDate(date.getDate() + 1);
+    } while (
+      date.getTime() < stopTimestamp
+    );
+
     delete this.ids2metaCache[idx].start;
-    await this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx]),
-      this.timersMeta.next(this.ids2metaCache);
+    promises.push(
+      this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx])
+    );
+
+    await Promise.all(promises);
+    this.timersMeta.next(this.ids2metaCache);
   }
 
   addNewPastRecord(parentId: string, start: number, stop = new Date().getTime()): Promise<void> {
