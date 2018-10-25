@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { TabsPageRoutingModule } from './tabs.router.module';
 
 import { TabsPage } from './tabs.page';
-import { TagsPageModule } from '../tags/tags.module';
+import { CalendarPageModule } from '../calendar/calendar.module';
 import { AboutPageModule } from '../about/about.module';
 import { HomePageModule } from '../home/home.module';
 import { NewTimerPageModule } from '../new-timer/new-timer.module';
@@ -25,7 +25,7 @@ import { EditTimerPageModule } from '../edit-timer/edit-timer.module';
     DayDetailsPageModule,
     EditTimerPageModule,
     AboutPageModule,
-    TagsPageModule
+    CalendarPageModule
   ],
   declarations: [TabsPage]
 })

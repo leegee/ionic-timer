@@ -5,11 +5,11 @@ import { Subscription } from 'rxjs';
 import { DayDetailsPage } from '../day-details/day-details.page';
 
 @Component({
-  selector: 'app-tags',
-  templateUrl: 'tags.page.html',
-  styleUrls: ['tags.page.scss']
+  selector: 'app-calendar',
+  templateUrl: 'calendar.page.html',
+  styleUrls: ['calendar.page.scss']
 })
-export class TagsPage implements OnInit, OnDestroy {
+export class CalendarPage implements OnInit, OnDestroy {
 
   public calendarSubscription: Subscription;
   public calendar = {};
