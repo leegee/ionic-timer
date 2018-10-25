@@ -48,4 +48,5 @@ describe('CalendarPage', () => {
         expect(months instanceof Array).toBe(true);
         expect(months.length).toEqual(1);
     });
+
 });
