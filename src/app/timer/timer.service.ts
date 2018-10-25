@@ -3,19 +3,6 @@ import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
 
-export interface TimerCalendar {
-  [key: number]: { // year
-    [key: number]: [ // zero-indexed months
-      // zero-indexed days within zero-indexed weeks
-      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
-      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
-      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
-      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
-      [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]]
-    ]
-  };
-}
-
 export interface TimerMetaRecord {
   id: string;
   name: string;
@@ -28,6 +15,63 @@ export interface TimerPastRecord {
   stop: number; // Date().getTime()
   parentId: string;
 }
+
+export interface TimerCalendar {
+  [key: number]: { // year
+    [key: number]: CalendarEmptyMonth
+  };
+}
+
+export type CalendarEmptyMonth = [
+  // tslint:disable:max-line-length
+  // zero-indexed days within zero-indexed weeks
+  [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+  [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+  [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+  [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]],
+  [TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[], TimerPastRecord[]]
+  // tslint:enable:max-line-length
+];
+
+export class Calendar {
+  public data: {
+    [key: number]: { // year
+      [key: number]: CalendarEmptyMonth;
+    }
+  } = {};
+
+  constructor() { }
+
+  static fromTimerPastRecordList(timers: TimerPastRecord[]) {
+    const self = new Calendar();
+
+    timers.forEach(timer => {
+      const start = new Date(timer.start);
+      self.data[start.getFullYear()] = self.data[start.getFullYear()] || {};
+      self.data[start.getFullYear()][start.getMonth()] = self.data[start.getFullYear()][start.getMonth()] || self.emptyMonth();
+      self.data[start.getFullYear()][start.getMonth()][Calendar.zeroIndexedWeekInMonth(start)][start.getDay()].push(timer);
+    });
+
+    return self;
+  }
+
+  static zeroIndexedWeekInMonth(date: Date): number {
+    return Math.ceil((date.getDate() - date.getDay()) / 7);
+  }
+
+  emptyMonth() {
+    return [
+      // tslint:disable:max-line-length
+      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
+      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
+      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
+      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
+      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ]
+      // tslint:enable:max-line-length
+    ] as CalendarEmptyMonth;
+  }
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -162,10 +206,33 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
-  // @param year The actual `fullYear` (ie 2018)
-  // @param month Zero-based index of the month for `new Date`, January = 0
-  getMonthOfPastRecords(year: number, month: number) {
-    const rv: TimerCalendar = {
+  async recordsWithinRange(from: Date, to: Date): Promise<TimerPastRecord[]> {
+    const rv: TimerPastRecord[] = [];
+    const fromTimestamp = from.getTime();
+    const toTimestamp = to.getTime();
+    await this.stores.ids2pastTimers.forEach((record: TimerPastRecord) => {
+      if ((record.start >= fromTimestamp && record.start < toTimestamp)
+        || (record.stop >= fromTimestamp && record.stop < toTimestamp)
+      ) {
+        rv.push(record);
+      }
+    });
+    return rv;
+  }
+
+  async getDayOfPastRecords(year: number, month: number, day: number): Promise<void> {
+    const records: TimerPastRecord[] = await this.recordsWithinRange(
+      new Date(year, month, day),
+      new Date(year, month, day, 23, 59, 59, 999)
+    );
+    const calendar = Calendar.fromTimerPastRecordList(records);
+    this.calendar.next({ calendar: calendar });
+  }
+
+  async getMonthOfPastRecords(date): Promise<void> {
+    const year: number = date.getFullYear();
+    const month: number = date.getMonth();
+    const calendar: TimerCalendar = {
       [year]: {
         [month]: [
           [[], [], [], [], [], [], []],
@@ -176,22 +243,15 @@ export class TimerService {
         ]
       }
     };
-    const targetMonth = new Date(year, month).getTime();
-    const nextMonth = new Date(year, month + 1).getTime();
-    const totalRecords = 0;
 
-    this.stores.ids2pastTimers.forEach((record) => {
-      if ((record.start >= targetMonth && record.start < nextMonth)
-        || (record.stop >= targetMonth && record.stop < nextMonth)
-      ) {
-        const start = new Date(record.start);
-        rv[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
-        console.log('calendar - add');
-      }
-    }).then(() => {
-      console.log('calendar.next');
-      this.calendar.next({ calendar: rv, count: totalRecords });
+    const records = await this.recordsWithinRange(new Date(year, month), new Date(year, month + 1));
+
+    records.forEach(record => {
+      const start = new Date(record.start);
+      calendar[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
     });
+
+    this.calendar.next({ calendar: calendar });
   }
 
   async updateMeta(timer: TimerMetaRecord): Promise<void> {

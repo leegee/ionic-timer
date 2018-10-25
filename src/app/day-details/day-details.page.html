@@ -1,9 +1,39 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>day-details</ion-title>
+    <ion-buttons slot=”start”>
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ dayName }} {{ day }} {{ monthName }} {{ year }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content padding>
+
+  <!-- Thanks, http://cssdeck.com/labs/css3-pie-chart -->
+
+  <div class="pieContainer">
+    <div class="pieBackground"></div>
+    <div id="pieSlice1" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div id="pieSlice2" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div id="pieSlice3" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div id="pieSlice4" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div id="pieSlice5" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div id="pieSlice6" class="hold">
+      <div class="pie"></div>
+    </div>
+    <div class="innerCircle">
+      <div class="content"><b>Data</b><br>from 16<sup>th</sup> April, 2014</div>
+    </div>
+  </div>
 
 </ion-content>

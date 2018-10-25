@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service';
+import { TimerService, TimerMetaRecord, TimerPastRecord, Calendar, TimerCalendar } from './timer.service';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
 
@@ -145,6 +145,16 @@ describe('TimerService', () => {
       }
       expect(changed.calendar[date.getFullYear()][date.getMonth()][0][1].length).toBe(totalTimers * totalEntries);
     });
-    await service.getMonthOfPastRecords(new Date().getFullYear(), new Date().getMonth());
+    await service.getMonthOfPastRecords(new Date());
+  }));
+
+  it('should create a calendar for a month', inject([TimerService], async (service: TimerService) => {
+    const fixtureRecords: TimerPastRecord[] = [
+      { start: new Date().getTime() - 3600, stop: new Date().getTime(), parentId: null },
+      { start: new Date().getTime() - 2600, stop: new Date().getTime(), parentId: null },
+      { start: new Date().getTime() - 1600, stop: new Date().getTime(), parentId: null }
+    ];
+    const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
+    console.log('XXX ', cal);
   }));
 });

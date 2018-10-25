@@ -32,6 +32,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.timers = timers;
       console.log('Got %d timers', this.timers.length);
     });
+    // this.timerService.init();
   }
 
   toggleTimer(timerId: string): void {

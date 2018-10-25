@@ -44,10 +44,10 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
-    this.timerService.getMonthOfPastRecords(this.year, this.month);
     this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
       this.setCalendar(calendar as TimerCalendar);
     });
+    this.timerService.getMonthOfPastRecords( new Date(this.year, this.month));
   }
 
   get yearsWithData() {

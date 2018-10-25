@@ -5,6 +5,7 @@ import { TabsPage } from './tabs.page';
 import { HomePage } from '../home/home.page';
 import { AboutPage } from '../about/about.page';
 import { CalendarPage } from '../calendar/calendar.page';
+import { DayDetailsPage } from '../day-details/day-details.page';
 
 const routes: Routes = [
   {
@@ -30,6 +31,11 @@ const routes: Routes = [
         path: 'calendar',
         outlet: 'calendar',
         component: CalendarPage
+      },
+      {
+        path: 'day/:year/:month/:day',
+        outlet: 'calendar',
+        component: DayDetailsPage
       }
     ]
   },
@@ -44,4 +50,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class TabsPageRoutingModule {}
+export class TabsPageRoutingModule { }
