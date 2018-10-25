@@ -44,12 +44,13 @@ export class Calendar {
 
   static fromTimerPastRecordList(timers: TimerPastRecord[]) {
     const self = new Calendar();
-
     timers.forEach(timer => {
       const start = new Date(timer.start);
-      self.data[start.getFullYear()] = self.data[start.getFullYear()] || {};
-      self.data[start.getFullYear()][start.getMonth()] = self.data[start.getFullYear()][start.getMonth()] || self.emptyMonth();
-      self.data[start.getFullYear()][start.getMonth()][Calendar.zeroIndexedWeekInMonth(start)][start.getDay()].push(timer);
+      const year = start.getFullYear();
+      const month = start.getMonth();
+      self.data[year] = self.data[year] || {};
+      self.data[year][month] = self.data[year][month] || Calendar.emptyMonth();
+      self.data[year][month][Calendar.zeroIndexedWeekInMonth(start)][start.getDay()].push(timer);
     });
 
     return self;
@@ -59,16 +60,20 @@ export class Calendar {
     return Math.ceil((date.getDate() - date.getDay()) / 7);
   }
 
-  emptyMonth() {
+  static emptyMonth() {
     return [
       // tslint:disable:max-line-length
-      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
-      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
-      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
-      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ],
-      [ [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[] ]
+      [[] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[]],
+      [[] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[]],
+      [[] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[]],
+      [[] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[]],
+      [[] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[], [] as TimerPastRecord[]]
       // tslint:enable:max-line-length
     ] as CalendarEmptyMonth;
+  }
+
+  getData() {
+    return this.data;
   }
 }
 
@@ -226,32 +231,35 @@ export class TimerService {
       new Date(year, month, day, 23, 59, 59, 999)
     );
     const calendar = Calendar.fromTimerPastRecordList(records);
-    this.calendar.next({ calendar: calendar });
+    this.calendar.next({ calendar: calendar.getData() });
   }
 
   async getMonthOfPastRecords(date): Promise<void> {
     const year: number = date.getFullYear();
     const month: number = date.getMonth();
-    const calendar: TimerCalendar = {
-      [year]: {
-        [month]: [
-          [[], [], [], [], [], [], []],
-          [[], [], [], [], [], [], []],
-          [[], [], [], [], [], [], []],
-          [[], [], [], [], [], [], []],
-          [[], [], [], [], [], [], []]
-        ]
-      }
-    };
+    // const calendar: TimerCalendar = {
+    //   [year]: {
+    //     [month]: [
+    //       [[], [], [], [], [], [], []],
+    //       [[], [], [], [], [], [], []],
+    //       [[], [], [], [], [], [], []],
+    //       [[], [], [], [], [], [], []],
+    //       [[], [], [], [], [], [], []]
+    //     ]
+    //   }
+    // };
 
     const records = await this.recordsWithinRange(new Date(year, month), new Date(year, month + 1));
 
-    records.forEach(record => {
-      const start = new Date(record.start);
-      calendar[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
-    });
+    // records.forEach(record => {
+    //   const start = new Date(record.start);
+    //   calendar[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
+    // });
 
-    this.calendar.next({ calendar: calendar });
+    const calendar = Calendar.fromTimerPastRecordList(records);
+    console.log('calendar', calendar);
+
+    this.calendar.next({ calendar: calendar.getData() });
   }
 
   async updateMeta(timer: TimerMetaRecord): Promise<void> {

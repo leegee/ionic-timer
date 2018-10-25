@@ -148,6 +148,12 @@ describe('TimerService', () => {
     await service.getMonthOfPastRecords(new Date());
   }));
 
+  it('zeroIndexedWeekInMonth', inject([TimerService], async (service: TimerService) => {
+    expect(
+      Calendar.zeroIndexedWeekInMonth(new Date(2018, 9, 1))
+    ).toBe(0);
+  }));
+
   it('should create a calendar for a month', inject([TimerService], async (service: TimerService) => {
     const date = new Date(2018, 0, 5);
     const fixtureRecords: TimerPastRecord[] = [
@@ -166,4 +172,5 @@ describe('TimerService', () => {
     expect(cal.data[2018][0][0][4] instanceof Array).toBe(true);
     expect(cal.data[2018][0][0][4].length).toBe(3);
   }));
+
 });
