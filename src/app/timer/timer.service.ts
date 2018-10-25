@@ -17,8 +17,8 @@ export interface TimerPastRecord {
 }
 
 export interface TimerCalendar {
-  [key: number]: { // year
-    [key: number]: CalendarEmptyMonth
+  [key: number /* year */]: {
+    [key: number /* month */]: CalendarEmptyMonth
   };
 }
 
@@ -34,11 +34,7 @@ export type CalendarEmptyMonth = [
 ];
 
 export class Calendar {
-  public data: {
-    [key: number]: { // year
-      [key: number]: CalendarEmptyMonth;
-    }
-  } = {};
+  public data: TimerCalendar = {};
 
   constructor() { }
 
@@ -72,7 +68,7 @@ export class Calendar {
     ] as CalendarEmptyMonth;
   }
 
-  getData() {
+  getData(): TimerCalendar {
     return this.data;
   }
 }
@@ -237,28 +233,8 @@ export class TimerService {
   async getMonthOfPastRecords(date): Promise<void> {
     const year: number = date.getFullYear();
     const month: number = date.getMonth();
-    // const calendar: TimerCalendar = {
-    //   [year]: {
-    //     [month]: [
-    //       [[], [], [], [], [], [], []],
-    //       [[], [], [], [], [], [], []],
-    //       [[], [], [], [], [], [], []],
-    //       [[], [], [], [], [], [], []],
-    //       [[], [], [], [], [], [], []]
-    //     ]
-    //   }
-    // };
-
     const records = await this.recordsWithinRange(new Date(year, month), new Date(year, month + 1));
-
-    // records.forEach(record => {
-    //   const start = new Date(record.start);
-    //   calendar[year][month][this.zeroIndexedWeekInMonth(start)][start.getDay()].push(record);
-    // });
-
     const calendar = Calendar.fromTimerPastRecordList(records);
-    console.log('calendar', calendar);
-
     this.calendar.next({ calendar: calendar.getData() });
   }
 
@@ -268,9 +244,5 @@ export class TimerService {
 
   async delete(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.remove(timer.id);
-  }
-
-  zeroIndexedWeekInMonth(date: Date): number {
-    return Math.ceil((date.getDate() - date.getDay()) / 7);
   }
 }

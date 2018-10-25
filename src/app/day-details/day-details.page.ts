@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Platform } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { TimerService, TimerCalendar } from '../timer/timer.service';
+import { NavParams, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { CalendarDay } from '../calendar/calendar.page';
+import { TimerCalendar, TimerService } from '../timer/timer.service';
 
 @Component({
   selector: 'app-day-details',
@@ -11,40 +12,38 @@ import { Subscription } from 'rxjs';
 })
 export class DayDetailsPage implements OnInit {
 
+  public title: string;
   public year: number;
   public month: number;
   public day: number;
   public dayName: string;
   public monthName: string;
   public calendarSubscription: Subscription;
+  public calendarDay: CalendarDay;
 
   constructor(
     public route: ActivatedRoute,
+    public navParams: NavParams,
     public platform: Platform,
     public timerService: TimerService
   ) { }
 
   async ngOnInit() {
-    this.year = this.route.snapshot.params.year;
-    this.month = this.route.snapshot.params.month;
-    this.day = this.route.snapshot.params.day;
-
-    this.dayName = new Date(this.year, this.month, this.day)
-      .toLocaleDateString('en-GB', { weekday: 'long' });
-    this.monthName = new Date(this.year, this.month, this.day)
-      .toLocaleDateString('en-GB', { month: 'long' });
+    this.calendarDay = this.navParams.get('calendarDay');
+    this.title = this.calendarDay.date.toLocaleDateString('en-GB', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
 
     await this.platform.ready();
-    await this.timerService.getDayOfPastRecords(this.year, this.month, this.day);
-
-    this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
-      this.setupCalendarData(calendar as TimerCalendar);
-    });
-    this.timerService.getMonthOfPastRecords(new Date(this.year, this.month));
   }
 
   setupCalendarData(calendar: TimerCalendar) {
-
+    console.log(calendar);
+    console.log(this.year, this.month, this.day);
+    console.log(calendar[this.year][this.month][this.day]);
   }
 
 }

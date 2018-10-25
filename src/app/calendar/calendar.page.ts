@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TimerService, TimerCalendar, TimerMetaRecord, TimerPastRecord } from '../timer/timer.service';
+import { TimerService, TimerCalendar, TimerMetaRecord, TimerPastRecord, Calendar } from '../timer/timer.service';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { DayDetailsPage } from '../day-details/day-details.page';
 
 export interface CalendarDay {
   dom: number;
+  date: Date;
   data: TimerPastRecord[];
   colors: {
     f: string,
@@ -47,7 +48,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
       this.setCalendar(calendar as TimerCalendar);
     });
-    this.timerService.getMonthOfPastRecords( new Date(this.year, this.month));
+    this.timerService.getMonthOfPastRecords(new Date(this.year, this.month));
   }
 
   get yearsWithData() {
@@ -95,11 +96,12 @@ export class CalendarPage implements OnInit, OnDestroy {
         [1, 2].forEach(parse => {
           for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
             const dayOfMonthDate = new Date(year, month, dayOfMonth);
-            const weekInMonth = this.timerService.zeroIndexedWeekInMonth(dayOfMonthDate);
+            const weekInMonth = Calendar.zeroIndexedWeekInMonth(dayOfMonthDate);
             const day = dayOfMonthDate.getDay();
 
             if (parse === 1) {
               monthCache[weekInMonth][day] = {
+                date: dayOfMonthDate,
                 dom: dayOfMonth,
                 data: calendar[year][month][weekInMonth][day] || [],
                 colors: { f: 'default', b: 'default' }
@@ -135,11 +137,15 @@ export class CalendarPage implements OnInit, OnDestroy {
     };
   }
 
-  async showDetails(e: Event): Promise<void> {
+  async showDetails(e: Event, calendarDay: TimerPastRecord[], date: string|Date): Promise<void> {
     const popover = await this.popoverController.create({
       component: DayDetailsPage,
       event: e,
-      componentProps: { popoverController: this.popoverController }
+      componentProps: {
+        popoverController: this.popoverController,
+        calendarDay: calendarDay,
+        date: date
+      }
     });
     return await popover.present();
   }
