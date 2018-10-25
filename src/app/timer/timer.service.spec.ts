@@ -149,12 +149,21 @@ describe('TimerService', () => {
   }));
 
   it('should create a calendar for a month', inject([TimerService], async (service: TimerService) => {
+    const date = new Date(2018, 0, 5);
     const fixtureRecords: TimerPastRecord[] = [
-      { start: new Date().getTime() - 3600, stop: new Date().getTime(), parentId: null },
-      { start: new Date().getTime() - 2600, stop: new Date().getTime(), parentId: null },
-      { start: new Date().getTime() - 1600, stop: new Date().getTime(), parentId: null }
+      { start: date.getTime() - 3600, stop: date.getTime(), parentId: null },
+      { start: date.getTime() - 2600, stop: date.getTime(), parentId: null },
+      { start: date.getTime() - 1600, stop: date.getTime(), parentId: null }
     ];
     const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
-    console.log('XXX ', cal);
+    expect(cal instanceof Calendar).toBe(true);
+    expect(cal.data.hasOwnProperty(2018)).toBe(true);
+    expect(cal.data[2018].hasOwnProperty(0)).toBe(true);
+    expect(cal.data[2018][0] instanceof Array).toBe(true);
+    expect(cal.data[2018][0].length).toBe(5);
+    expect(cal.data[2018][0][0] instanceof Array).toBe(true);
+    expect(cal.data[2018][0][0].length).toBe(7);
+    expect(cal.data[2018][0][0][4] instanceof Array).toBe(true);
+    expect(cal.data[2018][0][0][4].length).toBe(3);
   }));
 });
