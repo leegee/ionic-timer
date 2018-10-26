@@ -1,6 +1,6 @@
 import { TestBed, inject } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { TimerService, TimerMetaRecord, TimerPastRecord, Calendar, TimerCalendar } from './timer.service';
+import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service';
+import { Calendar } from '../calendar';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
 

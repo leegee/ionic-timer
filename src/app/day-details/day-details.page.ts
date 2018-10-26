@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavParams, Platform } from '@ionic/angular';
 import { CalendarDay } from '../calendar/calendar.page';
-import { TimerCalendar, TimerService, Calendar } from '../timer/timer.service';
+import { TimerService } from '../timer/timer.service';
+import { Calendar } from '../calendar';
 
 import * as d3 from 'd3-selection';
 import * as d3Shape from 'd3-shape';

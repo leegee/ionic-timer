@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TimerService, TimerCalendar, TimerMetaRecord, TimerPastRecord, Calendar } from '../timer/timer.service';
+import { TimerService, TimerPastRecord } from '../timer/timer.service';
+import { CalendarOfTimers, Calendar } from '../calendar';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { DayDetailsPage } from '../day-details/day-details.page';
@@ -41,7 +42,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.platform.ready();
     this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
-      this.setCalendar(calendar as TimerCalendar);
+      this.setCalendar(calendar as CalendarOfTimers);
     });
     this.timerService.getMonthOfPastRecords(new Date(this.year, this.month));
     this.title = new Date(this.year, this.month).toLocaleDateString('en-GB', {
@@ -58,7 +59,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     return Object.keys(this.calendar[year] || {});
   }
 
-  setCalendar(calendar: TimerCalendar): void {
+  setCalendar(calendar: CalendarOfTimers): void {
     this.calendar = {};
 
     Object.keys(calendar).forEach(_year => {
@@ -103,7 +104,7 @@ export class CalendarPage implements OnInit, OnDestroy {
                 date: dayOfMonthDate,
                 dom: dayOfMonth,
                 data: calendar[year][month][weekInMonth][day] || [],
-                colors: { f: 'default', b: 'default' }
+                colors: {}
               } as CalendarDay;
 
               if (monthCache[weekInMonth][day].data.length > maxEntriesInMonth) {
@@ -124,7 +125,7 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
     this.colorRangeFunction = this.colorRangeFunction || Calendar.getColorRange(max);
-    // TODO use Calendar.getColorRange
+    console.log('**', itemValue, max);
     if (max === 0 || itemValue === 0) {
       return {
         f: `default`,
