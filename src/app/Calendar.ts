@@ -1,5 +1,3 @@
-import * as d3Scale from 'd3-scale';
-import * as d3Color from 'd3-color';
 import { TimerPastRecord } from './timer/timer.service';
 
 export interface CalendarOfTimers {
@@ -20,13 +18,6 @@ export type CalendarEmptyMonth = [
 ];
 
 export class Calendar {
-  static cachedForegroundColor: { [key: number]: string } = {};
-
-  static colourRange = {
-    min: 'white',
-    max: 'steelblue'
-  };
-
   public data: CalendarOfTimers = {};
 
   constructor() { }
@@ -45,34 +36,7 @@ export class Calendar {
     return self;
   }
 
-  // https://github.com/d3/d3-scale/blob/master/README.md#quantize-scales
-  static getColorRange(datasetOrMax: number | number[]) {
-    let minTemp = 0;
-    let maxTemp: number;
-    if (datasetOrMax instanceof Array) {
-      minTemp = Math.min(...datasetOrMax);
-      maxTemp = Math.max(...datasetOrMax);
-    } else {
-      maxTemp = datasetOrMax;
-    }
-    return d3Scale.scaleQuantize()
-      .domain([minTemp, maxTemp])
-      .range([Calendar.colourRange.min as any, Calendar.colourRange.max]);
-  }
-
-  static getForegroundColor(datasetOrMax: number | number[]): string {
-    if ((!(datasetOrMax instanceof Array)) &&
-      Calendar.cachedForegroundColor.hasOwnProperty(datasetOrMax as number)
-    ) {
-      return Calendar.cachedForegroundColor[datasetOrMax as number];
-    }
-    return d3Color.hsl(
-      Calendar.getColorRange(datasetOrMax) as any
-    ).l > 0.5 ? Calendar.colourRange.max : Calendar.colourRange.min;
-    // '#000' : '#fff';
-  }
-
-  static zeroIndexedWeekInMonth(date: Date): number {
+    static zeroIndexedWeekInMonth(date: Date): number {
     return Math.ceil((date.getDate() - date.getDay()) / 7);
   }
 

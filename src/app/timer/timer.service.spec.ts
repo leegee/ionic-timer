@@ -5,6 +5,7 @@ import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service'
 import { Calendar } from '../calendar';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
+import { Colors } from '../charts/Colors';
 
 const totalTimers = 5;
 const totalEntries = 10;
@@ -179,9 +180,9 @@ describe('TimerService', () => {
     const min = 1;
     const max = 1000;
     const dataset = [min, max];
-    const f = Calendar.getColorRange(dataset);
+    const f = Colors.getColorRange(dataset);
     expect(typeof f).to.equal('function');
-    expect(f(min)).to.equal(Calendar.colourRange.min);
-    expect(f(max)).to.equal(Calendar.colourRange.max);
+    expect(f(min)).to.equal(Colors.colourRange.min);
+    expect(f(max)).to.equal(Colors.colourRange.max);
   }));
 });

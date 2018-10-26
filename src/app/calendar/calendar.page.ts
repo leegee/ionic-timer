@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { TimerService, TimerPastRecord } from '../timer/timer.service';
-import { CalendarOfTimers, Calendar } from '../calendar';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { Calendar, CalendarOfTimers } from '../calendar';
+import { Colors } from '../charts/Colors';
 import { DayDetailsPage } from '../day-details/day-details.page';
+import { TimerPastRecord, TimerService } from '../timer/timer.service';
 
 export interface CalendarDay {
   dom: number;
@@ -124,7 +125,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
-    this.colorRangeFunction = this.colorRangeFunction || Calendar.getColorRange(max);
+    this.colorRangeFunction = this.colorRangeFunction || Colors.getColorRange(max);
     if (max === 0 || itemValue === 0) {
       return {
         f: `default`,
@@ -132,7 +133,7 @@ export class CalendarPage implements OnInit, OnDestroy {
       };
     }
     return {
-      f: Calendar.getForegroundColor(max),
+      f: Colors.getForegroundColor(max),
       b: this.colorRangeFunction(max)
     };
   }

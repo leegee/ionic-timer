@@ -5,6 +5,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
 import { CalendarPage } from './calendar.page';
 import { Calendar } from '../calendar';
+import { Colors } from '../charts/Colors';
 
 describe('CalendarPage', () => {
     let component: CalendarPage;
@@ -54,8 +55,8 @@ describe('CalendarPage', () => {
 
     it('heatmap colour value', () => {
         expect(component.heatmapCalendarDay(50, 100)).to.deep.equal({
-            f: Calendar.colourRange.min,
-            b: Calendar.colourRange.max
+            f: Colors.colourRange.min,
+            b: Colors.colourRange.max
         });
     });
 });

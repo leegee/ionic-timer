@@ -2,6 +2,7 @@ import { expect } from 'chai';
 
 import { Calendar } from './Calendar';
 import { TimerPastRecord } from './timer/timer.service';
+import { Colors } from './charts/Colors';
 
 
 describe('TimerService', () => {
@@ -34,9 +35,9 @@ describe('TimerService', () => {
         const min = 1;
         const max = 1000;
         const dataset = [min, max];
-        const f = Calendar.getColorRange(dataset);
+        const f = Colors.getColorRange(dataset);
         expect(f).to.be.instanceof(Function);
-        expect(f(min)).to.equal(Calendar.colourRange.min);
-        expect(f(max)).to.equal(Calendar.colourRange.max);
+        expect(f(min)).to.equal(Colors.colourRange.min);
+        expect(f(max)).to.equal(Colors.colourRange.max);
     });
 });
