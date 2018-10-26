@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
@@ -33,6 +35,6 @@ describe('HomePage', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(component).to.be.an.instanceof(HomePage);
   });
 });

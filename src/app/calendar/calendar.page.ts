@@ -125,7 +125,6 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
     this.colorRangeFunction = this.colorRangeFunction || Calendar.getColorRange(max);
-    console.log('**', itemValue, max);
     if (max === 0 || itemValue === 0) {
       return {
         f: `default`,

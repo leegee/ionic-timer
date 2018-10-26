@@ -1,7 +1,10 @@
+import { expect } from 'chai';
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
 import { CalendarPage } from './calendar.page';
+import { Calendar } from '../calendar';
 
 describe('CalendarPage', () => {
     let component: CalendarPage;
@@ -26,7 +29,7 @@ describe('CalendarPage', () => {
     });
 
     it('should create', () => {
-        expect(component).toBeTruthy();
+        expect(component).to.be.an.instanceof(CalendarPage);
     });
 
     it('it should list months with content', () => {
@@ -45,12 +48,14 @@ describe('CalendarPage', () => {
             ]
         ];
         const months = component.monthsWithData(2018);
-        expect(months instanceof Array).toBe(true);
-        expect(months.length).toEqual(1);
+        expect(months).to.be.an.instanceof(Array);
+        expect(months.length).to.equal(1);
     });
 
     it('heatmap colour value', () => {
-        expect(component.heatmapCalendarDay(50, 100)).toBeTruthy();
+        expect(component.heatmapCalendarDay(50, 100)).to.deep.equal({
+            f: Calendar.colourRange.min,
+            b: Calendar.colourRange.max
+        });
     });
-
 });

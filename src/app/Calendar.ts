@@ -68,7 +68,8 @@ export class Calendar {
     }
     return d3Color.hsl(
       Calendar.getColorRange(datasetOrMax) as any
-    ).l > 0.5 ? '#000' : '#fff';
+    ).l > 0.5 ? Calendar.colourRange.max : Calendar.colourRange.min;
+    // '#000' : '#fff';
   }
 
   static zeroIndexedWeekInMonth(date: Date): number {
