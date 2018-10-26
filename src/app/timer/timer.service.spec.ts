@@ -1,3 +1,5 @@
+import { expect } from 'chai';
+
 import { TestBed, inject } from '@angular/core/testing';
 import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service';
 import { Calendar } from '../calendar';
@@ -52,12 +54,12 @@ describe('TimerService', () => {
   });
 
   it('should be created', inject([TimerService], (service: TimerService) => {
-    expect(service).toBeTruthy();
+    expect(service).to.be.instanceOf(Object);
   }));
 
   it('should init', inject([TimerService], async (service: TimerService) => {
     const p = service.init();
-    expect(p instanceof Promise).toBe(true);
+    expect(p).to.be.an.instanceof(Promise);
     await p;
   }));
 
@@ -65,15 +67,15 @@ describe('TimerService', () => {
     await service.deleteAll();
     Object.keys(service.stores).forEach(async (storeName) => {
       const len = await service.stores[storeName].length();
-      expect(len).toEqual(0);
+      expect(len).to.equal(0);
     });
   }));
 
   it('should emit a list when db empty', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
     service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
-      expect(changed instanceof Array).toBe(true);
-      expect(changed.length).toBe(0);
+      expect(changed instanceof Array).to.equal(true);
+      expect(changed.length).to.equal(0);
     });
     await service.init();
   }));
@@ -83,12 +85,12 @@ describe('TimerService', () => {
     const testName = 'test-name';
     const id = await service.addNewTimer(testName);
     const ids = await service.stores.ids2meta.keys();
-    expect(ids.length).toEqual(1);
-    expect(ids[0]).toEqual(id);
+    expect(ids.length).to.equal(1);
+    expect(ids[0]).to.equal(id);
     const ids2MetaEntry = await service.stores.ids2meta.get(ids[0]);
-    expect(ids2MetaEntry).toBeDefined();
-    expect(ids2MetaEntry.id).toBe(ids[0]);
-    expect(ids2MetaEntry.name).toBe(testName);
+    expect(ids2MetaEntry).to.be.an.instanceof(Object);
+    expect(ids2MetaEntry.id).to.equal(ids[0]);
+    expect(ids2MetaEntry.name).to.equal(testName);
   }));
 
   it('should init with records if they exist', inject([TimerService], async (service: TimerService) => {
@@ -97,8 +99,8 @@ describe('TimerService', () => {
     const testName = 'another-test-name';
     const id = await service.addNewTimer(testName);
     service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
-      expect(changed.length).toBe(1);
-      expect(changed[0].id).toBe(id);
+      expect(changed.length).to.equal(1);
+      expect(changed[0].id).to.equal(id);
     });
     await service.init();
   }));
@@ -109,9 +111,9 @@ describe('TimerService', () => {
     const id1 = await service.addNewTimer('test2');
     const id2 = await service.addNewTimer('test3');
     await service._buildIds2metaCache();
-    expect(service._getMetaCacheIndexById(id0)).toBe(0);
-    expect(service._getMetaCacheIndexById(id1)).toBe(1);
-    expect(service._getMetaCacheIndexById(id2)).toBe(2);
+    expect(service._getMetaCacheIndexById(id0)).to.equal(0);
+    expect(service._getMetaCacheIndexById(id1)).to.equal(1);
+    expect(service._getMetaCacheIndexById(id2)).to.equal(2);
   }));
 
   it('removes a record', inject([TimerService], async (service: TimerService) => {
@@ -121,9 +123,9 @@ describe('TimerService', () => {
     await service._stop(0);
     await service.remove(id);
     const metaLength = await service.stores.ids2meta.length();
-    expect(metaLength).toEqual(0);
+    expect(metaLength).to.equal(0);
     const timersLength = await service.stores.ids2pastTimers.length();
-    expect(timersLength).toEqual(0);
+    expect(timersLength).to.equal(0);
   }));
 
   it('should get a month of data', inject([TimerService], async (service: TimerService) => {
@@ -132,18 +134,18 @@ describe('TimerService', () => {
     let calls = 0;
     service.calendar.subscribe((changed: { calendar: TimerPastRecord[], count: number }) => {
       calls++;
-      expect(changed.calendar instanceof Array).toBe(false);
-      expect(changed.calendar[date.getFullYear()]).toBeDefined();
-      expect(changed.calendar[date.getFullYear()][date.getMonth()]).toBeDefined();
-      expect(changed.calendar[date.getFullYear()][date.getMonth()] instanceof Array).toBe(true);
-      expect(changed.calendar[date.getFullYear()][date.getMonth()].length).toBe(5); // five weeks
+      expect(changed.calendar instanceof Array).to.equal(false);
+      expect(changed.calendar[date.getFullYear()]).to.be.an.instanceof(Object);
+      expect(changed.calendar[date.getFullYear()][date.getMonth()]).to.be.an.instanceof(Object);
+      expect(changed.calendar[date.getFullYear()][date.getMonth()] instanceof Array).to.equal(true);
+      expect(changed.calendar[date.getFullYear()][date.getMonth()].length).to.equal(5); // five weeks
       for (let week = 0; week < 5; week++) {
-        expect(changed.calendar[date.getFullYear()][date.getMonth()][week].length).toBe(7); // five weeks
+        expect(changed.calendar[date.getFullYear()][date.getMonth()][week].length).to.equal(7); // five weeks
         for (let day = 0; day < 7; day++) {
-          expect(changed.calendar[date.getFullYear()][date.getMonth()][week][day] instanceof Array).toBe(true); // days are arrays
+          expect(changed.calendar[date.getFullYear()][date.getMonth()][week][day] instanceof Array).to.equal(true); // days are arrays
         }
       }
-      expect(changed.calendar[date.getFullYear()][date.getMonth()][0][1].length).toBe(totalTimers * totalEntries);
+      expect(changed.calendar[date.getFullYear()][date.getMonth()][0][1].length).to.equal(totalTimers * totalEntries);
     });
     await service.getMonthOfPastRecords(new Date());
   }));
@@ -151,7 +153,7 @@ describe('TimerService', () => {
   it('zeroIndexedWeekInMonth', inject([TimerService], async (service: TimerService) => {
     expect(
       Calendar.zeroIndexedWeekInMonth(new Date(2018, 9, 1))
-    ).toBe(0);
+    ).to.equal(0);
   }));
 
   it('should create a calendar for a month', inject([TimerService], async (service: TimerService) => {
@@ -162,15 +164,15 @@ describe('TimerService', () => {
       { start: date.getTime() - 1600, stop: date.getTime(), parentId: null }
     ];
     const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
-    expect(cal instanceof Calendar).toBe(true);
-    expect(cal.data.hasOwnProperty(2018)).toBe(true);
-    expect(cal.data[2018].hasOwnProperty(0)).toBe(true);
-    expect(cal.data[2018][0] instanceof Array).toBe(true);
-    expect(cal.data[2018][0].length).toBe(5);
-    expect(cal.data[2018][0][0] instanceof Array).toBe(true);
-    expect(cal.data[2018][0][0].length).toBe(7);
-    expect(cal.data[2018][0][0][4] instanceof Array).toBe(true);
-    expect(cal.data[2018][0][0][4].length).toBe(3);
+    expect(cal instanceof Calendar).to.equal(true);
+    expect(cal.data.hasOwnProperty(2018)).to.equal(true);
+    expect(cal.data[2018].hasOwnProperty(0)).to.equal(true);
+    expect(cal.data[2018][0] instanceof Array).to.equal(true);
+    expect(cal.data[2018][0].length).to.equal(5);
+    expect(cal.data[2018][0][0] instanceof Array).to.equal(true);
+    expect(cal.data[2018][0][0].length).to.equal(7);
+    expect(cal.data[2018][0][0][4] instanceof Array).to.equal(true);
+    expect(cal.data[2018][0][0][4].length).to.equal(3);
   }));
 
   it('colour range', inject([TimerService], async (service: TimerService) => {
@@ -178,8 +180,8 @@ describe('TimerService', () => {
     const max = 1000;
     const dataset = [min, max];
     const f = Calendar.getColorRange(dataset);
-    expect(typeof f).toBe('function');
-    expect(f(min)).toBe(Calendar.colourRange.min);
-    expect(f(max)).toBe(Calendar.colourRange.max);
+    expect(typeof f).to.equal('function');
+    expect(f(min)).to.equal(Calendar.colourRange.min);
+    expect(f(max)).to.equal(Calendar.colourRange.max);
   }));
 });

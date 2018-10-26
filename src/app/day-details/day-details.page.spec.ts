@@ -1,6 +1,7 @@
+import { expect } from 'chai';
+
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
 
 import { DayDetailsPage } from './day-details.page';
 import { Platform, NavParams } from '@ionic/angular';
@@ -40,6 +41,6 @@ describe('DayDetailsPage', () => {
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(component).to.be.an.instanceof(Object);
   });
 });
