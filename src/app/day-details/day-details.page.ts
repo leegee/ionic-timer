@@ -54,7 +54,7 @@ export class DayDetailsPage implements OnInit {
     const allMetaRecords = this.timerService.allMetaById();
     this.data = Object.keys(parentId2count).map(id => {
       return {
-        label: allMetaRecords[name],
+        label: (allMetaRecords[id].name || 'Unnamed Timer'),
         color: allMetaRecords[id].color || undefined,
         value: parentId2count[id]
       };
@@ -95,16 +95,13 @@ export class DayDetailsPage implements OnInit {
       .attr('class', 'arc');
 
     g.append('path').attr('d', arc as any)
-      // .style('fill', (d: any) => color(d.data.value) as any);
-      .style('fill', (d: any) => (d.data.color || color(d.data.value)))
-      .style('stroke', (d: any) => '#dddddddd');
+      .style('fill', (d: any) => (d.data.color))
+      .style('stroke', (d: any) => 'var(--ion-color-dark-contrast)')
+      ;
 
     g.append('text').attr('transform', (d: any) => 'translate(' + labelArc.centroid(d) + ')')
       .attr('dy', '.35em')
-      .text((d: any) => d.data.label);
-
-    g.append('text').attr('transform', (d: any) => 'translate(' + labelPercent.centroid(d) + ')')
-      .attr('dy', '.35em')
-      .text((d: any) => d.data.value + '%');
+      .attr('class', 'arc')
+      .text((d: any) => d.data.label + ' ' + d.data.value + '%');
   }
 }
