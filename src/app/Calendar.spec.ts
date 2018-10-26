@@ -1,17 +1,9 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { Calendar } from './Calendar';
-import { Platform } from '@ionic/angular';
 import { TimerPastRecord } from './timer/timer.service';
 
-const totalTimers = 5;
-const totalEntries = 10;
 
 describe('TimerService', () => {
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-        });
-    });
-
     it('zeroIndexedWeekInMonth', () => {
         expect(
             Calendar.zeroIndexedWeekInMonth(new Date(2018, 9, 1))
@@ -43,7 +35,7 @@ describe('TimerService', () => {
         const dataset = [min, max];
         const f = Calendar.getColorRange(dataset);
         expect(typeof f).toBe('function');
-        expect(f(min)).toBe(Calendar.colourRange.min);
-        expect(f(max)).toBe(Calendar.colourRange.max);
+        expect(f(min)).toEqual(Calendar.colourRange.min);
+        expect(f(max)).toEqual(Calendar.colourRange.max);
     });
 });
