@@ -49,4 +49,8 @@ describe('CalendarPage', () => {
         expect(months.length).toEqual(1);
     });
 
+    it('heatmap colour value', () => {
+        expect(component.heatmapCalendarDay(50, 100)).toBeTruthy();
+    });
+
 });

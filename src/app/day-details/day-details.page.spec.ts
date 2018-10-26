@@ -3,22 +3,29 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
 
 import { DayDetailsPage } from './day-details.page';
-import { Platform } from '@ionic/angular';
+import { Platform, NavParams } from '@ionic/angular';
 
 describe('DayDetailsPage', () => {
   let component: DayDetailsPage;
   let fixture: ComponentFixture<DayDetailsPage>;
-  const fixtureActivatedRoute = {
-    snapshot: {
-      data: {}
+  const fixtureNavParams = new NavParams({
+    calendarDay: {
+      dom: 21,
+      date: new Date(),
+      data: [
+        {
+          name: 'some name',
+          color: '#ffddee',
+        }
+      ]
     }
-  } as ActivatedRoute;
+  });
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       providers: [
         Platform,
-        { provide: ActivatedRoute, useValue: fixtureActivatedRoute }
+        { provide: NavParams, useValue: fixtureNavParams }
       ],
       declarations: [DayDetailsPage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

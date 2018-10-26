@@ -173,4 +173,13 @@ describe('TimerService', () => {
     expect(cal.data[2018][0][0][4].length).toBe(3);
   }));
 
+  it('colour range', inject([TimerService], async (service: TimerService) => {
+    const min = 1;
+    const max = 1000;
+    const dataset = [min, max];
+    const f = Calendar.getColorRange(dataset);
+    expect(typeof f).toBe('function');
+    expect(f(min)).toBe(Calendar.colourRange.min);
+    expect(f(max)).toBe(Calendar.colourRange.max);
+  }));
 });

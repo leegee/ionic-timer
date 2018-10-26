@@ -26,6 +26,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   public year = new Date().getFullYear();
   public month = new Date().getMonth();
   public title: string;
+  public colorRangeFunction: Function;
 
   constructor(
     private platform: Platform,
@@ -121,17 +122,18 @@ export class CalendarPage implements OnInit, OnDestroy {
     });
   }
 
-  heatmapCalendarDay(entries: number, max: number): { f: string, b: string } {
-    if (max === 0 || entries === 0) {
+  heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
+    this.colorRangeFunction = this.colorRangeFunction || Calendar.getColorRange(max);
+    // TODO use Calendar.getColorRange
+    if (max === 0 || itemValue === 0) {
       return {
         f: `default`,
         b: 'transparent'
       };
     }
-    const index = ((max / entries) * 100) - 1;
     return {
-      f: index >= 50 ? 'white' : 'black',
-      b: Calendar.colorScale[index]
+      f: Calendar.getForegroundColor(max),
+      b: this.colorRangeFunction(max)
     };
   }
 

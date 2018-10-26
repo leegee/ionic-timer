@@ -2,53 +2,32 @@
     --ion-grid-columns: 7;
 }
 
-
-.month {
-    padding: 30pt 15pt;
-    width: 100%;
-    background: #1abc9c;
-    text-align: center;
-    color: white;
-    font-size: 20pt;
-    text-transform: uppercase;
-    letter-spacing: 3pt;
-}
-
-/* Previous button inside month header */
-.month .prev {
-    float: left;
-    padding-top: 10pt;
-}
-
-/* Next button */
-.month .next {
-    float: right;
-    padding-top: 10pt;
-}
-
 .weekdays {
-    margin: 0;
     padding: 10pt 0;
     text-align: center;
-    background-color:#ddd;
+    background-color:var(--ion-color-secondary-tint);
+    color: var(--ion-text-color);
 }
 
-.week:last-of-type {
-    border-bottom: 1pt solid #1abc9c;
-}
-
-/* Days (1-31) */
+.week:last-of-type,
 .days {
-    padding: 10pt 0;
-    background: #eee;
-    margin: 0;
-    text-align: center;
-    border: 1pt solid #1abc9caa;
+    border: 1pt solid var(--ion-color-light);
+    border-bottom: 1pt solid var(--ion-color-light);
 }
 
-/* Highlight the "current" day */
-.days .active {
-    padding: 5pt;
-    background: #1abc9c;
-    color: white !important
+.days {
+    background: var(--ion-color-light);
+    text-align: center;
+    
+    sup {
+        position: relative;
+        top: -1em;
+    }
+    
+    .count {
+        display: inline-block;
+        text-align: right;
+        width: 100%;
+    }
 }
+

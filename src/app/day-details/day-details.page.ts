@@ -4,7 +4,6 @@ import { CalendarDay } from '../calendar/calendar.page';
 import { TimerCalendar, TimerService, Calendar } from '../timer/timer.service';
 
 import * as d3 from 'd3-selection';
-import * as d3Scale from 'd3-scale';
 import * as d3Shape from 'd3-shape';
 
 @Component({
@@ -18,8 +17,8 @@ export class DayDetailsPage implements OnInit {
   public calendarDay: CalendarDay;
   public data = [];
 
-  public width = 300;
-  public height = 300;
+  public width = 400;
+  public height = 400;
   public radius: number;
 
   constructor(
@@ -51,22 +50,21 @@ export class DayDetailsPage implements OnInit {
         parentId2count[record.parentId] + 1 : 1;
     });
 
+    const allMetaRecords = this.timerService.allMetaById();
     this.data = Object.keys(parentId2count).map(id => {
       return {
-        label: this.timerService.id2name(id),
+        label: allMetaRecords[name],
+        color: allMetaRecords[id].color || undefined,
         value: parentId2count[id]
       };
     });
   }
 
-  // d3Scale.linear().domain([1,length])
-  // .interpolate(d3.interpolateHcl)
-  // .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
-
 
   draw() {
-    const color = d3Scale.scaleOrdinal()
-      .range(Calendar.colorScale);
+    const color = Calendar.getColorRange(
+      this.data.map(i => i.value)
+    );
 
     const arc = d3Shape.arc()
       .outerRadius(this.radius - 10)
@@ -96,7 +94,9 @@ export class DayDetailsPage implements OnInit {
       .attr('class', 'arc');
 
     g.append('path').attr('d', arc as any)
-      .style('fill', (d: any) => color(d.data.label) as any);
+      // .style('fill', (d: any) => color(d.data.value) as any);
+      .style('fill', (d: any) => (d.data.color || color(d.data.value)))
+      .style('stroke', (d: any) => '#dddddddd');
 
     g.append('text').attr('transform', (d: any) => 'translate(' + labelArc.centroid(d) + ')')
       .attr('dy', '.35em')

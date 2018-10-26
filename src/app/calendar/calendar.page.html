@@ -21,11 +21,13 @@
 
       <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
         <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar[year][month][week][day].dom? calendar[year][month][week][day].colors.b : "" '
-          [style.color]='calendar[year][month][week][day].dom? calendar[year][month][week][day].colors.f : ""'>
-          <ion-item *ngIf="calendar[year][month][week][day].dom && calendar[year][month][week][day].data && calendar[year][month][week][day].data.length; else noCalendarEntry"
-            tappable on-click='showDetails($event, calendar[year][month][week][day])'>
+          >
+          <ion-item no-padding *ngIf="calendar[year][month][week][day].dom && calendar[year][month][week][day].data && calendar[year][month][week][day].data.length; else noCalendarEntry"
+            tappable on-click='showDetails($event, calendar[year][month][week][day])'
+            [style.color]='calendar[year][month][week][day].dom? calendar[year][month][week][day].colors.f : ""'
+            >
             <sup>{{ calendar[year][month][week][day].dom }}</sup>
-            <b> {{ calendar[year][month][week][day].data.length }} </b>
+            <span class="count"> {{ calendar[year][month][week][day].data.length }} </span>
           </ion-item>
 
           <ng-template #noCalendarEntry>
