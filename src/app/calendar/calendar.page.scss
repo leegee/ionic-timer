@@ -17,7 +17,7 @@
 
 .days {
     background: var(--ion-color-light);
-    text-align: center;
+    position: relative;
     
     sup {
         position: relative;
@@ -25,9 +25,30 @@
     }
     
     .count {
-        display: inline-block;
-        text-align: right;
+        display: block;
+        position: absolute;
+        bottom: -0.5em; 
+        left: 0; 
+        text-align: center;
         width: 100%;
+        height: 100%;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: calc(100vw/20);
     }
 }
 
+.pie {
+    display: block;
+    position: absolute;
+    bottom: 0; 
+    left: 0; 
+    text-align: center;
+    width: 100%; 
+    height: 90%; 
+    opacity: 0.5;
+    // mix-blend-mode:luminosity;
+}
+
+.pie svg path {
+    mix-blend-mode:luminosity;
+}

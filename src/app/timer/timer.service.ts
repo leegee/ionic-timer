@@ -52,6 +52,13 @@ export class TimerService {
     });
   }
 
+  async init(): Promise<void> {
+    console.log(`timer-service init`);
+    await this._buildIds2metaCache();
+    console.log('timer-service init has ', this.ids2metaCache);
+    this.timersMeta.next(this.ids2metaCache);
+  }
+
   async addNewTimer(name: string, color: string = 'transparent'): Promise<string> {
     console.log('Enter addNewTimer');
     const id = name + new Date().getTime();
@@ -96,11 +103,6 @@ export class TimerService {
     await this.stores.ids2meta.forEach(meta => {
       this.ids2metaCache.push(meta);
     });
-  }
-
-  async init(): Promise<void> {
-    await this._buildIds2metaCache();
-    this.timersMeta.next(this.ids2metaCache);
   }
 
   toggle(id: string): void {

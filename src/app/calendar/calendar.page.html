@@ -24,11 +24,10 @@
           <ion-item no-padding *ngIf="calendar.years[year][month][week][day].date && calendar.years[year][month][week][day].timerPastRecords && calendar.years[year][month][week][day].timerPastRecords.length > 0; else noCalendarEntry"
             tappable on-click='showDetails($event, calendar.years[year][month][week][day])' [style.color]='calendar.years[year][month][week][day].date.getDate()? calendar.years[year][month][week][day].colors.f : ""'>
             <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
-            <span class="count"> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
-            <span [id]='pieId( year, month, week, day)'>{{ 
-                getPie(year, month, week, day, calendar.years[year][month][week][day])
-            }}
-            </span> 
+            <span class='count'> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
+            <span class='pie' [id]='pieId( year, month, week, day)'>
+              {{ getPie(year, month, week, day, calendar.years[year][month][week][day]) }}
+            </span>
           </ion-item>
 
           <ng-template #noCalendarEntry>
