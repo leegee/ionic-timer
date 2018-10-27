@@ -20,19 +20,17 @@
       </ion-row>
 
       <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
-        <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar[year][month][week][day].dom? calendar[year][month][week][day].colors.b : "" '
-          >
-          <ion-item no-padding *ngIf="calendar[year][month][week][day].dom && calendar[year][month][week][day].data && calendar[year][month][week][day].data.length; else noCalendarEntry"
-            tappable on-click='showDetails($event, calendar[year][month][week][day])'
-            [style.color]='calendar[year][month][week][day].dom? calendar[year][month][week][day].colors.f : ""'
-            >
-            <sup>{{ calendar[year][month][week][day].dom }}</sup>
-            <span class="count"> {{ calendar[year][month][week][day].data.length }} </span>
+        <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar.years[year][month][week][day].colors ? calendar.years[year][month][week][day].colors.b : "" '>
+          <ion-item no-padding *ngIf="calendar.years[year][month][week][day].date && calendar.years[year][month][week][day].timerPastRecords && calendar.years[year][month][week][day].timerPastRecords.length > 0; else noCalendarEntry"
+            tappable on-click='showDetails($event, calendar.years[year][month][week][day])' [style.color]='calendar.years[year][month][week][day].date.getDate()? calendar.years[year][month][week][day].colors.f : ""'>
+            <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
+            <span class="count"> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
+            <!-- <span [id]='pieId( year, month, week, day)'></span>  -->
           </ion-item>
 
           <ng-template #noCalendarEntry>
-            <ion-item *ngIf="calendar[year][month][week][day].dom">
-              <sup>{{ calendar[year][month][week][day].dom }}</sup>
+            <ion-item *ngIf="calendar.years[year][month][week][day].date">
+              <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
             </ion-item>
           </ng-template>
         </ion-col>

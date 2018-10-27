@@ -1,20 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
-import { Calendar, CalendarOfTimers } from '../calendar';
+import { Calendar, CalendarDay } from '../Calendar';
 import { Colors } from '../charts/Colors';
 import { DayDetailsPage } from '../day-details/day-details.page';
 import { TimerPastRecord, TimerService } from '../timer/timer.service';
-
-export interface CalendarDay {
-  dom: number;
-  date: Date;
-  data: TimerPastRecord[];
-  colors: {
-    f: string,
-    b: string
-  };
-}
+import { Pie } from '../charts/Pie';
 
 @Component({
   selector: 'app-calendar',
@@ -24,7 +15,7 @@ export interface CalendarDay {
 export class CalendarPage implements OnInit, OnDestroy {
 
   public calendarSubscription: Subscription;
-  public calendar = {};
+  public calendar: Calendar;
   public year = new Date().getFullYear();
   public month = new Date().getMonth();
   public title: string;
@@ -42,8 +33,8 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
-    this.calendarSubscription = this.timerService.calendar$.subscribe(({ calendar }) => {
-      this.setCalendar(calendar as CalendarOfTimers);
+    this.calendarSubscription = this.timerService.calendar$.subscribe((calendar: Calendar) => {
+      this.setCalendar(calendar);
     });
     this.timerService.getMonthOfPastRecords(new Date(this.year, this.month));
     this.title = new Date(this.year, this.month).toLocaleDateString('en-GB', {
@@ -53,75 +44,16 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   get yearsWithData() {
-    return Object.keys(this.calendar || {});
+    return this.calendar ? Object.keys(this.calendar.years) : [];
   }
 
   monthsWithData(year = this.year): string[] {
-    return Object.keys(this.calendar[year] || {});
+    return this.calendar ? Object.keys(this.calendar.years[year]) : [];
   }
 
-  setCalendar(calendar: CalendarOfTimers): void {
-    this.calendar = {};
-
-    Object.keys(calendar).forEach(_year => {
-      const year = Number(_year);
-      this.calendar[year] = {};
-      Object.keys(calendar[year]).forEach(_month => {
-        const month = Number(_month);
-        const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
-        const monthCache = [ // 5 weeks
-          [
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay, {} as CalendarDay,
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay
-          ],
-          [
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay, {} as CalendarDay,
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay
-          ],
-          [
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay, {} as CalendarDay,
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay
-          ],
-          [
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay, {} as CalendarDay,
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay
-          ],
-          [
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay, {} as CalendarDay,
-            {} as CalendarDay, {} as CalendarDay, {} as CalendarDay
-          ],
-        ];
-
-        let maxEntriesInMonth = 0;
-
-        [1, 2].forEach(parse => {
-          for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
-            const dayOfMonthDate = new Date(year, month, dayOfMonth);
-            const weekInMonth = Calendar.zeroIndexedWeekInMonth(dayOfMonthDate);
-            const day = dayOfMonthDate.getDay();
-
-            if (parse === 1) {
-              monthCache[weekInMonth][day] = {
-                date: dayOfMonthDate,
-                dom: dayOfMonth,
-                data: calendar[year][month][weekInMonth][day] || [],
-                colors: {}
-              } as CalendarDay;
-
-              if (monthCache[weekInMonth][day].data.length > maxEntriesInMonth) {
-                maxEntriesInMonth = monthCache[weekInMonth][day].data.length;
-              }
-
-            } else {
-              monthCache[weekInMonth][day].colors =
-                this.heatmapCalendarDay(monthCache[weekInMonth][day].data.length, maxEntriesInMonth);
-            }
-          }
-        });
-
-        this.calendar[year][month] = monthCache;
-      });
-    });
+  setCalendar(calendar: Calendar): void { // : CalendarOfTimers
+    this.calendar = calendar;
+    this.calendar.addDatesForDaysWithoutData();
   }
 
   heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
@@ -138,7 +70,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     };
   }
 
-  async showDetails(e: Event, calendarDay: TimerPastRecord[], date: string | Date): Promise<void> {
+  async showDetails(e: Event, calendarDay: CalendarDay, date: string | Date): Promise<void> {
     const popover = await this.popoverController.create({
       component: DayDetailsPage,
       event: e,
@@ -149,6 +81,29 @@ export class CalendarPage implements OnInit, OnDestroy {
       }
     });
     return await popover.present();
+  }
+
+  pieId(year: number, month: number, week: number, day: number) {
+    return ['pie', year, month, week, day].join('-');
+  }
+
+  getPie(elementSelector, calendarDay: CalendarDay) {
+    new Pie(elementSelector, 40, 40).draw(
+      this.getCalendarData(calendarDay)
+    );
+  }
+
+  getCalendarData(calendarDay: CalendarDay) {
+    const parentId2count = calendarDay.getParentIds2Counts();
+    const allMetaRecords = this.timerService.allMetaById();
+
+    return Object.keys(parentId2count).map(id => {
+      return {
+        label: (allMetaRecords[id].name || 'Unnamed Timer'),
+        color: allMetaRecords[id].color || undefined,
+        value: parentId2count[id]
+      };
+    });
   }
 
 }

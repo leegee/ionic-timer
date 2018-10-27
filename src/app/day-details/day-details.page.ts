@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavParams, Platform } from '@ionic/angular';
-import { CalendarDay } from '../calendar/calendar.page';
 import { TimerService } from '../timer/timer.service';
-import { Pie } from '../charts/Pie';
+import { Pie, LabelsColorsValuesDataset } from '../charts/Pie';
+import { CalendarDay } from '../Calendar';
 
 @Component({
   selector: 'app-day-details',
@@ -35,28 +35,26 @@ export class DayDetailsPage implements OnInit {
     });
 
     await this.platform.ready();
-    console.log(this.getCalendarData(calendarDay));
     new Pie(
-      this.width, this.height
+      '#pieChart', this.width, this.height
     ).draw(
-      this.getCalendarData(calendarDay)
+      this.getLabelsColorsValuesForCalendarDay(calendarDay)
     );
   }
 
-  getCalendarData(calendarDay: CalendarDay) {
-    const parentId2count = {};
-    calendarDay.data.forEach(record => {
-      parentId2count[record.parentId] = parentId2count.hasOwnProperty(record.parentId) ?
-        parentId2count[record.parentId] + 1 : 1;
-    });
-
+  getLabelsColorsValuesForCalendarDay(calendarDay: CalendarDay): LabelsColorsValuesDataset[] {
+    console.log('getCalendarData:', calendarDay);
+    const parentId2count = calendarDay.getParentIds2Counts();
     const allMetaRecords = this.timerService.allMetaById();
-    return Object.keys(parentId2count).map(id => {
+
+    const rv = Object.keys(parentId2count).map(id => {
       return {
         label: (allMetaRecords[id].name || 'Unnamed Timer'),
         color: allMetaRecords[id].color || undefined,
         value: parentId2count[id]
       };
     });
+    console.log('getCalendarDay:', rv);
+    return rv;
   }
 }

@@ -11,7 +11,6 @@ describe('DayDetailsPage', () => {
   let fixture: ComponentFixture<DayDetailsPage>;
   const fixtureNavParams = new NavParams({
     calendarDay: {
-      dom: 21,
       date: new Date(),
       data: [
         {

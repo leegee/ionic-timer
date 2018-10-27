@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { Subject } from 'rxjs';
-import { Calendar } from '../calendar';
+import { Calendar } from '../Calendar';
 
 export interface TimerMetaRecord {
   id: string;
@@ -197,16 +197,16 @@ export class TimerService {
       new Date(year, month, day),
       new Date(year, month, day, 23, 59, 59, 999)
     );
-    const calendar = Calendar.fromTimerPastRecordList(records);
-    this.calendar.next({ calendar: calendar.getData() });
+    const calendar: Calendar = Calendar.fromTimerPastRecordList(records);
+    this.calendar.next(calendar);
   }
 
   async getMonthOfPastRecords(date): Promise<void> {
     const year: number = date.getFullYear();
     const month: number = date.getMonth();
     const records = await this.recordsWithinRange(new Date(year, month), new Date(year, month + 1));
-    const calendar = Calendar.fromTimerPastRecordList(records);
-    this.calendar.next({ calendar: calendar.getData() });
+    const calendar: Calendar = Calendar.fromTimerPastRecordList(records);
+    this.calendar.next(calendar);
   }
 
   async updateMeta(timer: TimerMetaRecord): Promise<void> {
