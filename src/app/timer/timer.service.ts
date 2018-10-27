@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { Subject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { Calendar } from '../Calendar';
 
 export interface TimerMetaRecord {
@@ -37,10 +37,10 @@ export class TimerService {
 
   public ids2metaCache: TimerMetaRecord[] = [];
 
-  public timersMeta = new Subject();
+  public timersMeta = new ReplaySubject();
   public timersMeta$ = this.timersMeta.asObservable();
 
-  public calendar = new Subject();
+  public calendar = new ReplaySubject();
   public calendar$ = this.calendar.asObservable();
 
   constructor(
