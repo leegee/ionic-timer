@@ -132,12 +132,7 @@ export class Calendar {
             const day = dayOfMonthDate.getDay();
 
             if (parse === 1) {
-              console.log('> ', yearNum, monthNum, dayOfMonthDate, weekInMonth, day,
-                this.years[yearKey][monthKey][weekInMonth][day],
-                this.years[yearNum][monthNum][weekInMonth][day]
-              );
               if (! (this.years[yearKey][monthKey][weekInMonth][day] instanceof CalendarDay)) {
-                console.log('found blank entry in calendar');
                 this.years[yearKey][monthKey][weekInMonth][day].setDate(
                   new Date(yearNum, monthNum, dayOfMonth )
                 );
@@ -160,7 +155,6 @@ export class Calendar {
       });
     });
 
-    console.log('have setCalendar', this.years);
   }
 }
 

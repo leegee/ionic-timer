@@ -1,6 +1,6 @@
 import * as d3 from 'd3-selection';
 import * as d3Shape from 'd3-shape';
-import { Colors } from './Colors';
+// import { Colors } from './Colors';
 
 export interface LabelsColorsValuesDataset {
     label: string;
@@ -9,27 +9,20 @@ export interface LabelsColorsValuesDataset {
 }
 
 export class Pie {
-    public width = 400;
-    public height = 400;
-    public radius: number;
-    public targetSelector: string;
+    private width = 400;
+    private height = 400;
+    private radius: number;
 
     constructor(
-        targetSelector: string,
-        width: number,
-        height: number
+        public targetSelector: string,
+        public useLabels = true
     ) {
         this.targetSelector = targetSelector;
-        if (width) {
-            this.width = width;
-        }
-        if (height) {
-            this.height = height;
-        }
         this.radius = Math.min(this.width, this.height) / 2;
     }
 
     draw(dataset: LabelsColorsValuesDataset[]) {
+        console.log('Draw pie at %s with dataset', this.targetSelector, dataset);
         // const color = Colors.getColorRange(
         //     dataset.map(i => i.value)
         // );
@@ -57,17 +50,22 @@ export class Pie {
             .data(
                 pie(dataset as any)
             )
-            .enter().append('g')
-            .attr('class', 'arc');
+            .enter().append('g');
 
-        g.append('path').attr('d', arc as any)
-            .style('fill', (d: any) => (d.data.color))
-            .style('stroke', (d: any) => 'var(--ion-color-dark-contrast)')
+        g.append('path')
+            .attr('d', arc as any)
+            .style('fill', (d: any) => (d.data.color))  // use fg/bg
+            .attr('stroke-width', () => this.useLabels ? 1 : 8)
+            .style('stroke', () => 'var(--ion-color-medium)')
             ;
 
-        g.append('text').attr('transform', (d: any) => 'translate(' + labelArc.centroid(d) + ')')
-            .attr('dy', '.35em')
-            .attr('class', 'arc')
-            .text((d: any) => d.data.label + ' ' + d.data.value + '%');
+        if (this.useLabels) {
+            g.append('text')
+                .attr('transform', (d: any) => 'translate(' + labelArc.centroid(d) + ')')
+                .attr('dy', '.35em')
+                .attr('class', 'arc')
+                .style('fill', (d: any) => 'black') // use fg/bg
+                .text((d: any) => d.data.label + ' ' + d.data.value + '%');
+        }
     }
 }

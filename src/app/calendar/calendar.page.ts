@@ -87,10 +87,14 @@ export class CalendarPage implements OnInit, OnDestroy {
     return ['pie', year, month, week, day].join('-');
   }
 
-  getPie(elementSelector, calendarDay: CalendarDay) {
-    new Pie(elementSelector, 40, 40).draw(
-      this.getCalendarData(calendarDay)
-    );
+  getPie(year: number, month: number, week: number, day: number, calendarDay: CalendarDay) {
+    const pidId = this.pieId(year, month, week, day);
+    const el = document.getElementById(pidId);
+    if (el && el.childElementCount === 0) {
+      new Pie('#' + pidId, false).draw(
+        this.getCalendarData(calendarDay)
+      );
+    }
   }
 
   getCalendarData(calendarDay: CalendarDay) {

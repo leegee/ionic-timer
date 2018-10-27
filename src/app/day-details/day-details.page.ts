@@ -12,18 +12,13 @@ import { CalendarDay } from '../Calendar';
 export class DayDetailsPage implements OnInit {
 
   public title: string;
-  public calendarDay: CalendarDay;
-  public data = [];
-
-  public width = 400;
-  public height = 400;
+  public dataset: LabelsColorsValuesDataset[];
 
   constructor(
     public navParams: NavParams,
     public platform: Platform,
     public timerService: TimerService
-  ) {
-  }
+  ) { }
 
   async ngOnInit() {
     const calendarDay: CalendarDay = this.navParams.get('calendarDay');
@@ -34,16 +29,19 @@ export class DayDetailsPage implements OnInit {
       year: 'numeric'
     });
 
+    this.dataset = this.getLabelsColorsValuesForCalendarDay(calendarDay);
+
     await this.platform.ready();
-    new Pie(
-      '#pieChart', this.width, this.height
-    ).draw(
-      this.getLabelsColorsValuesForCalendarDay(calendarDay)
-    );
+    new Pie('#pieChart').draw(this.dataset);
+  }
+
+  get totalEntries() {
+    return this.dataset.reduce((prev: number, current: LabelsColorsValuesDataset) => {
+      return prev + current.value;
+    }, 0);
   }
 
   getLabelsColorsValuesForCalendarDay(calendarDay: CalendarDay): LabelsColorsValuesDataset[] {
-    console.log('getCalendarData:', calendarDay);
     const parentId2count = calendarDay.getParentIds2Counts();
     const allMetaRecords = this.timerService.allMetaById();
 
@@ -54,7 +52,6 @@ export class DayDetailsPage implements OnInit {
         value: parentId2count[id]
       };
     });
-    console.log('getCalendarDay:', rv);
     return rv;
   }
 }
