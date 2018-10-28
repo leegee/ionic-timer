@@ -31,11 +31,15 @@ export class ColorPickerPopoverComponent implements OnInit {
   ngOnInit() {
     this.canvas = document.getElementById('picker') as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d');
-    const image = new Image();
-    image.onload = () => {
-      this.ctx.drawImage(image, 0, 0, image.width, image.height);
-    };
-    image.src = 'assets/colorwheel.png';
+    const numberOfSteps = Colors.NUMBER_OF_COLORS;
+    const stepSize = this.canvas.width / numberOfSteps;
+
+    for (let x = 1; x <= numberOfSteps; x++) {
+      const i = (1 / numberOfSteps) * x;
+      this.ctx.fillStyle = Colors.scale(i);
+      console.log(i, this.ctx.fillStyle);
+      this.ctx.fillRect((x - 1) * stepSize, 0, this.canvas.width, this.canvas.height);
+    }
   }
 
   getStyleAttr() {
@@ -51,7 +55,6 @@ export class ColorPickerPopoverComponent implements OnInit {
       this.blue + ', ' +
       this.alpha +
       ')';
-    console.log('Chosen color ', this.chosenColor);
   }
 
   pick(e: MouseEvent) {
@@ -64,7 +67,6 @@ export class ColorPickerPopoverComponent implements OnInit {
     this.red = imageData[0];
     this.green = imageData[1];
     this.blue = imageData[2];
-    console.log('Picked  ', imageData);
     this.setColor();
   }
 

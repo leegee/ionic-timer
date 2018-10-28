@@ -1,13 +1,21 @@
 import * as d3Scale from 'd3-scale';
 import * as d3Color from 'd3-color';
+import * as d3ScaleChromatic from 'd3-scale-chromatic';
 
 export class Colors {
+
+    static NUMBER_OF_COLORS = 20;
+
     static cachedForegroundColor: { [key: number]: string } = {};
 
     static colourRange = {
         min: 'white',
         max: 'steelblue'
     };
+
+    static scale(i: number): string {
+        return d3ScaleChromatic.interpolatePlasma(i);
+    }
 
     static rgbaFromAny(input: string): [string, number, number, number, number] {
         let rgbaStr = 'rgba(0,0,0,0)';
