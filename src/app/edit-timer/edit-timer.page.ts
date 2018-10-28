@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { TimerMetaRecord, TimerService } from '../timer/timer.service';
 import { NavParams, PopoverController } from '@ionic/angular';
+import { ColorPickerPopoverComponent } from '../color-picker-popover/color-picker-popover';
 
 @Component({
   selector: 'app-edit-timer',
@@ -67,4 +68,35 @@ export class EditTimerPage implements OnInit {
     this.popoverController.dismiss();
   }
 
+  async chooseColor(e: Event) {
+    const popover = await this.popoverController.create({
+      component: ColorPickerPopoverComponent,
+      event: e,
+      componentProps: {
+        popoverController: this.popoverController,
+        color: this.color.value
+      }
+    });
+
+    await popover.present();
+
+    const eDismissed = await popover.onDidDismiss();
+    console.log('got ', eDismissed.data.color);
+    this.timerForm.get('color').setValue( eDismissed.data.color as string);
+    console.log('set ', this.color.value);
+  }
 }
+
+// chooseColor(cssRuleName: string) {
+//   let modal = this.modalCtrl.create(ColorPickerPopoverComponent, {
+//       color: this.selections[cssRuleName]
+//   });
+
+//   modal.onDidDismiss((data) => {
+//       this.selections[cssRuleName] = data.color;
+//       this.onChange();
+//   });
+
+//   modal.present();
+// }
+

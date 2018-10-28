@@ -51,7 +51,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     return this.calendar ? Object.keys(this.calendar.years[year]) : [];
   }
 
-  setCalendar(calendar: Calendar): void { // : CalendarOfTimers
+  setCalendar(calendar: Calendar): void {
     this.calendar = calendar;
     this.calendar.addDatesForDaysWithoutData();
   }

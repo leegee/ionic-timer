@@ -14,4 +14,16 @@ ion-button[expand=full] {
     width: 100%;
     margin-top: 6pt;
     margin-bottom: 6pt;
+
+    .button-inner {
+        width: 100%;
+        display: inline-block;
+        border-radius: 1em;
+        padding: 4pt;
+    }
+
+    ion-icon {
+        margin-right: 1em;
+    }
 }
+

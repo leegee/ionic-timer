@@ -13,6 +13,7 @@ import { HomePageModule } from '../home/home.module';
 import { NewTimerPageModule } from '../new-timer/new-timer.module';
 import { DayDetailsPageModule } from '../day-details/day-details.module';
 import { EditTimerPageModule } from '../edit-timer/edit-timer.module';
+import { ColorPickerPopoverComponentModule } from '../color-picker-popover/color-picker-popover.module';
 
 @NgModule({
   imports: [
@@ -24,6 +25,7 @@ import { EditTimerPageModule } from '../edit-timer/edit-timer.module';
     NewTimerPageModule,
     DayDetailsPageModule,
     EditTimerPageModule,
+    ColorPickerPopoverComponentModule,
     AboutPageModule,
     CalendarPageModule
   ],

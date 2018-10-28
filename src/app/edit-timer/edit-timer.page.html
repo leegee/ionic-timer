@@ -18,25 +18,29 @@
       </ion-item>
 
       <ion-item>
-        <ion-label position="stacked">Color</ion-label>
-        <ion-input formControlName="color" type="color" [style.background]="color.value" [style.color]="color.value"></ion-input>
-      </ion-item>
-
-      <ion-item>
-        <ion-button size='large' type="submit" expand="full" shape="round" color="primary" fill="solid">
-          <ion-icon name='checkmark'></ion-icon> Done
+        <ion-input formControlName="color" type="hidden"></ion-input>
+        <ion-button size='large' type="button" expand="full" shape="round" fill="outline" (click)="chooseColor($event)">
+          <span class="button-inner" [style.backgroundColor]="color.value">
+            <ion-icon name="brush"></ion-icon> Color
+          </span>
         </ion-button>
       </ion-item>
 
       <ion-item>
-        <ion-button size='large' type="button" expand="full" shape="round" color="primary" fill="outline" (click)="cancel()">
-            <ion-icon name='cross'></ion-icon> Cancel
+        <ion-button size='large' type="submit" expand="full" shape="round" color="primary" fill="solid">
+          <ion-icon name='checkmark-circle'></ion-icon> Done
+        </ion-button>
+      </ion-item>
+
+      <ion-item>
+        <ion-button size='large' type="button" expand="full" shape="round" fill="outline" color="primary" (click)="cancel()">
+          <ion-icon name='close-circle'></ion-icon> Cancel
         </ion-button>
       </ion-item>
 
       <ion-item>
         <ion-button size='large' shape="round" expand="full" color="danger" fill="solid" (click)="delete()">
-          Remove
+          <ion-icon name='warning'></ion-icon> Remove
         </ion-button>
       </ion-item>
     </ion-list>

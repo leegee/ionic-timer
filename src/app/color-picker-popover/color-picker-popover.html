@@ -1,0 +1,26 @@
+<ion-content class="color-picker-container">
+
+  <canvas id="picker" var="1" width="300" height="300" tappable (click)='pick($event)'></canvas>
+
+  <ion-range steps min='0' max='1' pin='true' [(ngModel)]="alpha" (ionChange)='setColor()'>
+    <ion-label range-left>Clear</ion-label>
+    <ion-label range-right>Solid</ion-label>
+  </ion-range>
+
+  <div>
+    <ion-button size='large' type="submit" expand="full" shape="round" fill="outline" (click)='ok()'>
+      <span class="button-inner" [style.backgroundColor]="chosenColor">
+        <ion-icon name='checkmark-circle'></ion-icon> &nbsp; Done
+      </span>
+    </ion-button>
+  </div>
+
+  <div>
+    <ion-button size='large' type="button" expand="full" shape="round" fill="outline" (click)="cancel()">
+      <span class="button-inner" [style.backgroundColor]="originalColor">
+        <ion-icon name='close-circle'></ion-icon> &nbsp; Cancel
+      </span>
+    </ion-button>
+  </div>
+
+</ion-content>
