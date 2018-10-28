@@ -4,7 +4,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
 import { CalendarPage } from './calendar.page';
-import { Colors } from '../charts/Colors';
+import { Colors } from '../Colors';
 
 describe('CalendarPage', () => {
     let component: CalendarPage;

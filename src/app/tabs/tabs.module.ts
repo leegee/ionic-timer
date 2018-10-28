@@ -10,7 +10,6 @@ import { TabsPage } from './tabs.page';
 import { CalendarPageModule } from '../calendar/calendar.module';
 import { AboutPageModule } from '../about/about.module';
 import { HomePageModule } from '../home/home.module';
-import { NewTimerPageModule } from '../new-timer/new-timer.module';
 import { DayDetailsPageModule } from '../day-details/day-details.module';
 import { EditTimerPageModule } from '../edit-timer/edit-timer.module';
 import { ColorPickerPopoverComponentModule } from '../color-picker-popover/color-picker-popover.module';
@@ -22,7 +21,6 @@ import { ColorPickerPopoverComponentModule } from '../color-picker-popover/color
     FormsModule,
     TabsPageRoutingModule,
     HomePageModule,
-    NewTimerPageModule,
     DayDetailsPageModule,
     EditTimerPageModule,
     ColorPickerPopoverComponentModule,

@@ -11,14 +11,16 @@ export class Colors {
 
     static rgbaFromAny(input: string): [string, number, number, number, number] {
         let rgbaStr = 'rgba(0,0,0,0)';
-        let rgbaArray = [0, 0, 0, 0];
+        let rgbaArray: number[] = [];
         console.log('input', input);
-        if (typeof input !== 'undefined' && input !== null && input !== 'transparent' && input !== '') {
+        if (typeof input === 'undefined' || input === null || input === 'transparent' || input === '') {
+            rgbaArray = [0, 0, 0, 0];
+        } else {
             if (input.indexOf('#') === 0) {
                 [rgbaStr, ...rgbaArray] = Colors.hex2rgba(input);
             } else {
                 rgbaStr = input.replace(/\s+/g, '');
-                const [, ...mRgba] = rgbaStr.match(/^rgba?\((\d+),(\d+),(\d+),(\d+)?\)$/);
+                const [, ...mRgba] = rgbaStr.match(/^rgba?\((\d+),(\d+),(\d+)(?:,?([.\d]+))?\)$/);
                 if (mRgba.length === 3) {
                     mRgba.push('1');
                 }
@@ -27,31 +29,30 @@ export class Colors {
                 });
             }
         }
-        console.log('output', [rgbaStr, rgbaArray[0], rgbaArray[1], rgbaArray[2], rgbaArray[3]]);
         return [rgbaStr, rgbaArray[0], rgbaArray[1], rgbaArray[2], rgbaArray[3]];
     }
 
     static hex2rgba(hex: string): [string, number, number, number, number] {
         const rgbaHex: string[] = [];
         const rgbaDec: number[] = [];
-        let alpha: number;
+        let alphaStr: string;
         console.log('hex2rgba input', hex);
         if (hex.length <= 4) {
-            [, rgbaHex[0], rgbaHex[1], rgbaHex[2], alpha] = hex.match(/^\#(.)(.)(.)(.)?$/);
+            [, rgbaHex[0], rgbaHex[1], rgbaHex[2], alphaStr] = hex.match(/^\#(.)(.)(.)(.)?$/);
         } else {
-            [, rgbaHex[0], rgbaHex[1], rgbaHex[2], alpha] = hex.match(/^\#(..)(..)(..)(..)?$/);
+            [, rgbaHex[0], rgbaHex[1], rgbaHex[2], alphaStr] = hex.match(/^\#(..)(..)(..)(..)?$/);
         }
 
         for (let i = 0; i < rgbaHex.length; i++) {
             rgbaDec.push(parseInt(rgbaHex[i], 16));
         }
 
-        console.log('hex alpha = ', alpha);
-        if (alpha === undefined) {
-            alpha = 1;
+        console.log('hex alpha = ', alphaStr);
+        if (alphaStr === undefined) {
+            alphaStr = '1';
         }
 
-        return ['rgba(' + rgbaDec.join(',') + ')', rgbaDec[0], rgbaDec[1], rgbaDec[2], alpha];
+        return ['rgba(' + rgbaDec.join(',') + ')', rgbaDec[0], rgbaDec[1], rgbaDec[2], Number(alphaStr)];
     }
 
     // https://github.com/d3/d3-scale/blob/master/README.md#quantize-scales

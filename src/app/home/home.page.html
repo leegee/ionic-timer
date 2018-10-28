@@ -6,8 +6,7 @@
 
 <ion-content padding *ngIf="timers.length">
   <ion-chip *ngFor="let timer of timers" reorder="true" (ionItemReorder)="reorderItems($event)" [ngStyle]="{ 'margin-bottom': '4pt', width: '100%', 'background-color': timer.color }"
-    on-click="toggleTimer(timer.id)" on-press="editTimer(timer.id, $event)" 
-  >
+    on-press="toggleTimer(timer.id)" on-click="editTimer(timer.id, $event)">
     <ion-chip-button expand="full" fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}">
       <ion-icon color="{{ timer.start === undefined ? 'success' : 'danger' }}" name="{{ timer.start === undefined ? 'checkmark-circle' : 'close-circle'}}"></ion-icon>
     </ion-chip-button>

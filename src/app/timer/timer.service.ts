@@ -213,9 +213,11 @@ export class TimerService {
 
   async updateMeta(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.set(timer.id, timer);
+    this.timersMeta.next(this.ids2metaCache);
   }
 
   async delete(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.remove(timer.id);
+    this.timersMeta.next(this.ids2metaCache);
   }
 }

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Platform, PopoverController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
 import { Calendar, CalendarDay } from '../Calendar';
-import { Colors } from '../charts/Colors';
+import { Colors } from '../Colors';
 import { DayDetailsPage } from '../day-details/day-details.page';
 import { TimerPastRecord, TimerService } from '../timer/timer.service';
 import { Pie } from '../charts/Pie';

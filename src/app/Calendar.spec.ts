@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { Calendar } from './Calendar';
 import { TimerPastRecord } from './timer/timer.service';
-import { Colors } from './charts/Colors';
+import { Colors } from './Colors';
 
 
 describe('TimerService', () => {

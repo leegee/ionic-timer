@@ -38,7 +38,7 @@
         </ion-button>
       </ion-item>
 
-      <ion-item>
+      <ion-item *ngIf="timer.id">
         <ion-button size='large' shape="round" expand="full" color="danger" fill="solid" (click)="delete()">
           <ion-icon name='warning'></ion-icon> Remove
         </ion-button>

@@ -1,7 +1,7 @@
 import { NavParams, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
-import { SafeStyle } from '@angular/platform-browser/src/security/dom_sanitization_service';
+import { Colors } from '../Colors';
 
 @Component({
   selector: 'color-picker-popover',
@@ -10,12 +10,12 @@ import { SafeStyle } from '@angular/platform-browser/src/security/dom_sanitizati
 export class ColorPickerPopoverComponent implements OnInit {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  protected originalColor: string;
+  private originalColor: string;
   private chosenColor: string;
-  private red: number;
-  private green: number;
-  private blue: number;
-  private alpha: number;
+  private red = 255;
+  private green = 255;
+  private blue = 255;
+  private alpha = 1;
 
   constructor(
     private domSanitizer: DomSanitizer,
@@ -23,18 +23,9 @@ export class ColorPickerPopoverComponent implements OnInit {
     public navParams: NavParams
   ) {
     // TODO write the color to a new div and getComputedStyles, unless === 'transparent'.....
-    let color = navParams.get('color');
-    if (typeof color === 'undefined' || color === 'transparent') {
-      color = 'rgba(0,0,0,0)';
-      console.log('No initial color specified');
-    }
-    this.originalColor = color;
-    this.chosenColor = color;
-    console.log('chosenColor now', this.chosenColor, 'from', color);
-    [, this.red, this.green, this.blue, , this.alpha] = color.match(
-      /^rgba?\(([.\d]+),\s*([.\d]+),\s*([.\d]+)(,\s*([.\d]+)?)?\)$/
-    );
-    this.alpha = typeof this.alpha === 'undefined' ? 1 : this.alpha;
+    this.originalColor = navParams.get('color') || 'rgba(250,250,250,1)';
+    [this.chosenColor, this.red, this.green, this.blue, this.alpha] = Colors.rgbaFromAny(this.originalColor);
+    console.log('chosenColor now', this.chosenColor, 'from', this.originalColor);
   }
 
   ngOnInit() {
@@ -54,12 +45,13 @@ export class ColorPickerPopoverComponent implements OnInit {
   }
 
   setColor() {
-    this.chosenColor = 'rgba(' + this.red + ', ' +
+    this.chosenColor = 'rgba(' +
+      this.red + ', ' +
       this.green + ', ' +
       this.blue + ', ' +
       this.alpha +
       ')';
-    console.log('Color ', this.chosenColor);
+    console.log('Chosen color ', this.chosenColor);
   }
 
   pick(e: MouseEvent) {
@@ -72,6 +64,7 @@ export class ColorPickerPopoverComponent implements OnInit {
     this.red = imageData[0];
     this.green = imageData[1];
     this.blue = imageData[2];
+    console.log('Picked  ', imageData);
     this.setColor();
   }
 

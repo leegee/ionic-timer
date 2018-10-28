@@ -5,7 +5,7 @@ import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service'
 import { Calendar } from '../Calendar';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
-import { Colors } from '../charts/Colors';
+import { Colors } from '../Colors';
 
 const totalTimers = 5;
 const totalEntries = 10;

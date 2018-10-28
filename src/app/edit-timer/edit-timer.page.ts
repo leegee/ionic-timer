@@ -44,23 +44,19 @@ export class EditTimerPage implements OnInit {
     this.close();
   }
 
-  async delete() {
-    try {
-      await this.timerService.delete(this.timer);
-    } catch (e) {
-      throw e;
-    }
+  delete() {
+    this.popoverController.dismiss({
+      action: 'delete'
+    });
     this.close();
   }
 
-  async submit() {
+  submit() {
     this.timer.name = this.name.value;
     this.timer.color = this.color.value;
-    try {
-      await this.timerService.updateMeta(this.timer);
-    } catch (e) {
-      throw e;
-    }
+    this.popoverController.dismiss({
+      timer: this.timer
+    });
     this.close();
   }
 
@@ -81,9 +77,7 @@ export class EditTimerPage implements OnInit {
     await popover.present();
 
     const eDismissed = await popover.onDidDismiss();
-    console.log('got ', eDismissed.data.color);
-    this.timerForm.get('color').setValue( eDismissed.data.color as string);
-    console.log('set ', this.color.value);
+    this.timerForm.get('color').setValue(eDismissed.data.color as string);
   }
 }
 
