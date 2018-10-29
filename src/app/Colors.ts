@@ -97,4 +97,8 @@ export class Colors {
         // '#000' : '#fff';
     }
 
+    // https://trendct.org/2016/01/22/how-to-choose-a-label-color-to-contrast-with-background/
+    brightness(r, g, b) {
+        return (r * 299 + g * 587 + b * 114) / 1000;
+    }
 }

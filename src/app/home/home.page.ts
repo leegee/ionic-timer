@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { TimerService, TimerMetaRecord } from '../timer/timer.service';
 import { PopoverController, Platform } from '@ionic/angular';
 import { EditTimerPage } from '../edit-timer/edit-timer.page';
+import { LoggingService, Logger } from 'ionic-logging-service';
 
 export interface TimerMetaRecordDisplay extends TimerMetaRecord {
   label: string;
@@ -17,12 +18,16 @@ export interface TimerMetaRecordDisplay extends TimerMetaRecord {
 export class HomePage implements OnInit, OnDestroy {
   public timersSubscription: Subscription;
   public timers: TimerMetaRecordDisplay[] = [];
+  private logger: Logger;
 
   constructor(
     private platform: Platform,
     private timerService: TimerService,
-    private popoverController: PopoverController
-  ) { }
+    private popoverController: PopoverController,
+    loggingService: LoggingService
+  ) {
+    this.logger = loggingService.getLogger('HomePage');
+  }
 
   ngOnDestroy() {
     this.timersSubscription.unsubscribe();
@@ -52,6 +57,7 @@ export class HomePage implements OnInit, OnDestroy {
         skipOppositeRecordIds[oppositeRecord.id]++;
         rv.background = 'linear-gradient( to right, ' + rv.color + ',' + oppositeRecord.color + ')';
       } else {
+        this.logger.debug('No oppositeId for ', rv.id, rv);
         rv.background = rv.color;
       }
 

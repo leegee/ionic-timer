@@ -83,13 +83,14 @@ export class TimerService {
     this.ids2metaCache.push(record);
 
     if (args.oppositeId) {
-      this.logger.debug('oppositeId', record.oppositeId);
+      this.logger.debug('Has an oppositeId', record.oppositeId);
       await this.updateMeta(args.oppositeId, {
         oppositeId: id
       });
+    } else {
+      this.timersMeta.next(this.ids2metaCache);
     }
 
-    this.timersMeta.next(this.ids2metaCache);
     this.logger.exit('addNewTimer');
     return id;
   }
@@ -102,8 +103,10 @@ export class TimerService {
     this.logger.entry('updateMeta', id, partialRecord);
     const subject = this.ids2metaCache.find(record => record.id === id);
     const newRecord = Object.assign(subject, partialRecord);
-    this.logger.debug('newRecord', newRecord);
+    this.logger.debug('created newRecord', newRecord);
+    await this.stores.ids2meta.set(subject.id, newRecord);
     this.updateIds2metaCache(newRecord);
+    this.timersMeta.next(this.ids2metaCache);
     this.logger.exit('updateMeta');
   }
 
@@ -113,6 +116,7 @@ export class TimerService {
   updateIds2metaCache(newRecord: TimerMetaRecord) {
     this.logger.entry('updateIds2metaCache', newRecord);
     this.ids2metaCache = this.ids2metaCache.map(record => {
+      this.logger.debug(record.id, 'vs', newRecord.id);
       return record.id === newRecord.id ? newRecord : record;
     });
     this.logger.exit('updateIds2metaCache', this.ids2metaCache);

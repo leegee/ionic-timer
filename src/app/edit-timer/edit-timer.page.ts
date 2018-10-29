@@ -11,6 +11,7 @@ import { ColorPickerPopoverComponent } from '../color-picker-popover/color-picke
 })
 export class EditTimerPage implements OnInit {
 
+  public title: string;
   private timerForm: FormGroup;
   public labelsAndValuesOfTimers: TimerMetaRecord[];
   public timer: TimerMetaRecord;
@@ -23,6 +24,7 @@ export class EditTimerPage implements OnInit {
   ) {
     this.popoverController = this.navParams.get('popoverController');
     this.timer = this.navParams.get('timer');
+    this.title = this.timer.id ? this.timer.name : 'New Timer';
   }
 
   async ngOnInit() {
