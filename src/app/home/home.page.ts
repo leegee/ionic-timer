@@ -5,6 +5,10 @@ import { TimerService, TimerMetaRecord } from '../timer/timer.service';
 import { PopoverController, Platform } from '@ionic/angular';
 import { EditTimerPage } from '../edit-timer/edit-timer.page';
 
+export interface TimerMetaRecordDisplay extends TimerMetaRecord {
+  label: string;
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -12,7 +16,7 @@ import { EditTimerPage } from '../edit-timer/edit-timer.page';
 })
 export class HomePage implements OnInit, OnDestroy {
   public timersSubscription: Subscription;
-  public timers: TimerMetaRecord[] = [];
+  public timers: TimerMetaRecordDisplay[] = [];
 
   constructor(
     private platform: Platform,
@@ -27,10 +31,25 @@ export class HomePage implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.platform.ready();
     this.timersSubscription = this.timerService.timersMeta.subscribe((timers: TimerMetaRecord[]) => {
-      this.timers = timers;
+      this.timers = this.addViewFields(timers);
       console.log('Got %d timers', this.timers.length);
     });
     // this.timerService.init();
+  }
+
+  addViewFields(timers: TimerMetaRecord[]): TimerMetaRecordDisplay[] {
+    const displayable = timers.map(timer => {
+      const rv = { ...timer } as any;
+      rv.label = (timer.start === undefined ? 'Start' : 'Stop') + ' ' + timer.name;
+      if (rv.oppositeId) {
+        rv.label += ', ' + (timer.start === undefined ? 'stop ' : 'start') + ' ' +
+          timers.find(
+            v => v.id === timer.oppositeId
+          ).name;
+      }
+      return rv as TimerMetaRecordDisplay;
+    });
+    return displayable;
   }
 
   toggleTimer(timerId: string): void {

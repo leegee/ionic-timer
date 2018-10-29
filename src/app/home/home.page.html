@@ -10,7 +10,7 @@
     <ion-chip-button expand="full" fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}">
       <ion-icon color="{{ timer.start === undefined ? 'success' : 'danger' }}" name="{{ timer.start === undefined ? 'checkmark-circle' : 'close-circle'}}"></ion-icon>
     </ion-chip-button>
-    <ion-label>&nbsp;{{ timer.start === undefined ? 'Start' : 'Stop' }} {{ timer.name }}</ion-label>
+    <ion-label>{{ timer.label }}</ion-label>
   </ion-chip>
 </ion-content>
 
