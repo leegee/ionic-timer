@@ -4,17 +4,24 @@ import * as d3ScaleChromatic from 'd3-scale-chromatic';
 
 export class Colors {
 
-    static NUMBER_OF_COLORS = 20;
+    static NUMBER_OF_COLORS = 10;
 
-    static cachedForegroundColor: { [key: number]: string } = {};
+    static CATEGORY_COLORS: string[] = Colors._initCategoryColors();
+
+    private static _cachedForegroundColor: { [key: number]: string } = {};
 
     static colourRange = {
         min: 'white',
         max: 'steelblue'
     };
 
-    static scale(i: number): string {
-        return d3ScaleChromatic.interpolatePlasma(i);
+    private static _initCategoryColors(): string[] {
+        const categoryColors: string[] = [];
+        for (let i = 0; i < Colors.NUMBER_OF_COLORS; i++) {
+            const v = (1 / (Colors.NUMBER_OF_COLORS)) * (i + 1);
+            categoryColors[i] = d3ScaleChromatic.interpolatePlasma(v);
+        }
+        return categoryColors;
     }
 
     static rgbaFromAny(input: string): [string, number, number, number, number] {
@@ -80,9 +87,9 @@ export class Colors {
 
     static getForegroundColor(datasetOrMax: number | number[]): string {
         if ((!(datasetOrMax instanceof Array)) &&
-            Colors.cachedForegroundColor.hasOwnProperty(datasetOrMax as number)
+            Colors._cachedForegroundColor.hasOwnProperty(datasetOrMax as number)
         ) {
-            return Colors.cachedForegroundColor[datasetOrMax as number];
+            return Colors._cachedForegroundColor[datasetOrMax as number];
         }
         return d3Color.hsl(
             Colors.getColorRange(datasetOrMax) as any

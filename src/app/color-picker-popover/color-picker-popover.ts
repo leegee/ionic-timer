@@ -2,7 +2,6 @@ import { NavParams, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Component, OnInit } from '@angular/core';
 import { Colors } from '../Colors';
-
 @Component({
   selector: 'color-picker-popover',
   templateUrl: 'color-picker-popover.html'
@@ -34,11 +33,10 @@ export class ColorPickerPopoverComponent implements OnInit {
     const numberOfSteps = Colors.NUMBER_OF_COLORS;
     const stepSize = this.canvas.width / numberOfSteps;
 
-    for (let x = 1; x <= numberOfSteps; x++) {
-      const i = (1 / numberOfSteps) * x;
-      this.ctx.fillStyle = Colors.scale(i);
+    for (let i = 0; i < numberOfSteps; i++) {
+      this.ctx.fillStyle = Colors.CATEGORY_COLORS[i];
       console.log(i, this.ctx.fillStyle);
-      this.ctx.fillRect((x - 1) * stepSize, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillRect((i - 1) * stepSize, 0, this.canvas.width, this.canvas.height);
     }
   }
 
