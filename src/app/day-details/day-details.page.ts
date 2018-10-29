@@ -35,6 +35,11 @@ export class DayDetailsPage implements OnInit {
     new Pie('#pieChart').draw(this.dataset);
   }
 
+  get footer() {
+    const t = this.totalEntries;
+    return t + ' total ' + (t !== 1 ? 'entries' : 'entry');
+  }
+
   get totalEntries() {
     return this.dataset.reduce((prev: number, current: LabelsColorsValuesDataset) => {
       return prev + current.value;
