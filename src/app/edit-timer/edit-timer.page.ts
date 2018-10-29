@@ -12,7 +12,7 @@ import { ColorPickerPopoverComponent } from '../color-picker-popover/color-picke
 export class EditTimerPage implements OnInit {
 
   private timerForm: FormGroup;
-
+  public labelsAndValuesOfTimers: TimerMetaRecord[];
   public timer: TimerMetaRecord;
   public popoverController: PopoverController;
 
@@ -25,11 +25,13 @@ export class EditTimerPage implements OnInit {
     this.timer = this.navParams.get('timer');
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.timerForm = this.formBuilder.group({
       name: new FormControl(this.timer.name, Validators.required),
+      oppositeId: new FormControl(this.timer.oppositeId),
       color: new FormControl(this.timer.color)
     });
+    this.labelsAndValuesOfTimers = await this.timerService.allMeta();
   }
 
   get name() {
@@ -38,6 +40,10 @@ export class EditTimerPage implements OnInit {
 
   get color() {
     return this.timerForm.get('color');
+  }
+
+  get oppositeId() {
+    return this.timerForm.get('oppositeId');
   }
 
   cancel() {
@@ -54,6 +60,7 @@ export class EditTimerPage implements OnInit {
   submit() {
     this.timer.name = this.name.value;
     this.timer.color = this.color.value;
+    this.timer.oppositeId = this.oppositeId.value;
     this.popoverController.dismiss({
       timer: this.timer
     });
@@ -80,17 +87,3 @@ export class EditTimerPage implements OnInit {
     this.timerForm.get('color').setValue(eDismissed.data.color as string);
   }
 }
-
-// chooseColor(cssRuleName: string) {
-//   let modal = this.modalCtrl.create(ColorPickerPopoverComponent, {
-//       color: this.selections[cssRuleName]
-//   });
-
-//   modal.onDidDismiss((data) => {
-//       this.selections[cssRuleName] = data.color;
-//       this.onChange();
-//   });
-
-//   modal.present();
-// }
-

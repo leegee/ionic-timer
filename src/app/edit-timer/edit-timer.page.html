@@ -18,6 +18,13 @@
       </ion-item>
 
       <ion-item>
+        <ion-label>Opposite of:</ion-label>
+        <ion-select formControlName="oppositeId" value="{{ oppositeId }}" okText="OK" cancelText="Cancel">
+          <ion-select-option *ngFor="let timer of labelsAndValuesOfTimers" value="{{ timer.id }}">{{ timer.name }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
         <ion-input formControlName="color" type="hidden"></ion-input>
         <ion-button size='large' type="button" expand="full" shape="round" fill="outline" (click)="chooseColor($event)">
           <span class="button-inner" [style.backgroundColor]="color.value">

@@ -73,6 +73,7 @@ export class HomePage implements OnInit, OnDestroy {
         popoverController: this.popoverController,
         timer: {
           name: '',
+          oppositeId: undefined,
           color: undefined
         }
       }
@@ -84,6 +85,7 @@ export class HomePage implements OnInit, OnDestroy {
     if (eDismissed.data) {
       await this.timerService.addNewTimer(
         eDismissed.data.timer.name,
+        eDismissed.data.timer.oppositeId,
         eDismissed.data.color
       );
     }

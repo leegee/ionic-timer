@@ -7,6 +7,7 @@ import { Calendar } from '../Calendar';
 export interface TimerMetaRecord {
   id: string;
   name: string;
+  oppositeId?: string; // TimerMetaRecord.id
   color?: string;
   start?: number; // Date.getTime()
 }
@@ -59,11 +60,12 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
-  async addNewTimer(name: string, color: string = 'transparent'): Promise<string> {
+  async addNewTimer(name: string, oppositeId: string, color: string = 'transparent'): Promise<string> {
     console.log('Enter addNewTimer');
     const id = name + new Date().getTime();
     const record = <TimerMetaRecord>{
       id: id,
+      oppositeId: oppositeId,
       color: color,
       name: name
     };
@@ -91,6 +93,16 @@ export class TimerService {
     return record ? record.name : null;
   }
 
+  /**
+   * Returns a list of meta records.
+   */
+  allMeta(): TimerMetaRecord[] {
+    return this.ids2metaCache;
+  }
+
+  /**
+   * Returns a mapping of meta records by `id` to content.
+   */
   allMetaById(): { [key: string]: TimerMetaRecord } {
     return this.ids2metaCache.reduce((map, i) => {
       map[i.id] = i;
