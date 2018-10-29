@@ -60,14 +60,17 @@ export class TimerService {
     this.timersMeta.next(this.ids2metaCache);
   }
 
-  async addNewTimer(name: string, oppositeId: string, color: string = 'transparent'): Promise<string> {
-    console.log('Enter addNewTimer');
-    const id = name + new Date().getTime();
+  async addNewTimer(args: {
+    name: string,
+    oppositeId: string,
+    color: string
+  }): Promise<string> {
+    const id = args.name + new Date().getTime();
     const record = <TimerMetaRecord>{
       id: id,
-      oppositeId: oppositeId,
-      color: color,
-      name: name
+      oppositeId: args.oppositeId,
+      color: args.color,
+      name: args.name
     };
     await this.stores.ids2meta.set(id, record);
     this.ids2metaCache.push(record);
@@ -121,8 +124,18 @@ export class TimerService {
     const idx = this._getMetaCacheIndexById(id);
     if (this.ids2metaCache[idx].start === undefined) {
       this._start(idx);
+      if (this.ids2metaCache[idx].oppositeId) {
+        this._stop(
+          this._getMetaCacheIndexById(this.ids2metaCache[idx].oppositeId)
+        );
+      }
     } else {
       this._stop(idx);
+      if (this.ids2metaCache[idx].oppositeId) {
+        this._start(
+          this._getMetaCacheIndexById(this.ids2metaCache[idx].oppositeId)
+        );
+      }
     }
   }
 
@@ -167,6 +180,7 @@ export class TimerService {
   }
 
   addNewPastRecord(parentId: string, start: number, stop = new Date().getTime()): Promise<void> {
+    console.log('addNewPastRecord', parentId, start, stop);
     return this.stores.ids2pastTimers.set(start.toString(), <TimerPastRecord>{
       parentId: parentId,
       start: start,

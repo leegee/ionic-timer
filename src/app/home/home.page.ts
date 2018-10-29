@@ -65,7 +65,6 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async addNew(e: Event): Promise<void> {
-    console.log('addnew');
     const popover = await this.popoverController.create({
       component: EditTimerPage,
       event: e,
@@ -83,11 +82,7 @@ export class HomePage implements OnInit, OnDestroy {
 
     const eDismissed = await popover.onDidDismiss();
     if (eDismissed.data) {
-      await this.timerService.addNewTimer(
-        eDismissed.data.timer.name,
-        eDismissed.data.timer.oppositeId,
-        eDismissed.data.color
-      );
+      await this.timerService.addNewTimer(eDismissed.data.timer);
     }
   }
 

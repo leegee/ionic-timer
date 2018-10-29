@@ -122,36 +122,19 @@ export class Calendar {
       Object.keys(this.years[yearKey]).forEach(monthKey => {
         const monthNum = Number(monthKey);
         const lastDayOfMonth = new Date(yearNum, monthNum + 1, 0).getDate();
-        const monthCache = Calendar.emptyMonth();
-        let totalEntriesInMonth = 0;
 
-        [1, 2].forEach(parse => {
-          for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
-            const dayOfMonthDate = new Date(yearNum, monthNum, dayOfMonth);
-            const weekInMonth = Calendar.zeroIndexedWeekInMonth(dayOfMonthDate);
-            const day = dayOfMonthDate.getDay();
+        for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
+          const dayOfMonthDate = new Date(yearNum, monthNum, dayOfMonth);
+          const weekInMonth = Calendar.zeroIndexedWeekInMonth(dayOfMonthDate);
+          const day = dayOfMonthDate.getDay();
 
-            if (parse === 1) {
-              if (! (this.years[yearKey][monthKey][weekInMonth][day] instanceof CalendarDay)) {
-                this.years[yearKey][monthKey][weekInMonth][day].setDate(
-                  new Date(yearNum, monthNum, dayOfMonth )
-                );
-              }
-              // monthCache[weekInMonth][day] = new CalendarDay({
-              //   date: dayOfMonthDate,
-              //   timerPastRecords: this.years[yearNum][month][weekInMonth][day] || []
-              // });
+          if (!(this.years[yearKey][monthKey][weekInMonth][day] instanceof CalendarDay)) {
+            this.years[yearKey][monthKey][weekInMonth][day].setDate(
+              new Date(yearNum, monthNum, dayOfMonth)
+            );
 
-              // if (monthCache[weekInMonth][day].timerPastRecords.length > totalEntriesInMonth) {
-              //   totalEntriesInMonth = monthCache[weekInMonth][day].timerPastRecords.length;
-              // }
-
-            } else {
-              // monthCache[weekInMonth][day].colors =
-              //   this.heatmapCalendarDay(monthCache[weekInMonth][day].timerPastRecords.length, totalEntriesInMonth);
-            }
           }
-        });
+        }
       });
     });
 

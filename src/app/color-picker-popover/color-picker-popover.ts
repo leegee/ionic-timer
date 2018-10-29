@@ -53,6 +53,7 @@ export class ColorPickerPopoverComponent implements OnInit {
       this.blue + ', ' +
       this.alpha +
       ')';
+      console.log('this.chosenColor', this.chosenColor);
   }
 
   pick(e: MouseEvent) {
