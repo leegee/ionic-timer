@@ -31,24 +31,34 @@ export class HomePage implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.platform.ready();
     this.timersSubscription = this.timerService.timersMeta.subscribe((timers: TimerMetaRecord[]) => {
-      this.timers = this.addViewFields(timers);
+      this.timers = this.viewableTimers(timers);
       console.log('Got %d timers', this.timers.length);
     });
-    // this.timerService.init();
   }
 
-  addViewFields(timers: TimerMetaRecord[]): TimerMetaRecordDisplay[] {
-    const displayable = timers.map(timer => {
+  viewableTimers(timers: TimerMetaRecord[]): TimerMetaRecordDisplay[] {
+    const skipOppositeRecordIds = {};
+
+    const displayable = timers.reduce((accumulator: TimerMetaRecordDisplay[], timer: TimerMetaRecord) => {
+      if (skipOppositeRecordIds.hasOwnProperty(timer.id)) {
+        return accumulator;
+      }
+
       const rv = { ...timer } as any;
       rv.label = (timer.start === undefined ? 'Start' : 'Stop') + ' ' + timer.name;
       if (rv.oppositeId) {
-        rv.label += ', ' + (timer.start === undefined ? 'stop ' : 'start') + ' ' +
-          timers.find(
-            v => v.id === timer.oppositeId
-          ).name;
+        const oppositeRecord = timers.find(v => v.id === timer.oppositeId);
+        rv.label += ', ' + (timer.start === undefined ? 'stop ' : 'start') + ' ' + oppositeRecord.name;
+        skipOppositeRecordIds[oppositeRecord.id]++;
+        rv.background = 'linear-gradient( to right, ' + rv.color + ',' + oppositeRecord.color + ')';
+      } else {
+        rv.background = rv.color;
       }
-      return rv as TimerMetaRecordDisplay;
-    });
+
+      accumulator.push(rv);
+      return accumulator;
+    }, []);
+
     return displayable;
   }
 
@@ -78,7 +88,7 @@ export class HomePage implements OnInit, OnDestroy {
       if (eDismissed.data.action) {
         await this.timerService.delete(timer);
       } else {
-        await this.timerService.updateMeta(eDismissed.data.timer);
+        await this.timerService.resetMetaRecord(eDismissed.data.timer);
       }
     }
   }

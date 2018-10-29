@@ -31,7 +31,7 @@ export class EditTimerPage implements OnInit {
       oppositeId: new FormControl(this.timer.oppositeId),
       color: new FormControl(this.timer.color)
     });
-    this.labelsAndValuesOfTimers = await this.timerService.allMeta();
+    this.labelsAndValuesOfTimers = await this.timerService.allMeta().filter(record => record.id !== this.timer.id);
   }
 
   get name() {
@@ -84,6 +84,8 @@ export class EditTimerPage implements OnInit {
     await popover.present();
 
     const eDismissed = await popover.onDidDismiss();
+    console.log(this.timerForm);
+    console.log(eDismissed.data);
     this.timerForm.get('color').setValue(eDismissed.data.color as string);
   }
 }

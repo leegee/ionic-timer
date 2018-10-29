@@ -1,16 +1,35 @@
 :host {
-    ion-chip {
-        font-size: 4vh;
-        height: 5vh;
-        border: 1pt solid var(--ion-color-medium-tint);
-        border-radius: 4vh;
-    }
+  ion-chip {
+    font-size: 16pt;
+    height: 5.5vh;
+    border: 1pt solid var(--ion-color-medium-tint);
+    border-radius: 4vh;
+    margin-bottom: 4pt;
+    width: 100%;
+    --label-margin-top: 1em;
+    --label-margin-bottom: 1em;
+    --label-margin-start: 1em;
+    --label-margin-end: 1em;
 
     ion-chip-button {
-        --height: 4vh;
-        --width: 4vh;
-        --background: white;
-        --margin-start: 0.3em;
-        --margin-end: 0.6em;
+      --height: 4vh;
+      --width: 4vh;
+      --background: white;
+      --margin-start: 0.3em;
+      --margin-end: 0.6em;
     }
+
+    ion-chip-button.end {
+      --margin-start: 0;
+      --margin-end: 0.6em;
+      float: right; 
+    }
+
+    ion-label {
+      color: black;
+      -webkit-text-fill-color: white;
+      -webkit-text-stroke-width: 1px;
+      -webkit-text-stroke-color: black;
+    }
+  }
 }

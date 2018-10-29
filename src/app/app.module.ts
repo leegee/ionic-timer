@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
@@ -10,6 +10,12 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LoggingService, LoggingServiceModule } from 'ionic-logging-service';
+import { environment } from '../environments/environment';
+
+export function configureLogging(loggingService: LoggingService): () => void {
+  return () => loggingService.configure(environment.logging);
+}
 
 @NgModule({
   declarations: [
@@ -18,6 +24,7 @@ import { AppComponent } from './app.component';
   entryComponents: [
   ],
   imports: [
+    LoggingServiceModule,
     FormsModule,
     BrowserModule,
     IonicModule.forRoot(),
@@ -32,7 +39,13 @@ import { AppComponent } from './app.component';
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    {
+      deps: [LoggingService],
+      multi: true,
+      provide: APP_INITIALIZER,
+      useFactory: configureLogging
+    }
   ],
   bootstrap: [AppComponent]
 })

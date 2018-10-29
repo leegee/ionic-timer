@@ -96,4 +96,5 @@ export class Colors {
         ).l > 0.5 ? Colors.colourRange.max : Colors.colourRange.min;
         // '#000' : '#fff';
     }
+
 }

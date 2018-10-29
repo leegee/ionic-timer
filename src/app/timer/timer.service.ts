@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
 import { ReplaySubject } from 'rxjs';
+import { Logger, LoggingService } from 'ionic-logging-service';
 import { Calendar } from '../Calendar';
 
 export interface TimerMetaRecord {
@@ -36,6 +37,8 @@ export class TimerService {
     })
   };
 
+  private logger: Logger;
+
   public ids2metaCache: TimerMetaRecord[] = [];
 
   public timersMeta = new ReplaySubject();
@@ -45,19 +48,21 @@ export class TimerService {
   public calendar$ = this.calendar.asObservable();
 
   constructor(
-    private platform: Platform
+    private platform: Platform,
+    loggingService: LoggingService
   ) {
-    console.log(`timer-service new`);
+    this.logger = loggingService.getLogger('TimerService');
+    this.logger.trace(`timer-service new`);
     this.platform.ready().then(() => {
       this.init();
     });
   }
 
   async init(): Promise<void> {
-    console.log(`timer-service init`);
+    this.logger.entry('init');
     await this._buildIds2metaCache();
-    console.log('timer-service init has ', this.ids2metaCache);
     this.timersMeta.next(this.ids2metaCache);
+    this.logger.exit('int made ', this.ids2metaCache);
   }
 
   async addNewTimer(args: {
@@ -65,6 +70,7 @@ export class TimerService {
     oppositeId: string,
     color: string
   }): Promise<string> {
+    this.logger.entry('addNewTimer');
     const id = args.name + new Date().getTime();
     const record = <TimerMetaRecord>{
       id: id,
@@ -72,11 +78,44 @@ export class TimerService {
       color: args.color,
       name: args.name
     };
+
     await this.stores.ids2meta.set(id, record);
     this.ids2metaCache.push(record);
+
+    if (args.oppositeId) {
+      this.logger.debug('oppositeId', record.oppositeId);
+      await this.updateMeta(args.oppositeId, {
+        oppositeId: id
+      });
+    }
+
     this.timersMeta.next(this.ids2metaCache);
-    console.log('Leave addNewTimer with %s', id);
+    this.logger.exit('addNewTimer');
     return id;
+  }
+
+  /**
+   * @param id {string} `id` of the meta record to update 
+   * @param partialRecord {object} Field-to-value mapping to update. Other fields are untouched.
+   */
+  async updateMeta(id: string, partialRecord: {}) {
+    this.logger.entry('updateMeta', id, partialRecord);
+    const subject = this.ids2metaCache.find(record => record.id === id);
+    const newRecord = Object.assign(subject, partialRecord);
+    this.logger.debug('newRecord', newRecord);
+    this.updateIds2metaCache(newRecord);
+    this.logger.exit('updateMeta');
+  }
+
+  /**
+   * @param newRecord The record to update, identified by its `id`
+   */
+  updateIds2metaCache(newRecord: TimerMetaRecord) {
+    this.logger.entry('updateIds2metaCache', newRecord);
+    this.ids2metaCache = this.ids2metaCache.map(record => {
+      return record.id === newRecord.id ? newRecord : record;
+    });
+    this.logger.exit('updateIds2metaCache', this.ids2metaCache);
   }
 
   async deleteAll(): Promise<void> {
@@ -161,16 +200,18 @@ export class TimerService {
     const stopTimestamp = new Date().getTime();
     const date = new Date(this.ids2metaCache[idx].start);
 
-    do {
-      promises.push(
-        this.addNewPastRecord(this.ids2metaCache[idx].id, this.ids2metaCache[idx].start, stopTimestamp)
+    if (this.ids2metaCache[idx].start) {
+      do {
+        promises.push(
+          this.addNewPastRecord(this.ids2metaCache[idx].id, this.ids2metaCache[idx].start, stopTimestamp)
+        );
+        date.setDate(date.getDate() + 1);
+      } while (
+        date.getTime() < stopTimestamp
       );
-      date.setDate(date.getDate() + 1);
-    } while (
-      date.getTime() < stopTimestamp
-    );
+      delete this.ids2metaCache[idx].start;
+    }
 
-    delete this.ids2metaCache[idx].start;
     promises.push(
       this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx])
     );
@@ -237,7 +278,7 @@ export class TimerService {
     this.calendar.next(calendar);
   }
 
-  async updateMeta(timer: TimerMetaRecord): Promise<void> {
+  async resetMetaRecord(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.set(timer.id, timer);
     this.timersMeta.next(this.ids2metaCache);
   }

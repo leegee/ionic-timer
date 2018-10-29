@@ -18,15 +18,15 @@
       </ion-item>
 
       <ion-item>
-        <ion-label>Opposite of:</ion-label>
+        <ion-label position="stacked">Opposite of:</ion-label>
         <ion-select formControlName="oppositeId" value="{{ oppositeId }}" okText="OK" cancelText="Cancel">
-          <ion-select-option *ngFor="let timer of labelsAndValuesOfTimers" value="{{ timer.id }}">{{ timer.name }}</ion-select-option>
+          <ion-select-option *ngFor="let i of labelsAndValuesOfTimers" value="{{ i.id }}">{{ i.name }}</ion-select-option>
         </ion-select>
       </ion-item>
 
       <ion-item>
         <ion-input formControlName="color" type="hidden"></ion-input>
-        <ion-button size='large' type="button" expand="full" shape="round" fill="outline" (click)="chooseColor($event)">
+        <ion-button type="button" expand="full" shape="round" fill="outline" (click)="chooseColor($event)">
           <span class="button-inner" [style.backgroundColor]="color.value">
             <ion-icon name="brush"></ion-icon> Color
           </span>
@@ -34,19 +34,19 @@
       </ion-item>
 
       <ion-item>
-        <ion-button size='large' type="submit" expand="full" shape="round" color="primary" fill="solid">
+        <ion-button type="submit" expand="full" shape="round" color="primary" fill="solid">
           <ion-icon name='checkmark-circle'></ion-icon> Done
         </ion-button>
       </ion-item>
 
       <ion-item>
-        <ion-button size='large' type="button" expand="full" shape="round" fill="outline" color="primary" (click)="cancel()">
+        <ion-button type="button" expand="full" shape="round" fill="outline" color="primary" (click)="cancel()">
           <ion-icon name='close-circle'></ion-icon> Cancel
         </ion-button>
       </ion-item>
 
       <ion-item *ngIf="timer.id">
-        <ion-button size='large' shape="round" expand="full" color="danger" fill="solid" (click)="delete()">
+        <ion-button shape="round" expand="full" color="danger" fill="solid" (click)="delete()">
           <ion-icon name='warning'></ion-icon> Remove
         </ion-button>
       </ion-item>
