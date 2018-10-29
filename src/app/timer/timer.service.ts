@@ -62,7 +62,7 @@ export class TimerService {
     this.logger.entry('init');
     await this._buildIds2metaCache();
     this.timersMeta.next(this.ids2metaCache);
-    this.logger.exit('int made ', this.ids2metaCache);
+    this.logger.exit('init', this.ids2metaCache);
   }
 
   async addNewTimer(args: {
