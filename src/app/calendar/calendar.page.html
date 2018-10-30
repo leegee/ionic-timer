@@ -7,7 +7,7 @@
 <ion-content on-pan='pan($event)'>
 
   <ion-card *ngFor="let year of [date.getFullYear()]">
-    <div *ngIf="monthsWithData(year).length === 0">
+    <div *ngIf="monthsWithData(year).length === 0" [style.textAlign]='"center"'>
       <h1> Nothing to show</h1>
       <p>There are no timers for this period.</p>
     </div>
