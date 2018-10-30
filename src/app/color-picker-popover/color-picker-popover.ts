@@ -35,7 +35,6 @@ export class ColorPickerPopoverComponent implements OnInit {
 
     for (let i = 0; i < numberOfSteps; i++) {
       this.ctx.fillStyle = Colors.CATEGORY_COLORS[i];
-      console.log(i, this.ctx.fillStyle);
       this.ctx.fillRect((i - 1) * stepSize, 0, this.canvas.width, this.canvas.height);
     }
   }
