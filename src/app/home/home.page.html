@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Start and Stop Timers</ion-title>
+  <ion-toolbar color='primary'>
+    <ion-title color='light'>Start and Stop Timers</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -23,8 +23,15 @@
   </ion-chip>
 </ion-content>
 
-<ion-content padding *ngIf="!timers.length">
-  No timers!
+<ion-content *ngIf="!timers.length">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>You haven't made any timers yet!</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      To get started, add a timer by clicking the <ion-icon name="add"></ion-icon> button in the bottom-right corner.
+    </ion-card-content>
+  </ion-card>
 </ion-content>
 
 <ion-fab vertical="bottom" horizontal="end" slot="fixed">

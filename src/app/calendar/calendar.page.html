@@ -1,12 +1,19 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
-      {{ title }}
-    </ion-title>
+  <ion-toolbar color='primary'>
+    <ion-title color='light'>{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-card *ngIf="yearsWithData.length === 0">
+    <ion-card-header>
+      <ion-card-title>You haven't run any timers yet!</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      When you have started a timer, its times will appear here.
+    </ion-card-content>
+  </ion-card>
+
   <ion-card *ngFor="let year of yearsWithData">
     <ion-grid class='calendar' *ngFor="let month of monthsWithData(year)">
       <ion-row class='weekdays'>
