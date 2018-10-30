@@ -24,7 +24,7 @@ export class EditTimerPage implements OnInit {
   ) {
     this.popoverController = this.navParams.get('popoverController');
     this.timer = this.navParams.get('timer');
-    this.title = this.timer.id ? this.timer.name : 'New Timer';
+    this.title = this.timer.id ? `Edit '${this.timer.name}'` : 'New Timer';
   }
 
   async ngOnInit() {

@@ -4,48 +4,47 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-card *ngIf="yearsWithData.length === 0">
-    <ion-card-header>
-      <ion-card-title>You haven't run any timers yet!</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      When you have started a timer, its times will appear here.
-    </ion-card-content>
-  </ion-card>
+<ion-content on-pan='pan($event)'>
 
-  <ion-card *ngFor="let year of yearsWithData">
-    <ion-grid class='calendar' *ngFor="let month of monthsWithData(year)">
-      <ion-row class='weekdays'>
-        <ion-col>S</ion-col>
-        <ion-col>M</ion-col>
-        <ion-col>T</ion-col>
-        <ion-col>W</ion-col>
-        <ion-col>T</ion-col>
-        <ion-col>F</ion-col>
-        <ion-col>S</ion-col>
-      </ion-row>
+  <ion-card *ngFor="let year of [date.getFullYear()]">
+    <div *ngIf="monthsWithData(year).length === 0">
+      <h1> Nothing to show</h1>
+      <p>There are no timers for this period.</p>
+    </div>
 
-      <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
-        <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar.years[year][month][week][day].colors ? calendar.years[year][month][week][day].colors.b : "" '>
-          <ion-item no-padding *ngIf="calendar.years[year][month][week][day].date && calendar.years[year][month][week][day].timerPastRecords && calendar.years[year][month][week][day].timerPastRecords.length > 0; else noCalendarEntry"
-            tappable on-click='showDetails($event, calendar.years[year][month][week][day])' [style.color]='calendar.years[year][month][week][day].date.getDate()? calendar.years[year][month][week][day].colors.f : ""'>
-            <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
-            <span class='count'> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
-            <span class='pie' [id]='pieId( year, month, week, day)'>
-              {{ getPie(year, month, week, day, calendar.years[year][month][week][day]) }}
-            </span>
-          </ion-item>
+    <div *ngIf="monthsWithData(year)">
+      <ion-grid class='calendar' *ngFor="let month of monthsWithData(year)">
+        <ion-row class='weekdays'>
+          <ion-col>S</ion-col>
+          <ion-col>M</ion-col>
+          <ion-col>T</ion-col>
+          <ion-col>W</ion-col>
+          <ion-col>T</ion-col>
+          <ion-col>F</ion-col>
+          <ion-col>S</ion-col>
+        </ion-row>
 
-          <ng-template #noCalendarEntry>
-            <ion-item *ngIf="calendar.years[year][month][week][day].date">
+        <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
+          <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar.years[year][month][week][day].colors ? calendar.years[year][month][week][day].colors.b : "" '>
+            <ion-item no-padding *ngIf="calendar.years[year][month][week][day].date && calendar.years[year][month][week][day].timerPastRecords && calendar.years[year][month][week][day].timerPastRecords.length > 0; else noCalendarEntry"
+              tappable on-click='showDetails($event, calendar.years[year][month][week][day])' [style.color]='calendar.years[year][month][week][day].date.getDate()? calendar.years[year][month][week][day].colors.f : ""'>
               <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
+              <span class='count'> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
+              <span class='pie' [id]='pieId( year, month, week, day)'>
+                {{ getPie(year, month, week, day, calendar.years[year][month][week][day]) }}
+              </span>
             </ion-item>
-          </ng-template>
-        </ion-col>
-      </ion-row>
 
-    </ion-grid>
+            <ng-template #noCalendarEntry>
+              <ion-item *ngIf="calendar.years[year][month][week][day].date">
+                <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
+              </ion-item>
+            </ng-template>
+          </ion-col>
+        </ion-row>
 
+      </ion-grid>
+
+    </div>
   </ion-card>
 </ion-content>

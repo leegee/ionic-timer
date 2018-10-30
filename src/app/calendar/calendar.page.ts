@@ -14,12 +14,14 @@ import { Pie } from '../charts/Pie';
 })
 export class CalendarPage implements OnInit, OnDestroy {
 
+  static PAN_DEBOUNCE_MS = 500;
+
   public calendarSubscription: Subscription;
   public calendar: Calendar;
-  public year = new Date().getFullYear();
-  public month = new Date().getMonth();
+  public date = new Date();
   public title: string;
   public colorRangeFunction: Function;
+  private lastTimerStamp = 0;
 
   constructor(
     private platform: Platform,
@@ -36,8 +38,12 @@ export class CalendarPage implements OnInit, OnDestroy {
     this.calendarSubscription = this.timerService.calendar$.subscribe((calendar: Calendar) => {
       this.setCalendar(calendar);
     });
-    this.timerService.getMonthOfPastRecords(new Date(this.year, this.month));
-    this.title = new Date(this.year, this.month).toLocaleDateString('en-GB', {
+    this.loadMonth();
+  }
+
+  loadMonth() {
+    this.timerService.getMonthOfPastRecords(this.date);
+    this.title = this.date.toLocaleDateString('en-GB', {
       month: 'long',
       year: 'numeric'
     });
@@ -47,8 +53,8 @@ export class CalendarPage implements OnInit, OnDestroy {
     return this.calendar ? Object.keys(this.calendar.years) : [];
   }
 
-  monthsWithData(year = this.year): string[] {
-    return this.calendar ? Object.keys(this.calendar.years[year]) : [];
+  monthsWithData(year = this.date.getFullYear()): string[] {
+    return this.calendar && this.calendar.years[year] ? Object.keys(this.calendar.years[year]) : [];
   }
 
   setCalendar(calendar: Calendar): void {
@@ -110,4 +116,17 @@ export class CalendarPage implements OnInit, OnDestroy {
     });
   }
 
+  pan(e) {
+    console.log(e);
+    if (e.timeStamp - this.lastTimerStamp < CalendarPage.PAN_DEBOUNCE_MS) {
+      return;
+    }
+    this.lastTimerStamp = e.timeStamp;
+    this.date.setMonth(
+      this.date.getMonth() + (
+        e.deltaX > 0 ? 1 : -1
+      )
+    );
+    this.loadMonth();
+  }
 }
