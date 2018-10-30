@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { TimerMetaRecord, TimerService } from '../timer/timer.service';
-import { NavParams, PopoverController } from '@ionic/angular';
+import { NavParams, PopoverController, ActionSheetController } from '@ionic/angular';
 import { ColorPickerPopoverComponent } from '../color-picker-popover/color-picker-popover';
+import { Emojis } from '../Emojis';
+import { ActionSheetButton } from '@ionic/core';
+
 
 @Component({
   selector: 'app-edit-timer',
@@ -13,13 +16,14 @@ export class EditTimerPage implements OnInit {
 
   public title: string;
   private timerForm: FormGroup;
-  public labelsAndValuesOfTimers: TimerMetaRecord[];
+  public labelsAndValuesOfPossibleOpposites: TimerMetaRecord[];
   public timer: TimerMetaRecord;
   public popoverController: PopoverController;
 
   constructor(
     public timerService: TimerService,
     public navParams: NavParams,
+    public actionSheetController: ActionSheetController,
     private formBuilder: FormBuilder
   ) {
     this.popoverController = this.navParams.get('popoverController');
@@ -30,10 +34,11 @@ export class EditTimerPage implements OnInit {
   async ngOnInit() {
     this.timerForm = this.formBuilder.group({
       name: new FormControl(this.timer.name, Validators.required),
-      oppositeId: new FormControl(this.timer.oppositeId),
-      color: new FormControl(this.timer.color)
+      color: new FormControl(this.timer.color),
+      oppositeId: new FormControl(this.timer.oppositeId)
     });
-    this.labelsAndValuesOfTimers = await this.timerService.allMeta().filter(record => record.id !== this.timer.id);
+    this.labelsAndValuesOfPossibleOpposites = await this.timerService.allMeta()
+      .filter(record => record.id !== this.timer.id && !record.oppositeId);
   }
 
   get name() {
@@ -89,5 +94,24 @@ export class EditTimerPage implements OnInit {
     console.log(this.timerForm);
     console.log(eDismissed.data);
     this.timerForm.get('color').setValue(eDismissed.data.color as string);
+  }
+
+  async namePressed() {
+    const actionSheet = await this.actionSheetController.create({
+      header: 'Emojis',
+      cssClass: 'emojis',
+      buttons: Emojis.list().map(emoji => {
+        return {
+          text: emoji,
+          role: '',
+          // icon: '',
+          handler: (e) => {
+            console.log(' clicked', e);
+          }
+        } as ActionSheetButton;
+      })
+    });
+
+    await actionSheet.present();
   }
 }

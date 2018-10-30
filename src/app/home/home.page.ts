@@ -53,9 +53,13 @@ export class HomePage implements OnInit, OnDestroy {
       rv.label = (timer.start === undefined ? 'Start' : 'Stop') + ' ' + timer.name;
       if (rv.oppositeId) {
         const oppositeRecord = timers.find(v => v.id === timer.oppositeId);
-        rv.label += ', ' + (timer.start === undefined ? 'stop ' : 'start') + ' ' + oppositeRecord.name;
-        skipOppositeRecordIds[oppositeRecord.id]++;
-        rv.background = 'linear-gradient( to right, ' + rv.color + ',' + oppositeRecord.color + ')';
+        if (oppositeRecord) {
+          rv.label += ', ' + (timer.start === undefined ? 'stop ' : 'start') + ' ' + oppositeRecord.name;
+          skipOppositeRecordIds[oppositeRecord.id]++;
+          rv.background = 'linear-gradient( to right, ' + rv.color + ',' + oppositeRecord.color + ')';
+        } else {
+          this.logger.warn('oppositeId\'s record could not be found where timer.name===', timer.name);
+        }
       } else {
         this.logger.debug('No oppositeId for ', rv.id, rv);
         rv.background = rv.color;

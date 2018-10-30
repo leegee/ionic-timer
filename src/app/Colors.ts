@@ -19,7 +19,7 @@ export class Colors {
         const categoryColors: string[] = [];
         for (let i = 0; i < Colors.NUMBER_OF_COLORS; i++) {
             const v = (1 / (Colors.NUMBER_OF_COLORS)) * (i + 1);
-            categoryColors[i] = d3ScaleChromatic.interpolatePlasma(v);
+            categoryColors[i] = d3ScaleChromatic.interpolateSpectral(v); // interpolatePlasma(v);
         }
         return categoryColors;
     }

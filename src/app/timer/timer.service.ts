@@ -96,6 +96,7 @@ export class TimerService {
   }
 
   /**
+   * Update a record in the store using fields supplied in `partialRecord`.
    * @param id {string} `id` of the meta record to update 
    * @param partialRecord {object} Field-to-value mapping to update. Other fields are untouched.
    */
@@ -234,21 +235,30 @@ export class TimerService {
   }
 
   async remove(id: string): Promise<void> {
-    console.log('remove ', id);
+    this.logger.entry('remove ', id);
     const promises: Promise<void>[] = [];
     promises.push(this.stores.ids2meta.remove(id));
     delete this.ids2metaCache[id];
     const done = this.stores.ids2pastTimers.forEach(record => {
       if (record.parentId === id) {
-        console.log('remove ', record);
+        this.logger.debug('remove parentId in ', record);
         promises.push(
           this.stores.ids2pastTimers.remove(record.start.toString())
         );
       }
     });
     promises.push(done);
+
+    // remove all oppositeIds
+    this.ids2metaCache.forEach(record => {
+      if (record.oppositeId === id) {
+        promises.push( this.updateMeta(record.id, { oppositeId: null }) );
+      }
+    });
+
     await Promise.all(promises);
     this.timersMeta.next(this.ids2metaCache);
+    this.logger.exit('remove');
   }
 
   async recordsWithinRange(from: Date, to: Date): Promise<TimerPastRecord[]> {
@@ -284,11 +294,19 @@ export class TimerService {
 
   async resetMetaRecord(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.set(timer.id, timer);
+    if (timer.oppositeId) {
+      this.logger.debug('Has an oppositeId', timer.oppositeId);
+      await this.updateMeta(timer.oppositeId, {
+        oppositeId: timer.id
+      });
+    }
+    await this._buildIds2metaCache();
     this.timersMeta.next(this.ids2metaCache);
   }
 
   async delete(timer: TimerMetaRecord): Promise<void> {
     this.stores.ids2meta.remove(timer.id);
+    await this._buildIds2metaCache();
     this.timersMeta.next(this.ids2metaCache);
   }
 }
