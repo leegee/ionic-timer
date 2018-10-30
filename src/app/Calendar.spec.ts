@@ -20,7 +20,7 @@ describe('TimerService', () => {
             { start: date.getTime() - 1600, stop: date.getTime(), parentId: null }
         ];
         const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
-        expect(cal instanceof Calendar).to.equal(true);
+        expect(cal).to.be.an.instanceOf(Calendar);
         expect(cal.years.hasOwnProperty(2018)).to.equal(true);
         expect(cal.years[2018].hasOwnProperty(0)).to.equal(true);
         expect(cal.years[2018][0] instanceof Array).to.equal(true);

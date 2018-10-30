@@ -9,7 +9,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "mocha": "mocha -r ts-node/register src/app/**/*.spec.ts"
   },
   "private": true,
   "dependencies": {
@@ -26,11 +27,13 @@
     "@ionic/angular": "4.0.0-beta.12",
     "@ionic/pro": "2.0.3",
     "@ionic/storage": "^2.2.0",
+    "@types/mocha": "^5.2.5",
     "core-js": "^2.5.3",
     "d3": "^5.7.0",
     "d3-color": "^1.2.3",
     "hammerjs": "^2.0.8",
     "ionic-logging-service": "^6.0.0",
+    "mocha": "^5.2.0",
     "rxjs": "6.2.2",
     "zone.js": "^0.8.26"
   },

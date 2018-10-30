@@ -84,7 +84,11 @@ describe('TimerService', () => {
   it('should create records with addNew', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
     const testName = 'test-name';
-    const id = await service.addNewTimer(testName);
+    const id = await service.addNewTimer({
+      name: testName,
+      oppositeId: null,
+      color: null
+    });
     const ids = await service.stores.ids2meta.keys();
     expect(ids.length).to.equal(1);
     expect(ids[0]).to.equal(id);
@@ -98,7 +102,11 @@ describe('TimerService', () => {
     await loadFixtures(service);
     await service.deleteAll();
     const testName = 'another-test-name';
-    const id = await service.addNewTimer(testName);
+    const id = await service.addNewTimer({
+      name: testName,
+      oppositeId: null,
+      color: null
+    });
     service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
       expect(changed.length).to.equal(1);
       expect(changed[0].id).to.equal(id);
@@ -108,9 +116,21 @@ describe('TimerService', () => {
 
   it('timersIndexById', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
-    const id0 = await service.addNewTimer('test1');
-    const id1 = await service.addNewTimer('test2');
-    const id2 = await service.addNewTimer('test3');
+    const id0 = await service.addNewTimer({
+      name: 'test1',
+      oppositeId: null,
+      color: null
+    });
+    const id1 = await service.addNewTimer({
+      name: 'test2',
+      oppositeId: null,
+      color: null
+    });
+    const id2 = await service.addNewTimer({
+      name: 'test3',
+      oppositeId: null,
+      color: null
+    });
     await service._buildIds2metaCache();
     expect(service._getMetaCacheIndexById(id0)).to.equal(0);
     expect(service._getMetaCacheIndexById(id1)).to.equal(1);
@@ -119,7 +139,11 @@ describe('TimerService', () => {
 
   it('removes a record', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
-    const id = await service.addNewTimer('test');
+    const id = await service.addNewTimer({
+      name: 'test',
+      oppositeId: null,
+      color: null
+    });
     await service._start(0);
     await service._stop(0);
     await service.remove(id);
@@ -165,7 +189,7 @@ describe('TimerService', () => {
       { start: date.getTime() - 1600, stop: date.getTime(), parentId: null }
     ];
     const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
-    expect(cal instanceof Calendar).to.equal(true);
+    expect(cal).to.be.an.instanceof(Calendar);
     expect(cal.years.hasOwnProperty(2018)).to.equal(true);
     expect(cal.years[2018].hasOwnProperty(0)).to.equal(true);
     expect(cal.years[2018][0] instanceof Array).to.equal(true);

@@ -17,9 +17,9 @@
         </ion-text>
       </ion-item>
 
-      <ion-item>
+      <ion-item *ngIf="labelsAndValuesOfTimers">
         <ion-label position="stacked">Opposite of:</ion-label>
-        <ion-select formControlName="oppositeId" value="{{ oppositeId }}" okText="OK" cancelText="Cancel">
+        <ion-select formControlName="oppositeId" value="{{ timer.oppositeId }}" okText="OK" cancelText="Cancel">
           <ion-select-option *ngFor="let i of labelsAndValuesOfTimers" value="{{ i.id }}">{{ i.name }}</ion-select-option>
         </ion-select>
       </ion-item>
