@@ -12,6 +12,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoggingService, LoggingServiceModule } from 'ionic-logging-service';
 import { environment } from '../environments/environment';
+import { BarChartModule } from './charts/bar-chart/bar-chart.module';
 
 export function configureLogging(loggingService: LoggingService): () => void {
   return () => loggingService.configure(environment.logging);
@@ -24,6 +25,7 @@ export function configureLogging(loggingService: LoggingService): () => void {
   entryComponents: [
   ],
   imports: [
+    BarChartModule,
     LoggingServiceModule,
     FormsModule,
     BrowserModule,
