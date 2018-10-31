@@ -6,6 +6,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { EditTimerPage } from './edit-timer.page';
+import { ColorPickerPopoverComponentModule } from '../color-picker-popover/color-picker-popover.module';
 
 const routes: Routes = [
   {
@@ -16,6 +17,7 @@ const routes: Routes = [
 
 @NgModule({
   imports: [
+    ColorPickerPopoverComponentModule,
     CommonModule,
     FormsModule, ReactiveFormsModule,
     IonicModule,
