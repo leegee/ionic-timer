@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { Calendar, CalendarDay } from '../Calendar';
 import { Colors } from '../Colors';
 import { DayDetailsPage } from '../day-details/day-details.page';
-import { TimerPastRecord, TimerService } from '../timer/timer.service';
+import { TimerService } from '../timer/timer.service';
 import { Pie } from '../charts/Pie';
 
 @Component({
@@ -19,7 +19,7 @@ export class CalendarPage implements OnInit, OnDestroy {
   public calendarSubscription: Subscription;
   public calendar: Calendar;
   public date = new Date();
-  public title: string;
+  public title = 'Loading calendar...';
   public colorRangeFunction: Function;
   private lastTimerStamp = 0;
 
@@ -35,18 +35,52 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.platform.ready();
+    console.log('ngOnInit');
     this.calendarSubscription = this.timerService.calendar$.subscribe((calendar: Calendar) => {
       this.setCalendar(calendar);
     });
     this.loadMonth();
   }
 
-  loadMonth() {
-    this.timerService.getMonthOfPastRecords(this.date);
+  setCalendar(calendar: Calendar): void {
+    console.log('set calendar', calendar);
+    this.calendar = calendar;
+    this.calendar.addDatesForDaysWithoutData();
     this.title = this.date.toLocaleDateString('en-GB', {
       month: 'long',
       year: 'numeric'
     });
+  }
+
+  loadMonth() {
+    console.log('load month');
+    this.timerService.getMonthOfPastRecords(this.date);
+  }
+
+  gotData(year, month, week, day): boolean {
+    return this.calendar.years[year]
+      && this.calendar.years[year][month]
+      && this.calendar.years[year][month][week]
+      && this.calendar.years[year][month][week][day]
+      && this.calendar.years[year][month][week][day].date
+      && this.calendar.years[year][month][week][day].timerPastRecords
+      && this.calendar.years[year][month][week][day].timerPastRecords.length > 0;
+  }
+
+  hasaDate(year, month, week, day): boolean {
+    return this.calendar.years[year]
+      && this.calendar.years[year][month]
+      && this.calendar.years[year][month][week]
+      && this.calendar.years[year][month][week][day]
+      && this.calendar.years[year][month][week][day].hasOwnProperty('date');
+  }
+
+  get year() {
+    return this.date.getFullYear();
+  }
+
+  get month() {
+    return this.date.getMonth();
   }
 
   get yearsWithData() {
@@ -55,11 +89,6 @@ export class CalendarPage implements OnInit, OnDestroy {
 
   monthsWithData(year = this.date.getFullYear()): string[] {
     return this.calendar && this.calendar.years[year] ? Object.keys(this.calendar.years[year]) : [];
-  }
-
-  setCalendar(calendar: Calendar): void {
-    this.calendar = calendar;
-    this.calendar.addDatesForDaysWithoutData();
   }
 
   heatmapCalendarDay(itemValue: number, max: number): { f: string, b: string } {
@@ -106,7 +135,6 @@ export class CalendarPage implements OnInit, OnDestroy {
   getCalendarData(calendarDay: CalendarDay) {
     const parentId2count = calendarDay.getParentIds2Counts();
     const allMetaRecords = this.timerService.allMetaById();
-
     return Object.keys(parentId2count).map(id => {
       return {
         label: (allMetaRecords[id].name || 'Unnamed Timer'),
@@ -117,7 +145,6 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   pan(e) {
-    console.log(e);
     if (e.timeStamp - this.lastTimerStamp < CalendarPage.PAN_DEBOUNCE_MS) {
       return;
     }

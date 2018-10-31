@@ -5,51 +5,49 @@
 </ion-header>
 
 <ion-content on-pan='pan($event)'>
+  <ion-card *ngIf='calendar && calendar.years.hasOwnProperty(year); else nocalendar'>
+    <ion-grid class='calendar'>
+      <ion-row class='weekdays'>
+        <ion-col>S</ion-col>
+        <ion-col>M</ion-col>
+        <ion-col>T</ion-col>
+        <ion-col>W</ion-col>
+        <ion-col>T</ion-col>
+        <ion-col>F</ion-col>
+        <ion-col>S</ion-col>
+      </ion-row>
 
-  <ion-card *ngFor="let year of [date.getFullYear()]">
-    <div *ngIf="monthsWithData(year).length === 0" [style.textAlign]='"center"'>
-      <h1> Nothing to show</h1>
-      <p>There are no timers for this period.</p>
-    </div>
+      <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
+        <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]">
+          <ion-item *ngIf="gotData(year, month, week, day); else noCalendarEntry" no-padding tappable on-click='showDetails($event, calendar.years[year][month][week][day])'>
+            <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
+            <span class='count'> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
+            <span class='pie' [id]='pieId( year, month, week, day)'>
+              {{ getPie(year, month, week, day, calendar.years[year][month][week][day]) }}
+            </span>
+          </ion-item>
 
-    <div *ngIf="monthsWithData(year)">
-      <ion-grid class='calendar' *ngFor="let month of monthsWithData(year)">
-        <ion-row class='weekdays'>
-          <ion-col>S</ion-col>
-          <ion-col>M</ion-col>
-          <ion-col>T</ion-col>
-          <ion-col>W</ion-col>
-          <ion-col>T</ion-col>
-          <ion-col>F</ion-col>
-          <ion-col>S</ion-col>
-        </ion-row>
-
-        <ion-row class='week' *ngFor="let week of [0, 1, 2, 3, 4]">
-          <ion-col class='days' *ngFor="let day of [0, 1, 2, 3, 4, 5, 6]" [style.backgroundColor]='calendar.years[year][month][week][day].colors ? calendar.years[year][month][week][day].colors.b : "" '>
-            <ion-item no-padding *ngIf="calendar.years[year][month][week][day].date && calendar.years[year][month][week][day].timerPastRecords && calendar.years[year][month][week][day].timerPastRecords.length > 0; else noCalendarEntry"
-              tappable on-click='showDetails($event, calendar.years[year][month][week][day])' [style.color]='calendar.years[year][month][week][day].date.getDate()? calendar.years[year][month][week][day].colors.f : ""'>
+          <ng-template #noCalendarEntry>
+            <ion-item *ngIf="hasaDate(year, month, week, day)">
               <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
-              <span class='count'> {{ calendar.years[year][month][week][day].timerPastRecords.length }} </span>
-              <span class='pie' [id]='pieId( year, month, week, day)'>
-                {{ getPie(year, month, week, day, calendar.years[year][month][week][day]) }}
-              </span>
             </ion-item>
+          </ng-template>
 
-            <ng-template #noCalendarEntry>
-              <ion-item *ngIf="calendar.years[year][month][week][day].date">
-                <sup>{{ calendar.years[year][month][week][day].date.getDate() }}</sup>
-              </ion-item>
-            </ng-template>
-          </ion-col>
-        </ion-row>
-
-      </ion-grid>
-    </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-card>
 
-  <<ion-card>
+  <ng-template #nocalendar>
+    <ion-card [style.textAlign]='"center"'>
+      <h1> Nothing to show</h1>
+      <p>There are no timers for this period.</p>
+    </ion-card>
+  </ng-template>
+
+  <ion-card>
     <ion-card-content>
-      <timer-bar-chart></timer-bar-chart>
+      <timer-bar-chart calendar='{{calendar.years}}'></timer-bar-chart>
     </ion-card-content>
   </ion-card>
 </ion-content>
