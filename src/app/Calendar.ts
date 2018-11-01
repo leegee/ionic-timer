@@ -66,6 +66,10 @@ export class Calendar {
 
   constructor() { }
 
+  static lastDayOfMonth(year: number, month: number): Date {
+    return new Date(year, month + 1, 0);
+  }
+
   static fromTimerPastRecordList(timers: TimerPastRecord[]) {
     const self = new Calendar();
     timers.forEach(timer => {
@@ -121,7 +125,7 @@ export class Calendar {
 
       Object.keys(this.years[yearKey]).forEach(monthKey => {
         const monthNum = Number(monthKey);
-        const lastDayOfMonth = new Date(yearNum, monthNum + 1, 0).getDate();
+        const lastDayOfMonth = Calendar.lastDayOfMonth(yearNum, monthNum).getDate();
 
         for (let dayOfMonth = 1; dayOfMonth <= lastDayOfMonth; dayOfMonth++) {
           const dayOfMonthDate = new Date(yearNum, monthNum, dayOfMonth);

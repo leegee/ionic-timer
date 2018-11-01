@@ -36,6 +36,10 @@
         </ion-col>
       </ion-row>
     </ion-grid>
+
+    <timer-bar-chart [calendar]='calendar' [year]='year' [month]='month'></timer-bar-chart>
+    <!-- <timer-bar-chart [calendar]='calendar'></timer-bar-chart> -->
+
   </ion-card>
 
   <ng-template #nocalendar>
@@ -45,9 +49,4 @@
     </ion-card>
   </ng-template>
 
-  <ion-card>
-    <ion-card-content>
-      <timer-bar-chart calendar='{{calendar.years}}'></timer-bar-chart>
-    </ion-card-content>
-  </ion-card>
 </ion-content>

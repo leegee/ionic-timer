@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { Calendar, CalendarDay } from '../Calendar';
 import { Colors } from '../Colors';
 import { DayDetailsPage } from '../day-details/day-details.page';
-import { TimerService } from '../timer/timer.service';
+import { TimerService, TimerMetaRecord } from '../timer/timer.service';
 import { Pie } from '../charts/Pie';
 
 @Component({
@@ -53,7 +53,6 @@ export class CalendarPage implements OnInit, OnDestroy {
   }
 
   loadMonth() {
-    console.log('load month');
     this.timerService.getMonthOfPastRecords(this.date);
   }
 
@@ -126,15 +125,15 @@ export class CalendarPage implements OnInit, OnDestroy {
     const pidId = this.pieId(year, month, week, day);
     const el = document.getElementById(pidId);
     if (el && el.childElementCount === 0) {
+      const allMetaRecords = this.timerService.allMetaById();
       new Pie('#' + pidId, false).draw(
-        this.getCalendarData(calendarDay)
+        this.getCalendarDayData(allMetaRecords, calendarDay)
       );
     }
   }
 
-  getCalendarData(calendarDay: CalendarDay) {
+  getCalendarDayData(allMetaRecords: { [key: string]: TimerMetaRecord }, calendarDay: CalendarDay) {
     const parentId2count = calendarDay.getParentIds2Counts();
-    const allMetaRecords = this.timerService.allMetaById();
     return Object.keys(parentId2count).map(id => {
       return {
         label: (allMetaRecords[id].name || 'Unnamed Timer'),

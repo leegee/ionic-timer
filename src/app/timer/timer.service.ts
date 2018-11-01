@@ -97,7 +97,7 @@ export class TimerService {
 
   /**
    * Update a record in the store using fields supplied in `partialRecord`.
-   * @param id {string} `id` of the meta record to update 
+   * @param id {string} `id` of the meta record to update
    * @param partialRecord {object} Field-to-value mapping to update. Other fields are untouched.
    */
   async updateMeta(id: string, partialRecord: {}) {
@@ -284,7 +284,7 @@ export class TimerService {
     this.calendar.next(calendar);
   }
 
-  async getMonthOfPastRecords(date): Promise<void> {
+  async getMonthOfPastRecords(date: Date): Promise<void> {
     const year: number = date.getFullYear();
     const month: number = date.getMonth();
     const records = await this.recordsWithinRange(new Date(year, month), new Date(year, month + 1));
