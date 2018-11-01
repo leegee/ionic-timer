@@ -1,25 +1,18 @@
 import { IonicModule } from '@ionic/angular';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Routes, RouterModule } from '@angular/router';
 
 import { ColorPickerPopoverComponent } from './color-picker-popover';
-
-const routes: Routes = [
-  {
-    path: '',
-    component: ColorPickerPopoverComponent
-  }
-];
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,
-    RouterModule.forChild(routes)
+    IonicModule
   ],
-  declarations: [ColorPickerPopoverComponent]
+  declarations: [ColorPickerPopoverComponent],
+  exports: [ColorPickerPopoverComponent],
+  entryComponents: [ColorPickerPopoverComponent]
 })
 export class ColorPickerPopoverComponentModule { }
