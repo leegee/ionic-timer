@@ -49,7 +49,7 @@ export class BarChartComponent implements OnChanges {
   ) { }
 
   ngOnChanges() {
-    if (!this.calendar.years[this.year].length || this.calendar.years[this.year][this.month].length) {
+    if ((!Object.keys(this.calendar.years[this.year]).length) || (!this.calendar.years[this.year][this.month])) {
       return false;
     }
 
