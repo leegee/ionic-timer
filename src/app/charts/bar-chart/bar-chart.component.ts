@@ -152,17 +152,7 @@ export class BarChartComponent implements OnChanges {
       .attr('class', 'axis vertical')
       .call(d3Axis.axisLeft(this.y).ticks(
         maxY, 'd'
-        // null, 's')
-      )
-      // .append('text')
-      // .attr('x', 2)
-      // .attr('y', this.y(this.y.ticks().pop()) + 0.5)
-      // .attr('dy', '0.32em')
-      // .attr('fill', '#000')
-      // .attr('font-weight', 'bold')
-      // .attr('text-anchor', 'start')
-      // .text('Timers run')
-      ;
+      ));
 
     const legend = this.g.append('g')
       .attr('font-family', 'sans-serif')
