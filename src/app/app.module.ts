@@ -20,7 +20,7 @@ export function configureLogging(loggingService: LoggingService): () => void {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
   ],
   entryComponents: [
   ],

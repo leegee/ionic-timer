@@ -44,7 +44,6 @@ export class BarChartComponent implements OnChanges {
   private g: any;
 
   constructor(
-    private platform: Platform,
     private timerService: TimerService
   ) { }
 

@@ -18,6 +18,7 @@ export interface TimerMetaRecordDisplay extends TimerMetaRecord {
 export class HomePage implements OnInit, OnDestroy {
   public timersSubscription: Subscription;
   public timers: TimerMetaRecordDisplay[] = [];
+  public timerNames: string[];
   private logger: Logger;
 
   constructor(
@@ -38,6 +39,7 @@ export class HomePage implements OnInit, OnDestroy {
     this.timersSubscription = this.timerService.timersMeta.subscribe((timers: TimerMetaRecord[]) => {
       this.timers = this.viewableTimers(timers);
       console.log('Got %d timers', this.timers.length);
+      this.timerNames = this.timers.map( timer => timer.name );
     });
   }
 

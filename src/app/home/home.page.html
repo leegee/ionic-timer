@@ -1,27 +1,44 @@
 <ion-header>
   <ion-toolbar color='primary'>
-    <ion-title color='light'>Start and Stop Timers</ion-title>
+    <ion-buttons end>
+      <ion-title color='light'>Start and Stop Timers</ion-title>
+      <timer-speech *ngIf="timers.length" [phrases]='timerNames'></timer-speech>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding *ngIf="timers.length">
-  <ion-chip *ngFor="let timer of timers" reorder="true" (ionItemReorder)="reorderItems($event)" [ngStyle]="{ 'background': timer.background }"
-    on-press="toggleTimer(timer.id)">
 
-    <ion-chip-button expand="full" fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}"
-      on-click="editTimer(timer.id, $event)">
-      <ion-icon color="{{ timer.start === undefined ? 'success' : 'danger' }}" name="{{ timer.start === undefined ? 'checkmark-circle' : 'close-circle'}}"></ion-icon>
-    </ion-chip-button>
+<ng-container *ngIf="timers.length">
+  <ion-content padding>
 
-    <ion-label>{{ timer.label }}</ion-label>
 
-    <ion-chip-button class='end' *ngIf="timer.oppositeId" expand="full" fill="outline" color="{{ timer.start === undefined ? 'danger' : 'success' }}"
-      on-click="editTimer(timer.oppositeId, $event)">
-      <ion-icon color="{{ timer.start === undefined ? 'danger' : 'success' }}" name="{{ timer.start === undefined ? 'close-circle' : 'checkmark-circle'}}"></ion-icon>
-    </ion-chip-button>
+    <!-- <ion-segment *ngFor="let timer of timers" reorder="true" (ionItemReorder)="reorderItems($event)" [ngStyle]="{ 'background': timer.background }" >
+      <ion-segment-button (ionSelect)="segmentButtonClicked($event)" (press)='editTimer(timer.id, $event)'>
+        Friends
+      </ion-segment-button>
+      <ion-segment-button (ionSelect)="segmentButtonClicked($event)">
+        Enemies
+      </ion-segment-button>
+    </ion-segment> -->
 
-  </ion-chip>
-</ion-content>
+    <ion-chip *ngFor="let timer of timers" reorder="true" (ionItemReorder)="reorderItems($event)" [ngStyle]="{ 'background': timer.background }"
+      on-press="toggleTimer(timer.id)">
+
+      <ion-chip-button expand="full" fill="outline" color="{{ timer.start === undefined ? 'success' : 'danger' }}"
+        on-click="editTimer(timer.id, $event)">
+        <ion-icon color="{{ timer.start === undefined ? 'success' : 'danger' }}" name="{{ timer.start === undefined ? 'checkmark-circle' : 'close-circle'}}"></ion-icon>
+      </ion-chip-button>
+
+      <ion-label>{{ timer.label }}</ion-label>
+
+      <ion-chip-button class='end' *ngIf="timer.oppositeId" expand="full" fill="outline" color="{{ timer.start === undefined ? 'danger' : 'success' }}"
+        on-click="editTimer(timer.oppositeId, $event)">
+        <ion-icon color="{{ timer.start === undefined ? 'danger' : 'success' }}" name="{{ timer.start === undefined ? 'close-circle' : 'checkmark-circle'}}"></ion-icon>
+      </ion-chip-button>
+
+    </ion-chip>
+  </ion-content>
+</ng-container>
 
 <ion-content *ngIf="!timers.length">
   <ion-card>

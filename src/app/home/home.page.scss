@@ -1,5 +1,7 @@
 :host {
-  text-align: center;
+  ion-item {
+    text-align: center;
+  }
   ion-chip {
     font-weight: 900;
     font-size: 16pt;
@@ -24,7 +26,7 @@
     ion-chip-button.end {
       --margin-start: 0;
       --margin-end: 0.6em;
-      float: right; 
+      float: right;
     }
 
     ion-label {
