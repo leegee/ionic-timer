@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import * as d3Array from 'd3-array';
 import * as d3Axis from 'd3-axis';
 import * as d3Scale from 'd3-scale';
@@ -22,7 +22,7 @@ export interface Margin {
   templateUrl: './bar-chart.component.html',
   styleUrls: ['./bar-chart.component.scss']
 })
-export class BarChartComponent implements OnInit, OnChanges {
+export class BarChartComponent implements OnChanges {
   @Input() public calendar: Calendar;
   @Input() public year: string;
   @Input() public month: string;
@@ -48,12 +48,11 @@ export class BarChartComponent implements OnInit, OnChanges {
     private timerService: TimerService
   ) { }
 
-  ngOnInit() {
-    console.log('bar ngOnInit');
-  }
-
   ngOnChanges() {
-    console.log('bar ngOnChanges');
+    if (!this.calendar.years[this.year].length || this.calendar.years[this.year][this.month].length) {
+      return false;
+    }
+
     const lastDayOfMonth = Calendar.lastDayOfMonth(Number(this.year), Number(this.month)).getDate();
     this.monthData = new Array(lastDayOfMonth);
     const allMetaRecords: { [key: string]: TimerMetaRecord } = this.timerService.allMetaById();
