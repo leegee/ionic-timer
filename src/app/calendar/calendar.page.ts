@@ -150,7 +150,7 @@ export class CalendarPage implements OnInit, OnDestroy {
     this.lastTimerStamp = e.timeStamp;
     this.date.setMonth(
       this.date.getMonth() + (
-        e.deltaX > 0 ? 1 : -1
+        e.deltaX > 0 ? -1 : 1
       )
     );
     this.loadMonth();
