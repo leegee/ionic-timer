@@ -1,26 +1,23 @@
 <ion-content>
-  <ion-slides pager="true">
+  <ion-slides pager="true" [options]="slideOptions">
     <ion-slide>
       <ion-card>
         <ion-card-header>
-          <ion-card-subtitle>Awesome Subtitle</ion-card-subtitle>
-          <ion-card-title>About The Timers Page</ion-card-title>
+          <ion-card-title>Using {{product.name}}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-list>
-            <ion-item>
-              The Timers page shows all your timers.
-            </ion-item>
-            <ion-item>
-              Start and stop a timer by giving it a long press.
-            </ion-item>
-            <ion-item>
-              Tap a timer to edit it.
-            </ion-item>
-            <ion-item>
-              Click <ion-icon name='add'></ion-icon> to create a new timer.
-            </ion-item>
-          </ion-list>
+          <p>
+            The Timers page shows all your timers.
+          </p>
+          <p>
+            Start and stop a timer by giving it a long press.
+          </p>
+          <p>
+            Tap a timer to edit it.
+          </p>
+          <p>
+            Click <ion-icon name='add'></ion-icon> to create a new timer.
+          </p>
         </ion-card-content>
       </ion-card>
     </ion-slide>
@@ -28,28 +25,43 @@
     <ion-slide>
       <ion-card>
         <ion-card-header>
-          <ion-card-subtitle>Awesome Subtitle</ion-card-subtitle>
+          <ion-card-subtitle>Using {{product.name}}</ion-card-subtitle>
           <ion-card-title>Creating A Timer</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <ion-list>
-            <ion-item>
-              Once you have clicked <ion-icon name='add'></ion-icon> on the Timers screen,
-              you can enter a name for your timer, and choose a color.
-            </ion-item>
-            <ion-item>
-              You can also choose an opposite of the timer, so that when you start your
-              new timer, its opposite will be stopped. For example, you might choose
-              'busy' as the opposite of 'available', and 'happy' as the opposite of 'sad',
-              so that when you become 'busy' or 'happy', your are no longer 'sad' or 'available'.
-            </ion-item>
-          </ion-list>
+          <p>
+            Once you have added a timer,
+            you can enter a name for your timer, and choose a color.
+          </p>
+          <p>
+            You can also choose an opposite of the timer, so that when you start your
+            new timer, its opposite will be stopped. For example, you might choose
+            'busy' as the opposite of 'available', and 'happy' as the opposite of 'sad',
+            so that when you become 'busy' or 'happy', your are no longer 'sad' or 'available'.
+          </p>
         </ion-card-content>
       </ion-card>
     </ion-slide>
 
     <ion-slide>
-      <h1>Slide 3</h1>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Using {{product.name}}</ion-card-subtitle>
+          <ion-card-title>Copyright</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>
+            This applicatin is Copyright © Lee Goddard, 2018.
+          </p>
+          <p>
+            All Rights Reserved.
+          </p>
+          <p>
+            Built using open source technology from Ionic, and Google's Angular, with
+            data visualisations via the d3 Data-driven Documents graphing library.
+          </p>
+        </ion-card-content>
+      </ion-card>
     </ion-slide>
   </ion-slides>
 </ion-content>
