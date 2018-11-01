@@ -23,6 +23,8 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes)
   ],
-  declarations: [EditTimerPage]
+  declarations: [
+    EditTimerPage
+  ]
 })
 export class EditTimerPageModule {}
