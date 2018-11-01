@@ -1,14 +1,14 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
-
-import * as d3 from 'd3-selection';
-import * as d3Scale from 'd3-scale';
-import * as d3Shape from 'd3-shape';
-import * as d3Axis from 'd3-axis';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import * as d3Array from 'd3-array';
-
-import { Colors } from '../../Colors';
+import * as d3Axis from 'd3-axis';
+import * as d3Scale from 'd3-scale';
+import * as d3 from 'd3-selection';
+import * as d3Shape from 'd3-shape';
 import { Calendar, CalendarDay } from '../../Calendar';
-import { TimerService, TimerPastRecord, TimerMetaRecord } from '../../timer/timer.service';
+import { TimerMetaRecord, TimerService } from '../../timer/timer.service';
+import { Platform } from '@ionic/angular';
+
+
 
 export interface Margin {
   top: number;
@@ -23,10 +23,11 @@ export interface Margin {
   styleUrls: ['./bar-chart.component.scss']
 })
 export class BarChartComponent implements OnInit, OnChanges {
-
   @Input() public calendar: Calendar;
   @Input() public year: string;
   @Input() public month: string;
+
+  private elementId = 'svg';
 
   public monthData = [];
 
@@ -35,20 +36,24 @@ export class BarChartComponent implements OnInit, OnChanges {
   private width: number;
   private height: number;
 
-  private svg: any;     // TODO replace all `any` by the right type
-
   private x: any;
   private y: any;
   private z: any;
+
+  private svg: any; // SVGSVGElement;
   private g: any;
 
   constructor(
+    private platform: Platform,
     private timerService: TimerService
   ) { }
 
-  ngOnInit() { }
+  ngOnInit() {
+    console.log('bar ngOnInit');
+  }
 
   ngOnChanges() {
+    console.log('bar ngOnChanges');
     const lastDayOfMonth = Calendar.lastDayOfMonth(Number(this.year), Number(this.month)).getDate();
     this.monthData = new Array(lastDayOfMonth);
     const allMetaRecords: { [key: string]: TimerMetaRecord } = this.timerService.allMetaById();
@@ -88,16 +93,17 @@ export class BarChartComponent implements OnInit, OnChanges {
     this.drawChart(this.monthData);
   }
 
-  private initMargins() {
-    this.margin = { top: 20, right: 20, bottom: 30, left: 40 };
-  }
-
   private initSvg() {
-    this.svg = d3.select('svg');
+    this.margin = { top: 20, right: 20, bottom: 30, left: 40 };
+    this.svg = d3.select(this.elementId);
     this.svg.selectAll('*').remove();
+    const elWidth = window.innerWidth;
+    const elHeight = window.innerHeight / 2.8;
+    this.width = elWidth - this.margin.left - this.margin.right;
+    this.height = elHeight - this.margin.top - this.margin.bottom;
 
-    this.width = +this.svg.attr('width') - this.margin.left - this.margin.right;
-    this.height = +this.svg.attr('height') - this.margin.top - this.margin.bottom;
+    this.svg.attr('width', elWidth).attr('height', elHeight);
+
     this.g = this.svg.append('g').attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     this.x = d3Scale.scaleBand()
@@ -106,16 +112,9 @@ export class BarChartComponent implements OnInit, OnChanges {
       .align(0.1);
     this.y = d3Scale.scaleLinear()
       .rangeRound([this.height, 0]);
-    // this.z = d3Scale.scaleOrdinal()
-    //   .range(
-    //     // Colors.getColorRange(max)
-    //     // [Colors.colourRange.min, Colors.colourRange.max]
-    //     ['#98abc5', '#8a89a6', '#7b6888', '#6b486b', '#a05d56', '#d0743c', '#ff8c00']
-    //   );
   }
 
-  private drawChart(data: any[]) {
-    this.initMargins();
+  private drawChart(data: any[]): void {
     this.initSvg();
 
     const keys = Object.getOwnPropertyNames(data[0]).slice(1);
@@ -126,8 +125,10 @@ export class BarChartComponent implements OnInit, OnChanges {
     });
     data.sort((a: any, b: any) => b.total - a.total);
 
+    const maxY = d3Array.max(data, (d: any) => d.total);
+
     this.x.domain(data.map((d: any) => d.date));
-    this.y.domain([0, d3Array.max(data, (d: any) => d.total)]).nice();
+    this.y.domain([0, maxY]).nice();
     this.z.domain(keys);
 
     this.g.append('g')
@@ -143,22 +144,26 @@ export class BarChartComponent implements OnInit, OnChanges {
       .attr('height', d => this.y(d[0]) - this.y(d[1]))
       .attr('width', this.x.bandwidth());
 
-    // this.g.append('g')
-    //   .attr('class', 'axis')
-    //   .attr('transform', 'translate(0,' + this.height + ')')
-    //   .call(d3Axis.axisBottom(this.x));
+    this.g.append('g')
+      .attr('class', 'axis horizontal')
+      .attr('transform', 'translate(0,' + this.height + ')')
+      .call(d3Axis.axisBottom(this.x));
 
     this.g.append('g')
-      .attr('class', 'axis')
-      .call(d3Axis.axisLeft(this.y).ticks(null, 's'))
-      .append('text')
-      .attr('x', 2)
-      .attr('y', this.y(this.y.ticks().pop()) + 0.5)
-      .attr('dy', '0.32em')
-      .attr('fill', '#000')
-      .attr('font-weight', 'bold')
-      .attr('text-anchor', 'start')
-      .text('Timers run');
+      .attr('class', 'axis vertical')
+      .call(d3Axis.axisLeft(this.y).ticks(
+        maxY, 'd'
+        // null, 's')
+      )
+      // .append('text')
+      // .attr('x', 2)
+      // .attr('y', this.y(this.y.ticks().pop()) + 0.5)
+      // .attr('dy', '0.32em')
+      // .attr('fill', '#000')
+      // .attr('font-weight', 'bold')
+      // .attr('text-anchor', 'start')
+      // .text('Timers run')
+      ;
 
     const legend = this.g.append('g')
       .attr('font-family', 'sans-serif')
