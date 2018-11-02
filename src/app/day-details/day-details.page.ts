@@ -41,12 +41,16 @@ export class DayDetailsPage implements OnInit {
   }
 
   get totalEntries() {
-    return this.dataset.reduce((prev: number, current: LabelsColorsValuesDataset) => {
+    return this.dataset ? this.dataset.reduce((prev: number, current: LabelsColorsValuesDataset) => {
       return prev + current.value;
-    }, 0);
+    }, 0) : 0;
   }
 
   getLabelsColorsValuesForCalendarDay(calendarDay: CalendarDay): LabelsColorsValuesDataset[] {
+    if (!(calendarDay instanceof CalendarDay)) {
+      throw new TypeError('calendarDay should be a CalendarDay!');
+    }
+    console.log('calendarDay', calendarDay);
     const parentId2count = calendarDay.getParentIds2Counts();
     const allMetaRecords = this.timerService.allMetaById();
 

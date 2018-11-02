@@ -65,13 +65,28 @@ export class TimerService {
     this.logger.exit('init', this.ids2metaCache);
   }
 
+  /**
+   * 
+   * @param args {object}
+   * @param args.name {string}
+   * @param args.oppositeId {string}
+   * @param args.color {string}
+   * @returns Promise<string> the ID of the created record
+   */
   async addNewTimer(args: {
     name: string,
     oppositeId: string,
     color: string
   }): Promise<string> {
-    this.logger.entry('addNewTimer');
+    this.logger.entry('addNewTimer', args);
+    if (typeof args !== 'object') {
+      throw new TypeError('Expected args object but got ' + typeof args);
+    }
+    if (!args.name) {
+      throw new TypeError('No name arg supplied');
+    }
     const id = args.name + new Date().getTime();
+    this.logger.debug('set id to ', id);
     const record = <TimerMetaRecord>{
       id: id,
       oppositeId: args.oppositeId,
@@ -201,6 +216,7 @@ export class TimerService {
   }
 
   async _stop(idx: number): Promise<void> {
+    this.logger.entry('_stop');
     const promises: Promise<void>[] = [];
     const stopTimestamp = new Date().getTime();
     const date = new Date(this.ids2metaCache[idx].start);
@@ -217,16 +233,18 @@ export class TimerService {
       delete this.ids2metaCache[idx].start;
     }
 
+    this.logger.debug('set meta record:', this.ids2metaCache[idx].id, this.ids2metaCache[idx]);
     promises.push(
       this.stores.ids2meta.set(this.ids2metaCache[idx].id, this.ids2metaCache[idx])
     );
 
     await Promise.all(promises);
     this.timersMeta.next(this.ids2metaCache);
+    this.logger.exit('_stop');
   }
 
   addNewPastRecord(parentId: string, start: number, stop = new Date().getTime()): Promise<void> {
-    console.log('addNewPastRecord', parentId, start, stop);
+    this.logger.entry('addNewPastRecord', parentId, start, stop);
     return this.stores.ids2pastTimers.set(start.toString(), <TimerPastRecord>{
       parentId: parentId,
       start: start,
@@ -293,6 +311,7 @@ export class TimerService {
   }
 
   async resetMetaRecord(timer: TimerMetaRecord): Promise<void> {
+    this.logger.entry(`resetMetaRecord`, timer);
     this.stores.ids2meta.set(timer.id, timer);
     if (timer.oppositeId) {
       this.logger.debug('Has an oppositeId', timer.oppositeId);
@@ -301,6 +320,7 @@ export class TimerService {
       });
     }
     await this._buildIds2metaCache();
+    this.logger.exit(`resetMetaRecord`);
     this.timersMeta.next(this.ids2metaCache);
   }
 

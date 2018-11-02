@@ -7,8 +7,10 @@ import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angu
 })
 export class SpeechComponent implements OnInit, OnChanges {
 
-  private static SpeechRecognition = typeof SpeechRecognition === 'undefined' ? window['webkitSpeechRecognition'] : SpeechRecognition;
-  private static SpeechGrammarList = typeof SpeechGrammarList === 'undefined' ? window['webkitSpeechGrammarList'] : SpeechGrammarList;
+  private static SpeechRecognition = typeof SpeechRecognition === 'undefined' ?
+    window['webkitSpeechRecognition'] : SpeechComponent.SpeechRecognition;
+  private static SpeechGrammarList = typeof SpeechGrammarList === 'undefined' ?
+    window['webkitSpeechGrammarList'] : SpeechComponent.SpeechGrammarList;
   // private static SpeechRecognitionEvent = SpeechRecognitionEvent || window['webkitSpeechRecognitionEvent'];
 
   private static recognition = new SpeechComponent.SpeechRecognition();

@@ -5,6 +5,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { Platform, PopoverController, AngularDelegate } from '@ionic/angular';
 import { CalendarPage } from './calendar.page';
 import { Colors } from '../Colors';
+import { Calendar } from '../Calendar';
 
 describe('CalendarPage', () => {
     let component: CalendarPage;
@@ -30,32 +31,5 @@ describe('CalendarPage', () => {
 
     it('should create', () => {
         expect(component).to.be.an.instanceof(CalendarPage);
-    });
-
-    it('it should list months with content', () => {
-        component.calendar[2018] = {};
-        component.calendar[2018][9] = [
-            [ // 5 weeks
-                [], [], [], [], [], [], [] // 7 days
-            ], [
-                [], [], [], [], [], [], []
-            ], [
-                [], [], [], [], [], [], []
-            ], [
-                [], [], [], [], [], [], []
-            ], [
-                [], [], [], [], [], [], []
-            ]
-        ];
-        const months = component.monthsWithData(2018);
-        expect(months).to.be.an.instanceof(Array);
-        expect(months.length).to.equal(1);
-    });
-
-    it('heatmap colour value', () => {
-        expect(component.heatmapCalendarDay(50, 100)).to.deep.equal({
-            f: Colors.colourRange.min,
-            b: Colors.colourRange.max
-        });
     });
 });

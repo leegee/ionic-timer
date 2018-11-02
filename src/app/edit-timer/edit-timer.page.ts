@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { TimerMetaRecord, TimerService } from '../timer/timer.service';
-import { NavParams, PopoverController, ActionSheetController } from '@ionic/angular';
+import { NavParams, PopoverController } from '@ionic/angular';
 import { ColorPickerPopoverComponent } from '../color-picker-popover/color-picker-popover';
-import { Emojis } from '../Emojis';
-import { ActionSheetButton } from '@ionic/core';
+// import { Emojis } from '../Emojis';
 
 
 @Component({
@@ -23,7 +22,7 @@ export class EditTimerPage implements OnInit {
   constructor(
     public timerService: TimerService,
     public navParams: NavParams,
-    public actionSheetController: ActionSheetController,
+    // public actionSheetController: ActionSheetController,
     private formBuilder: FormBuilder
   ) {
     this.popoverController = this.navParams.get('popoverController');
@@ -96,22 +95,22 @@ export class EditTimerPage implements OnInit {
     this.timerForm.get('color').setValue(eDismissed.data.color as string);
   }
 
-  async namePressed() {
-    const actionSheet = await this.actionSheetController.create({
-      header: 'Emojis',
-      cssClass: 'emojis',
-      buttons: Emojis.list().map(emoji => {
-        return {
-          text: emoji,
-          role: '',
-          // icon: '',
-          handler: (e) => {
-            console.log(' clicked', e);
-          }
-        } as ActionSheetButton;
-      })
-    });
+  // async namePressed() {
+  //   const actionSheet = await this.actionSheetController.create({
+  //     header: 'Emojis',
+  //     cssClass: 'emojis',
+  //     buttons: Emojis.list().map(emoji => {
+  //       return {
+  //         text: emoji,
+  //         role: '',
+  //         // icon: '',
+  //         handler: (e) => {
+  //           console.log(' clicked', e);
+  //         }
+  //       } as ActionSheetButton;
+  //     })
+  //   });
 
-    await actionSheet.present();
-  }
+  //   await actionSheet.present();
+  // }
 }

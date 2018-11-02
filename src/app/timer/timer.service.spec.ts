@@ -2,27 +2,29 @@ import { expect } from 'chai';
 
 import { TestBed, inject } from '@angular/core/testing';
 import { TimerService, TimerMetaRecord, TimerPastRecord } from './timer.service';
-import { Calendar } from '../Calendar';
+import { Calendar, CalendarDay } from '../Calendar';
 import { IonicStorageModule } from '@ionic/storage';
 import { Platform } from '@ionic/angular';
 import { Colors } from '../Colors';
 
-const totalTimers = 5;
-const totalEntries = 10;
+const TOTAL_TIMERS = 5;
+const TOTAL_ENTRIES = 10;
 
 const loadFixtures = async (service) => {
   await service.deleteAll();
   const ids = [];
   const promises = [];
-  for (let id = 0; id < totalTimers; id++) {
+  for (let id = 0; id < TOTAL_TIMERS; id++) {
     ids.push('test-' + id);
     promises.push(
-      service.addNewTimer(ids[ids.length - 1])
+      service.addNewTimer({
+        name: ids[ids.length - 1]
+      })
     );
   }
 
   ids.forEach(id => {
-    for (let i = 0; i < totalEntries; i++) {
+    for (let i = 0; i < TOTAL_ENTRIES; i++) {
       const start = new Date(
         new Date().getFullYear(), new Date().getMonth()
       ).getTime();
@@ -74,7 +76,7 @@ describe('TimerService', () => {
 
   it('should emit a list when db empty', inject([TimerService], async (service: TimerService) => {
     await service.deleteAll();
-    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
+    service.timersMeta$.subscribe((changed: TimerMetaRecord[]) => {
       expect(changed instanceof Array).to.equal(true);
       expect(changed.length).to.equal(0);
     });
@@ -99,6 +101,7 @@ describe('TimerService', () => {
   }));
 
   it('should init with records if they exist', inject([TimerService], async (service: TimerService) => {
+    let calls = 0;
     await loadFixtures(service);
     await service.deleteAll();
     const testName = 'another-test-name';
@@ -107,9 +110,17 @@ describe('TimerService', () => {
       oppositeId: null,
       color: null
     });
-    service.timersMeta.subscribe((changed: TimerMetaRecord[]) => {
-      expect(changed.length).to.equal(1);
-      expect(changed[0].id).to.equal(id);
+    service.timersMeta$.subscribe((changed: TimerMetaRecord[]) => {
+      calls++;
+      if (calls === 1) {
+        expect(changed.length).to.equal(TOTAL_TIMERS);
+        console.log(`called once`);
+      } else {
+        console.log(`called `, calls);
+        console.log(changed);
+        expect(changed.length).to.equal(TOTAL_TIMERS + 1);
+        expect(changed[changed.length - 1].id).to.be(id);
+      }
     });
     await service.init();
   }));
@@ -156,9 +167,7 @@ describe('TimerService', () => {
   it('should get a month of data', inject([TimerService], async (service: TimerService) => {
     await loadFixtures(service);
     const date = new Date();
-    let calls = 0;
-    service.calendar.subscribe((changed: { calendar: TimerPastRecord[], count: number }) => {
-      calls++;
+    service.calendar$.subscribe((changed: { calendar: TimerPastRecord[], count: number }) => {
       expect(changed.calendar instanceof Array).to.equal(false);
       expect(changed.calendar[date.getFullYear()]).to.be.an.instanceof(Object);
       expect(changed.calendar[date.getFullYear()][date.getMonth()]).to.be.an.instanceof(Object);
@@ -170,7 +179,7 @@ describe('TimerService', () => {
           expect(changed.calendar[date.getFullYear()][date.getMonth()][week][day] instanceof Array).to.equal(true); // days are arrays
         }
       }
-      expect(changed.calendar[date.getFullYear()][date.getMonth()][0][1].length).to.equal(totalTimers * totalEntries);
+      expect(changed.calendar[date.getFullYear()][date.getMonth()][0][1].length).to.equal(TOTAL_TIMERS * TOTAL_ENTRIES);
     });
     await service.getMonthOfPastRecords(new Date());
   }));
@@ -190,14 +199,14 @@ describe('TimerService', () => {
     ];
     const cal = Calendar.fromTimerPastRecordList(fixtureRecords);
     expect(cal).to.be.an.instanceof(Calendar);
-    expect(cal.years.hasOwnProperty(2018)).to.equal(true);
-    expect(cal.years[2018].hasOwnProperty(0)).to.equal(true);
-    expect(cal.years[2018][0] instanceof Array).to.equal(true);
+    expect(cal.years).to.have.ownProperty('2018');
+    expect(cal.years[2018]).to.have.ownProperty('0');
+    expect(cal.years[2018][0]).to.be.an.instanceof(Array);
     expect(cal.years[2018][0].length).to.equal(5);
-    expect(cal.years[2018][0][0] instanceof Array).to.equal(true);
+    expect(cal.years[2018][0][0]).to.be.an.instanceof(Array);
     expect(cal.years[2018][0][0].length).to.equal(7);
-    expect(cal.years[2018][0][0][4] instanceof Array).to.equal(true);
-    expect(cal.years[2018][0][0][4].timerPastRecords.length).to.equal(3);
+    expect(cal.years[2018][0][0][4]).to.be.an.instanceof(CalendarDay);
+    expect(cal.years[2018][0][0][4].timerPastRecords).to.have.length(3);
   }));
 
   it('colour range', inject([TimerService], async (service: TimerService) => {

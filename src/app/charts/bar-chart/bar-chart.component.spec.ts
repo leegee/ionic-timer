@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { BarChartComponent } from './bar-chart.component';
+import { Platform } from '@ionic/angular';
 
 describe('BarChartComponent', () => {
   let component: BarChartComponent;
@@ -8,9 +9,10 @@ describe('BarChartComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ BarChartComponent ]
+      declarations: [BarChartComponent],
+      providers: [Platform]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
