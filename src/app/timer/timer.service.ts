@@ -66,7 +66,7 @@ export class TimerService {
   }
 
   /**
-   * 
+   *
    * @param args {object}
    * @param args.name {string}
    * @param args.oppositeId {string}
@@ -270,7 +270,7 @@ export class TimerService {
     // remove all oppositeIds
     this.ids2metaCache.forEach(record => {
       if (record.oppositeId === id) {
-        promises.push( this.updateMeta(record.id, { oppositeId: null }) );
+        promises.push(this.updateMeta(record.id, { oppositeId: null }));
       }
     });
 
