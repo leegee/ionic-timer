@@ -13,23 +13,15 @@ export interface RegExpMatchArrayGetSysnetPointerReGroups extends RegExpMatchArr
     groups: GetSysnetPointerReGroups;
 }
 
-export interface GetBasicSysnetInfoRe {
-    wordSynsetOffset: number;
-    wordLexFilenum: string;
-    wordSsType: string;
-    word: string;
-}
-
 export interface GetSysnetPointerReGroups {
     pointerSymbol: string;
-    pointerSysnetOffset: number;
+    sysnetOffset: number;
     pos: string;
     source: string;
     target: string;
 }
 
 export class DataFile {
-
     static descriptorCache: { [key: string]: number } = {};
 
     suffix: string;
@@ -58,10 +50,41 @@ export class DataFile {
     }
 }
 
-export class Wordnet {
+
+export interface GetBasicSysnetInfoReGroups extends RegExpMatchArray {
+    groups: GetBasicSysnetInfoRe;
+}
+
+export interface GetBasicSysnetInfoRe {
+    synsnetOffset: number;
+    lexFilenum: string;
+    ssType: string;
+    wCnt: number;
+    word: string | null;
+}
+
+export class WordnetLine {
     // tslint:disable-next-line:max-line-length
-    static GET_BASIC_SYSNET_INFO_RE = /^(?<wordSynsetOffset>\d+)\s(?<wordLexFilenum>\d\d)\s(?<wordSsType>[nvasr])\s(?<wCnt>\d\d)(?<word>\S+)\s/;
-    static GET_SYSNET_POINTER_RE = /(?<pointerSymbol>\!)\s(?<pointerSysnetOffset>\d+)\s(?<pos>\w)\s(?<source>\d\d)(?<target>\d\d)/;
+    static GET_BASIC_SYSNET_INFO_RE = /^(?<synsnetOffset>\d+)\s(?<lexFilenum>\d\d)\s(?<ssType>[nvasr])\s(?<wCnt>\d\d)\s+(?<word>\S+)\s/;
+
+    synsnetOffset: number;
+    lexFilenum: number;
+    ssType: string;
+    wCnt: number;
+    word: string | null = null;
+
+    constructor(line: string) {
+        const result = WordnetLine.GET_BASIC_SYSNET_INFO_RE.exec(line) as GetBasicSysnetInfoReGroups;
+        if (result) {
+            Object.keys(result.groups).forEach(key => {
+                this[key] = result.groups[key];
+            });
+        }
+    }
+}
+
+export class Wordnet {
+    static GET_SYSNET_POINTER_RE = /(?<pointerSymbol>\!)\s(?<sysnetOffset>\d+)\s(?<pos>\w)\s(?<source>\d\d)(?<target>\d\d)/;
 
     static dataFiles: { [key: string]: DataFile } = {
         r: new DataFile('adj', 'r', path.resolve('src/assets/wordnet/data.adj')),
@@ -76,17 +99,20 @@ export class Wordnet {
      * @see https://wordnet.princeton.edu/documentation/wndb5wn
      * @see https://wordnet.princeton.edu/documentation/wninput5wn
      */
-    static async _findOppositeFromLine(line: string): Promise<string> {
+    static async _findOppositeFromLine(line: string): Promise<string | null> {
         // ! 02346409 v 0101 ~ 02345856 v 0000 02 + 08 00 + 21 00 | bring in from abroad')
         const result = Wordnet.GET_SYSNET_POINTER_RE.exec(line) as RegExpMatchArrayGetSysnetPointerReGroups;
-        const foundLine = await Wordnet.findLineContainingSysnetOffset(
+        if (!result) {
+            return null;
+        }
+        const foundLine = await Wordnet.findSysnetOffset(
             result.groups.pos,
-            Number(result.groups.pointerSysnetOffset)
+            Number(result.groups.sysnetOffset)
         );
-        return foundLine;
+        return new WordnetLine(foundLine).word;
     }
 
-    static async findLineContainingSysnetOffset(filetype: string, sysnetOffset: number): Promise<string | null> {
+    static async findSysnetOffset(filetype: string, sysnetOffset: number): Promise<string | null> {
         const FH = Wordnet.dataFiles[filetype].descriptor;
         const inputBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
         const readRv = await read(FH, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset);
