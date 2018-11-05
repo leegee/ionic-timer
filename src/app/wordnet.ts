@@ -4,7 +4,7 @@ import * as util from 'util';
 const read = util.promisify(fs.read);
 const inputBufferSize = 256;
 
-export class BinaryFileSearch {
+export class Wordnet {
     static async findLineContaining(path: string, subject: string) {
         let FH;
         try {
@@ -19,7 +19,7 @@ export class BinaryFileSearch {
         const stats = fs.fstatSync(FH);
         const pos = Math.floor(stats.size / 2);
 
-        return BinaryFileSearch._findLineContaining(subject, FH, inputBuffer, pos, stats.size);
+        return Wordnet._findLineContaining(subject, FH, inputBuffer, pos, stats.size);
     }
 
     static async _findLineContaining(
@@ -66,6 +66,6 @@ export class BinaryFileSearch {
             return null;
         }
 
-        return BinaryFileSearch._findLineContaining(subject, FH, inputBuffer, pos, totalLength);
+        return Wordnet._findLineContaining(subject, FH, inputBuffer, pos, totalLength);
     }
 }

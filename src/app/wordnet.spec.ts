@@ -3,7 +3,7 @@ import * as  chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-import { BinaryFileSearch } from './binary-file-search';
+import { Wordnet } from './wordnet';
 
 import * as path from 'path';
 
@@ -11,7 +11,7 @@ const verbDataFilepath = path.resolve( './src/assets/wordnet/data.verb' );
   
 describe('binary-file-search', () => {
     it('finds', async () => {
-        const res = await BinaryFileSearch.findLineContaining(verbDataFilepath, 'import');
+        const res = await Wordnet.findLineContaining(verbDataFilepath, 'import');
         console.log('xxxxxxxxxxxxx', res);
           expect(
             res
