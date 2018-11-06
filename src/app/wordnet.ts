@@ -22,27 +22,124 @@ export interface GetSysnetPointerReGroups {
 }
 
 export class WordnetIndexEntry {
-    // lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...] 
+    // lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...]
     word: string; // lemma
     pos: string; // pos
     ptrSymbols: string[] = [];
-    sysnetOffsets: string[] = [];
+    sysnetOffsets: number[] = [];
     tagsenseCnt: number;
 
     constructor(line: string) {
-        const parts = line.split(/\s+/);
+        const parts = line.trim().split(/\s+/);
         this.word = parts.shift();
         this.pos = parts.shift();
         parts.shift(); // sense_cnt
-        const  p_cnt = Number( parts.shift() );
-        for (let i = 0; i < p_cnt; i++ ){
-            this.ptrSymbols.push( parts.shift() );
+        const p_cnt = Number(parts.shift());
+        for (let i = 0; i < p_cnt; i++) {
+            this.ptrSymbols.push(parts.shift());
         }
         parts.shift();  // sense_cnt
-        this.tagsenseCnt = Number( parts.shift() );
-        this.sysnetOffsets = parts;
+        this.tagsenseCnt = Number(parts.shift());
+        this.sysnetOffsets = parts.map(i => Number(i));
+    }
+
+    load(): WordnetSense[] {
+        const rv: WordnetSense[] = [];
+        this.sysnetOffsets.forEach(sysnetOffset => {
+            const line = this._getLineBySysnetOffset(sysnetOffset);
+            rv.push(WordnetSense.newFromLine(line));
+        });
+        return rv;
+    }
+
+    _getLineBySysnetOffset(sysnetOffset: number): string {
+        if (!sysnetOffset) {
+            throw new TypeError('Expected a sysnetOffset');
+        }
+        const fd = Wordnet.dataFiles[this.pos].descriptor;
+        const inputBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
+        fs.readSync(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset);
+        let line = inputBuffer.toString();
+
+        while (line.indexOf('\n') === -1) {
+            fs.readSync(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset + INPUT_BUFFER_READ_LINE_SIZE);
+            line = line + inputBuffer.toString();
+        }
+
+        line = line.substring(0, line.indexOf('\n')).trimRight();
+        return line;
     }
 }
+
+export class WordnetPointer {
+    pointerSymbol: string;
+    synsetOffset: number;
+    pos: string;
+    source: string; // two-digit hex
+    target: string; // two-digit hex
+
+    constructor(
+        pointerSymbol: string,
+        synsetOffset: number,
+        pos: string,
+        sourceTarget: string
+    ) {
+        this.pointerSymbol = pointerSymbol;
+        this.synsetOffset = synsetOffset;
+        this.pos = pos;
+        this.source = sourceTarget.substr(0, 2);
+        this.target = sourceTarget.substr(2, 2);
+    }
+
+    static fromParts(pCnt: number, parts: string[]): [WordnetPointer[], string[]] {
+        const ptrs: WordnetPointer[] = [];
+        for (let i = 1; i <= pCnt; i++) {
+            ptrs.push(
+                new WordnetPointer(
+                    parts.shift(),
+                    Number(parts.shift()),
+                    parts.shift(),
+                    parts.shift()
+                )
+            );
+        }
+        return [ptrs, parts];
+    }
+}
+
+// synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss
+export class WordnetSense {
+    synsetOffset: number;
+    lexFilenum: number;
+    ssType: string;
+    wCnt: number;
+    word: string;
+    lexId: string; // 1-digit hex
+    pCnt: number; // 3-digit decimal
+    ptrs: WordnetPointer[];
+    franes: string; // TODO
+    gloss: string;
+
+    static newFromLine(line: string): WordnetSense {
+        const self = new WordnetSense();
+
+        let parts = line.split('|', 2);
+        self.gloss = parts[1].trim();
+
+        parts = line.split(' ');
+
+        self.synsetOffset = Number(parts.shift());
+        self.lexFilenum = Number(parts.shift());
+        self.ssType = parts.shift();
+        self.wCnt = Number(parts.shift());
+        self.word = parts.shift();
+        self.lexId = parts.shift();
+        self.pCnt = Number(parts.shift());
+        [self.ptrs, parts] = WordnetPointer.fromParts(self.pCnt, parts);
+        return self;
+    }
+}
+
 
 export class WordnetSourceFile {
     static descriptorCache: { [key: string]: number } = {};
@@ -59,13 +156,12 @@ export class WordnetSourceFile {
         this.descriptor = fs.openSync(this.path, 'r');
     }
 
-    close() {
-        if (WordnetSourceFile.descriptorCache[this.type]) {
-            console.log('--- close fd ', WordnetSourceFile.descriptorCache[this.type]);
-            fs.closeSync(WordnetSourceFile.descriptorCache[this.type]);
-            delete WordnetSourceFile.descriptorCache[this.type];
-        }
-    }
+    // close() {
+    //     if (WordnetSourceFile.descriptorCache[this.type]) {
+    //         fs.closeSync(WordnetSourceFile.descriptorCache[this.type]);
+    //         delete WordnetSourceFile.descriptorCache[this.type];
+    //     }
+    // }
 
     // get descriptor() {
     //     let fd;
@@ -86,37 +182,37 @@ export class WordnetSourceFile {
 }
 
 
-export interface GetBasicSysnetInfoReGroups extends RegExpMatchArray {
-    groups: GetBasicSysnetInfoRe;
-}
+// export interface GetBasicSysnetInfoReGroups extends RegExpMatchArray {
+//     groups: GetBasicSysnetInfoRe;
+// }
 
-export interface GetBasicSysnetInfoRe {
-    synsnetOffset: number;
-    lexFilenum: string;
-    ssType: string;
-    wCnt: number;
-    word: string | null;
-}
+// export interface GetBasicSysnetInfoRe {
+//     synsnetOffset: number;
+//     lexFilenum: string;
+//     ssType: string;
+//     wCnt: number;
+//     word: string | null;
+// }
 
-export class WordnetLine {
-    // tslint:disable-next-line:max-line-length
-    static GET_BASIC_SYSNET_INFO_RE = /^(?<synsnetOffset>\d+)\s(?<lexFilenum>\d\d)\s(?<ssType>[nvasr])\s(?<wCnt>\d\d)\s+(?<word>\S+)\s/;
+// export class WordnetLine {
+//     // tslint:disable-next-line:max-line-length
+//     static GET_BASIC_SYSNET_INFO_RE = /^(?<synsnetOffset>\d+)\s(?<lexFilenum>\d\d)\s(?<ssType>[nvasr])\s(?<wCnt>\d\d)\s+(?<word>\S+)\s/;
 
-    synsnetOffset: number;
-    lexFilenum: number;
-    ssType: string;
-    wCnt: number;
-    word: string | null = null;
+//     synsnetOffset: number;
+//     lexFilenum: number;
+//     ssType: string;
+//     wCnt: number;
+//     word: string | null = null;
 
-    constructor(line: string) {
-        const result = WordnetLine.GET_BASIC_SYSNET_INFO_RE.exec(line) as GetBasicSysnetInfoReGroups;
-        if (result) {
-            Object.keys(result.groups).forEach(key => {
-                this[key] = result.groups[key];
-            });
-        }
-    }
-}
+//     constructor(line: string) {
+//         const result = WordnetLine.GET_BASIC_SYSNET_INFO_RE.exec(line) as GetBasicSysnetInfoReGroups;
+//         if (result) {
+//             Object.keys(result.groups).forEach(key => {
+//                 this[key] = result.groups[key];
+//             });
+//         }
+//     }
+// }
 
 export class Wordnet {
     static GET_SYSNET_POINTER_RE = /(?<pointerSymbol>\!)\s(?<sysnetOffset>\d+)\s(?<pos>\w)\s(?<source>\d\d)(?<target>\d\d)/;
@@ -141,18 +237,18 @@ export class Wordnet {
      * @see https://wordnet.princeton.edu/documentation/wndb5wn
      * @see https://wordnet.princeton.edu/documentation/wninput5wn
      */
-    static async _findOppositeFromLine(line: string): Promise<string | null> {
-        // ! 02346409 v 0101 ~ 02345856 v 0000 02 + 08 00 + 21 00 | bring in from abroad')
-        const result = Wordnet.GET_SYSNET_POINTER_RE.exec(line) as RegExpMatchArrayGetSysnetPointerReGroups;
-        if (!result) {
-            return null;
-        }
-        const foundLine = await Wordnet._findSysnetOffset(
-            result.groups.pos,
-            Number(result.groups.sysnetOffset)
-        );
-        return new WordnetLine(foundLine).word;
-    }
+    // static async _findOppositeFromLine(line: string): Promise<string | null> {
+    //     // ! 02346409 v 0101 ~ 02345856 v 0000 02 + 08 00 + 21 00 | bring in from abroad')
+    //     const result = Wordnet.GET_SYSNET_POINTER_RE.exec(line) as RegExpMatchArrayGetSysnetPointerReGroups;
+    //     if (!result) {
+    //         return null;
+    //     }
+    //     const foundLine = await Wordnet._findSysnetOffset(
+    //         result.groups.pos,
+    //         Number(result.groups.sysnetOffset)
+    //     );
+    //     return new WordnetLine(foundLine).word;
+    // }
 
     static async _findSysnetOffset(filetype: string, sysnetOffset: number): Promise<string | null> {
         const fd = Wordnet.dataFiles[filetype].descriptor;
@@ -267,11 +363,11 @@ export class Wordnet {
     /**
      * Closes all open file descriptors.
      */
-    static closeAll(): void {
-        Object.keys(Wordnet.dataFiles).forEach(filetypeKey => {
-            Wordnet.dataFiles[filetypeKey].close();
-        });
-    }
+    // static closeAll(): void {
+    //     Object.keys(Wordnet.dataFiles).forEach(filetypeKey => {
+    //         Wordnet.dataFiles[filetypeKey].close();
+    //     });
+    // }
 
     static findWord(subject: string, filetypeKey: string) {
         const stats = fs.fstatSync(Wordnet.indexFiles[filetypeKey].descriptor);
