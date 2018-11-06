@@ -250,115 +250,99 @@ export class Wordnet {
     //     return new WordnetLine(foundLine).word;
     // }
 
-    static async _findSysnetOffset(filetype: string, sysnetOffset: number): Promise<string | null> {
-        const fd = Wordnet.dataFiles[filetype].descriptor;
-        const inputBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
-        const readRv = await read(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset);
-        let line = readRv.buffer.toString();
+    // static async _findSysnetOffset(filetype: string, sysnetOffset: number): Promise<string | null> {
+    //     const fd = Wordnet.dataFiles[filetype].descriptor;
+    //     const inputBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
+    //     const readRv = await read(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset);
+    //     let line = readRv.buffer.toString();
 
-        if (line.indexOf('\n') === -1) {
-            const finalReadRv = await read(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset + INPUT_BUFFER_READ_LINE_SIZE);
-            line = line + finalReadRv.buffer.toString().substring(0, finalReadRv.buffer.indexOf('\n'));
-        }
+    //     if (line.indexOf('\n') === -1) {
+    //         const finalReadRv = await read(fd, inputBuffer, 0, inputBuffer.byteLength, sysnetOffset + INPUT_BUFFER_READ_LINE_SIZE);
+    //         line = line + finalReadRv.buffer.toString().substring(0, finalReadRv.buffer.indexOf('\n'));
+    //     }
 
-        return line.trimRight();
-    }
+    //     return line.trimRight();
+    // }
 
-    static async _findLineContaining(
-        subject: string,
-        FH: number,
-        inputBuffer: Buffer,
-        pos: number,
-        totalLength: number
-    ): Promise<string | null> {
-        const readRv = await read(FH, inputBuffer, 0, inputBuffer.byteLength, pos);
-        // console.debug('read from %d: %s', pos, readRv.buffer.toString());
+    // static async _findLineContaining(
+    //     subject: string,
+    //     FH: number,
+    //     inputBuffer: Buffer,
+    //     pos: number,
+    //     totalLength: number
+    // ): Promise<string | null> {
+    //     const readRv = await read(FH, inputBuffer, 0, inputBuffer.byteLength, pos);
+    //     // console.debug('read from %d: %s', pos, readRv.buffer.toString());
 
-        const newlineStartPos = readRv.buffer.indexOf('\n') + 1;
-        const wordStartPos = newlineStartPos + 17;
-        const wordEndPos = readRv.buffer.indexOf(` `, wordStartPos);
-        const word = readRv.buffer.toString().substring(wordStartPos, wordEndPos);
-        // console.debug('Reading word [%s]', word);
+    //     const newlineStartPos = readRv.buffer.indexOf('\n') + 1;
+    //     const wordStartPos = newlineStartPos + 17;
+    //     const wordEndPos = readRv.buffer.indexOf(` `, wordStartPos);
+    //     const word = readRv.buffer.toString().substring(wordStartPos, wordEndPos);
+    //     // console.debug('Reading word [%s]', word);
 
-        const comparision = subject.localeCompare(word);
-        if (comparision === 0) {
-            // console.info('FOUND! [%s]', readRv.buffer.toString().substring(newlineStartPos));
-            let line = readRv.buffer.toString().substring(newlineStartPos);
-            // console.debug('Line a: [%s], idx of lf: [%d]', line, line.indexOf('\n'));
-            if (line.indexOf('\n') === -1) {
-                // console.log('Read more');
-                const finalReadRv = await read(FH, inputBuffer, 0, inputBuffer.byteLength, pos + newlineStartPos);
-                // console.info('Final read [%s]', finalReadRv.buffer);
-                line = line + finalReadRv.buffer.toString().substring(0, finalReadRv.buffer.indexOf('\n'));
-            }
-            // console.info('\n\nFINAL FOUND LINE [%s] ', line);
-            return line.trimRight();
-        }
+    //     const comparision = subject.localeCompare(word);
+    //     if (comparision === 0) {
+    //         // console.info('FOUND! [%s]', readRv.buffer.toString().substring(newlineStartPos));
+    //         let line = readRv.buffer.toString().substring(newlineStartPos);
+    //         // console.debug('Line a: [%s], idx of lf: [%d]', line, line.indexOf('\n'));
+    //         if (line.indexOf('\n') === -1) {
+    //             // console.log('Read more');
+    //             const finalReadRv = await read(FH, inputBuffer, 0, inputBuffer.byteLength, pos + newlineStartPos);
+    //             // console.info('Final read [%s]', finalReadRv.buffer);
+    //             line = line + finalReadRv.buffer.toString().substring(0, finalReadRv.buffer.indexOf('\n'));
+    //         }
+    //         // console.info('\n\nFINAL FOUND LINE [%s] ', line);
+    //         return line.trimRight();
+    //     }
 
-        if (comparision < 0) {
-            Math.floor(pos = pos / 2);
-            // console.debug('<', pos);
-        } else {
-            pos = pos + Math.floor((totalLength - pos) / 2);
-            // console.debug('>', pos, totalLength);
-        }
+    //     if (comparision < 0) {
+    //         Math.floor(pos = pos / 2);
+    //         // console.debug('<', pos);
+    //     } else {
+    //         pos = pos + Math.floor((totalLength - pos) / 2);
+    //         // console.debug('>', pos, totalLength);
+    //     }
 
-        if (pos >= totalLength || pos <= 0) {
-            return null;
-        }
+    //     if (pos >= totalLength || pos <= 0) {
+    //         return null;
+    //     }
 
-        return Wordnet._findLineContaining(subject, FH, inputBuffer, pos, totalLength);
-    }
+    //     return Wordnet._findLineContaining(subject, FH, inputBuffer, pos, totalLength);
+    // }
 
-    /**
-     * Performs a binary search to get the line containing the specified Wordnet subject from specified filepath.
-     * @param subject The subject to find.
-     * @param filetypeKey Key describing the file type - @see TODO
-     * @return A `Promise` resolving in the found line, or `null`.
-     */
-    static async findWordOfForm(subject: string, filetypeKey: string): Promise<string | null> {
-        const fd = Wordnet.dataFiles[filetypeKey].descriptor;
-        const readBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
-        const stats = fs.fstatSync(Wordnet.dataFiles[filetypeKey].descriptor);
-        const pos = Math.floor(stats.size / 2);
-        const rv = await Wordnet._findLineContaining(
-            subject.toLocaleLowerCase(),
-            fd,
-            readBuffer, pos,
-            stats.size
-        );
-        return rv;
-    }
+    // /**
+    //  * Performs a binary search to get the line containing the specified Wordnet subject from specified filepath.
+    //  * @param subject The subject to find.
+    //  * @param filetypeKey Key describing the file type - @see TODO
+    //  * @return A `Promise` resolving in the found line, or `null`.
+    //  */
+    // static async findWordOfForm(subject: string, filetypeKey: string): Promise<string | null> {
+    //     const fd = Wordnet.dataFiles[filetypeKey].descriptor;
+    //     const readBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
+    //     const stats = fs.fstatSync(Wordnet.dataFiles[filetypeKey].descriptor);
+    //     const pos = Math.floor(stats.size / 2);
+    //     const rv = await Wordnet._findLineContaining(
+    //         subject.toLocaleLowerCase(),
+    //         fd,
+    //         readBuffer, pos,
+    //         stats.size
+    //     );
+    //     return rv;
+    // }
 
-    /**
-     * Find the Wordnet lien that defines a word.
-     * @param subject The word
-     */
-    static async findAllWordForms(subject: string) {
-        const rvs = [];
-        Object.keys(Wordnet.dataFiles).forEach((filetypeKey) => {
-            console.log('findAllWordForms: ', filetypeKey);
-            const foundWord = Wordnet.findWordOfForm(subject, filetypeKey);
-            console.log(':: foundWord: ', foundWord);
-            rvs.push(foundWord);
-        });
-        console.log('DONE ---------------', rvs);
-        const rv = await Promise.all(rvs);
-        console.log('RV  ---------------', rv);
-        return rv;
-    }
-
-    static async findOpposite(subject: string): Promise<string[]> {
-        const rv = [];
-        console.log('findOpposite', subject);
-        const lines: string[] = await Wordnet.findAllWordForms(subject);
-
-        console.log('findOpposite', lines);
-        // lines.forEach(line => {
-        //     rv.push(Wordnet._findOppositeFromLine(line));
-        // });
-        return lines;
-    }
+    // /**
+    //  * Find the Wordnet lien that defines a word.
+    //  * @param subject The word
+    //  */
+    // static async findAllWordForms(subject: string) {
+    //     const rvs = [];
+    //     Object.keys(Wordnet.dataFiles).forEach((filetypeKey) => {
+    //         const foundWord = Wordnet.findWordOfForm(subject, filetypeKey);
+    //         rvs.push(foundWord);
+    //     });
+    //     const rv = await Promise.all(rvs);
+    //     return rv;
+    // }
 
     /**
      * Closes all open file descriptors.
@@ -396,7 +380,7 @@ export class Wordnet {
         pos: number,
         totalLength: number
     ): WordnetIndexEntry | null {
-        const readRv = fs.readSync(fd, inputBuffer, 0, inputBuffer.byteLength, pos);
+        fs.readSync(fd, inputBuffer, 0, inputBuffer.byteLength, pos);
         // console.debug('\n[%s] Read from %d / %d: %s', subject, pos, totalLength, inputBuffer.toString());
 
         const newlineStartPos = inputBuffer.indexOf('\n') + 1;
