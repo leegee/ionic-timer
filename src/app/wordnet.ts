@@ -1,12 +1,37 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import * as util from 'util';
 
 export namespace Wordnet {
     const INPUT_BUFFER_READ_LINE_SIZE = 256;
 
+    /**
+     * Entries in the Wordnet `index.*` files, whose format in 3.1 is as follows:
+     *
+     *  lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...]
+     */
     export class IndexEntry {
-        // lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...]
+        static _pointerMapEngToSymbol: { [key: string]: string } = {
+            antonym: '!',
+            hypernym: '@',
+            instanceHypernym: '@i',
+            hypnym: '~',
+            instanceHyponym: '~i',
+            memberHolonym: '#m',
+            substanceHolonym: '#s',
+            partHolonym: '#p',
+            memberMeronym: '%m',
+            substanceMeronym: '%s',
+            partMeronym: '%p',
+            attribute: '=',
+            derivationallyRelatedForm: '+',
+            domainofSynsetTopic: ';c',
+            memberofThisDomainTopic: '-c',
+            domainofSynsetRegion: ';r',
+            memberofThisDomainRegion: '-r',
+            domainofSynsetUsage: ';u',
+            memberofThisDomainUsage: '-u'
+        };
+
         word: string; // lemma
         pos: string; // pos
         ptrSymbols: string[] = [];
@@ -14,7 +39,12 @@ export namespace Wordnet {
         tagsenseCnt: number;
         _wordnetSenses: Sense[] = [];
         _antonyms: Sense[] = [];
+        _pointedAt: { [key: string]: Sense[] } = {};
 
+        /**
+         *
+         * @param line The line from an `index.*` "database file".
+         */
         constructor(line: string) {
             const parts = line.trim().split(/\s+/);
             this.word = parts.shift();
@@ -27,8 +57,20 @@ export namespace Wordnet {
             parts.shift();  // sense_cnt
             this.tagsenseCnt = Number(parts.shift());
             this.synsetOffsets = parts.map(i => Number(i));
+
+            Object.keys(IndexEntry._pointerMapEngToSymbol).forEach(englishKey => {
+                Object.defineProperty(this, englishKey, {
+                    get: () => this.getPointer(
+                        IndexEntry._pointerMapEngToSymbol[englishKey]
+                    )
+                });
+            });
         }
 
+        /**
+         * Dereferences the entry's senses.
+         * @returns Sense[]
+         */
         get wordnetSenses(): Sense[] {
             Wordnet.logger.debug('get wordnetSenses from [%s]', this._wordnetSenses);
             if (!this._wordnetSenses.length) {
@@ -42,16 +84,24 @@ export namespace Wordnet {
             return this._wordnetSenses;
         }
 
-        get antonyms(): Sense[] {
-            if (this._antonyms.length === 0) {
+        /**
+         * Dereferences the entry's semantic pointers from the entry's sense definitions, 
+         * as identified by their `wininput(5WN)` pointer symbol.
+         * @param ptrSymbol Pointer symbol.
+         * @returns Sense[]
+         * @see 'Pointers' in  https://wordnet.princeton.edu/documentation/wninput5wn
+         */
+        getPointer(ptrSymbol: string): Sense[] {
+            if (!this._pointedAt[ptrSymbol]) {
+                this._pointedAt[ptrSymbol] = [];
                 this.wordnetSenses.forEach(sense => {
-                    sense.ptrs.filter(ptr => ptr.pointerSymbol === '!').forEach(ptr => {
+                    sense.ptrs.filter(ptr => ptr.pointerSymbol === ptrSymbol).forEach(ptr => {
                         const word = Sense.fromPointer(ptr);
-                        this._antonyms.push(word);
+                        this._pointedAt[ptrSymbol].push(word);
                     });
                 });
             }
-            return this._antonyms;
+            return this._pointedAt[ptrSymbol];
         }
     }
 
@@ -141,7 +191,10 @@ export namespace Wordnet {
             this.suffix = suffix;
             this.type = type;
             this.path = filepath;
-            this.fd = fs.openSync(this.path, 'r');
+            if (!SourceFile.descriptorCache.hasOwnProperty(this.path)) {
+                SourceFile.descriptorCache[this.path] = fs.openSync(this.path, 'r');
+            }
+            this.fd = SourceFile.descriptorCache[this.path];
         }
     }
 

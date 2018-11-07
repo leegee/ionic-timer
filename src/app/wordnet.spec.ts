@@ -11,7 +11,6 @@ const expect = chai.expect;
 import { Wordnet } from './wordnet';
 
 Wordnet.Wordnet.logger = new Console({
-    // @ts-ignore
     stderr: devnull(),
     stdout: devnull() // process.stdout
 });
@@ -89,7 +88,7 @@ describe('Wordnet', () => {
 
     it('finds the opposite of verb "import"', () => {
         const inputWord = Wordnet.Wordnet.findWord('import', 'v');
-        const antonyms = inputWord.antonyms;
+        const antonyms = inputWord.antonym;
         expect(antonyms).to.be.an.instanceof(Array);
         expect(antonyms).to.have.length(2);
         antonyms.forEach(word => {
