@@ -8,9 +8,9 @@ import * as  chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
-import { Wordnet, WordnetIndexEntry, WordnetSense, WordnetPointer } from './wordnet';
+import { Wordnet } from './wordnet';
 
-Wordnet.logger = new Console({
+Wordnet.Wordnet.logger = new Console({
     // @ts-ignore
     stderr: devnull(),
     stdout: devnull() // process.stdout
@@ -18,10 +18,10 @@ Wordnet.logger = new Console({
 
 describe('Wordnet', () => {
     it('inits data file paths', () => {
-        Object.keys(Wordnet.dataFiles).forEach(filetypeKey => {
+        Object.keys(Wordnet.Wordnet.dataFiles).forEach(filetypeKey => {
             expect(
-                fs.existsSync(Wordnet.dataFiles[filetypeKey].path),
-                fs.existsSync(Wordnet.dataFiles[filetypeKey].path) + ' exists'
+                fs.existsSync(Wordnet.Wordnet.dataFiles[filetypeKey].path),
+                fs.existsSync(Wordnet.Wordnet.dataFiles[filetypeKey].path) + ' exists'
             ).to.equal(true);
         });
     });
@@ -30,11 +30,11 @@ describe('Wordnet', () => {
         let wordUnderTest;
 
         before(() => {
-            wordUnderTest = Wordnet.findWord('import', 'v');
+            wordUnderTest = Wordnet.Wordnet.findWord('import', 'v');
         });
 
         it('finds "import"', () => {
-            expect(wordUnderTest).to.be.an.instanceof(WordnetIndexEntry);
+            expect(wordUnderTest).to.be.an.instanceof(Wordnet.IndexEntry);
             expect(wordUnderTest.word).to.equal('import');
             expect(wordUnderTest.pos).to.equal('v');
             expect(wordUnderTest.ptrSymbols).to.deep.equal('! @ ~ + ;'.split(' '));
@@ -49,7 +49,7 @@ describe('Wordnet', () => {
             expect(definitions).to.be.an.instanceof(Array);
             expect(definitions).to.have.length(3);
             definitions.forEach(def => {
-                expect(def).to.be.an.instanceof(WordnetSense);
+                expect(def).to.be.an.instanceof(Wordnet.Sense);
                 expect(def.word).to.equal('import');
             });
         });
@@ -57,7 +57,7 @@ describe('Wordnet', () => {
 
     describe('WordnetDatafile', () => {
         it('finds line by synset offset', async () => {
-            const line: string = Wordnet.dataFiles.v._getLineBySynsetOffset(2346409);
+            const line: string = Wordnet.Wordnet.dataFiles.v._getLineBySynsetOffset(2346409);
             expect(line).to.equal(
                 // tslint:disable-next-line:max-line-length
                 '02346409 40 v 01 export 0 009 @ 02260362 v 0000 ;c 01090446 n 0000 + 03306207 n 0102 + 01111952 n 0102 + 03306207 n 0101 + 10073634 n 0101 + 01111952 n 0101 ! 02346136 v 0101 ~ 02345856 v 0000 03 + 08 00 + 16 00 + 21 00 | sell or transfer abroad; "we export less than we import and have a negative trade balance"'
@@ -67,9 +67,9 @@ describe('Wordnet', () => {
 
     describe('WordnetSense', () => {
         it('from line found by synset offset', async () => {
-            const line: string = Wordnet.dataFiles.v._getLineBySynsetOffset(2346409);
-            const sense: WordnetSense = WordnetSense.fromLine(line);
-            expect(sense).to.be.an.instanceof(WordnetSense);
+            const line: string = Wordnet.Wordnet.dataFiles.v._getLineBySynsetOffset(2346409);
+            const sense: Wordnet.Sense = Wordnet.Sense.fromLine(line);
+            expect(sense).to.be.an.instanceof(Wordnet.Sense);
             expect(sense.word).to.equal('export');
             expect(sense.synsetOffset).to.equal(2346409);
             expect(sense.wCnt).to.equal(1);
@@ -79,7 +79,7 @@ describe('Wordnet', () => {
             expect(sense.ptrs).to.be.an.instanceof(Array);
             expect(sense.ptrs).to.have.lengthOf(sense.pCnt);
             sense.ptrs.forEach(ptr => {
-                expect(ptr).to.be.an.instanceof(WordnetPointer);
+                expect(ptr).to.be.an.instanceof(Wordnet.Pointer);
             });
             expect(sense.gloss).to.equal(
                 'sell or transfer abroad; "we export less than we import and have a negative trade balance"'
@@ -88,27 +88,27 @@ describe('Wordnet', () => {
     });
 
     it('finds the opposite of verb "import"', () => {
-        const inputWord = Wordnet.findWord('import', 'v');
+        const inputWord = Wordnet.Wordnet.findWord('import', 'v');
         const antonyms = inputWord.antonyms;
         expect(antonyms).to.be.an.instanceof(Array);
         expect(antonyms).to.have.length(2);
         antonyms.forEach(word => {
-            expect(word).to.be.an.instanceof(WordnetSense);
+            expect(word).to.be.an.instanceof(Wordnet.Sense);
             expect(word.word).to.equal('export');
         });
     });
 
     it('finds all forms of  "like"', () => {
-        const indexEntries = Wordnet.findWord('excuse');
+        const indexEntries = Wordnet.Wordnet.findWord('excuse');
         expect(indexEntries).to.be.an.instanceof(Array);
         expect(indexEntries).to.have.length(1);
         indexEntries.forEach(indexEntry => {
-            expect(indexEntry).to.be.an.instanceof(WordnetIndexEntry);
+            expect(indexEntry).to.be.an.instanceof(Wordnet.IndexEntry);
             expect(indexEntry.word).to.equal('excuse');
             const senses = indexEntry.wordnetSenses;
             expect(senses).to.be.an.instanceof(Array);
             senses.forEach(sense => {
-                expect(sense).to.be.an.instanceof(WordnetSense);
+                expect(sense).to.be.an.instanceof(Wordnet.Sense);
             });
         });
     });
