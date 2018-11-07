@@ -1,5 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import { Console } from 'console';
+import * as devnull from 'dev-null';
 
 import * as chai from 'chai';
 import * as  chaiAsPromised from 'chai-as-promised';
@@ -8,11 +10,13 @@ const expect = chai.expect;
 
 import { Wordnet, WordnetIndexEntry, WordnetSense, WordnetPointer } from './wordnet';
 
-const verbDataFilepath = path.resolve('./src/assets/wordnet/data.verb');
+Wordnet.logger = new Console({
+    // @ts-ignore
+    stderr: devnull(),
+    stdout: devnull() // process.stdout
+});
 
 describe('Wordnet', () => {
-    let wordUnderTest;
-
     it('inits data file paths', () => {
         Object.keys(Wordnet.dataFiles).forEach(filetypeKey => {
             expect(
@@ -23,6 +27,8 @@ describe('Wordnet', () => {
     });
 
     describe('index', () => {
+        let wordUnderTest;
+
         before(() => {
             wordUnderTest = Wordnet.findWord('import', 'v');
         });
@@ -44,6 +50,7 @@ describe('Wordnet', () => {
             expect(definitions).to.have.length(3);
             definitions.forEach(def => {
                 expect(def).to.be.an.instanceof(WordnetSense);
+                expect(def.word).to.equal('import');
             });
         });
     });
@@ -84,10 +91,25 @@ describe('Wordnet', () => {
         const inputWord = Wordnet.findWord('import', 'v');
         const antonyms = inputWord.antonyms;
         expect(antonyms).to.be.an.instanceof(Array);
-        expect(antonyms).to.have.length(2)
-        antonyms.forEach( word => {
+        expect(antonyms).to.have.length(2);
+        antonyms.forEach(word => {
             expect(word).to.be.an.instanceof(WordnetSense);
             expect(word.word).to.equal('export');
+        });
+    });
+
+    it('finds all forms of  "like"', () => {
+        const indexEntries = Wordnet.findWord('excuse');
+        expect(indexEntries).to.be.an.instanceof(Array);
+        expect(indexEntries).to.have.length(1);
+        indexEntries.forEach(indexEntry => {
+            expect(indexEntry).to.be.an.instanceof(WordnetIndexEntry);
+            expect(indexEntry.word).to.equal('excuse');
+            const senses = indexEntry.wordnetSenses;
+            expect(senses).to.be.an.instanceof(Array);
+            senses.forEach(sense => {
+                expect(sense).to.be.an.instanceof(WordnetSense);
+            });
         });
     });
 });

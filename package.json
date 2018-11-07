@@ -10,7 +10,8 @@
     "test": "ng test --configuration=test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "mocha": "mocha -r ts-node/register src/app/**/*.spec.ts"
+    "xmocha": "mocha -r ts-node/register src/app/**/*.spec.ts",
+    "mocha": "mocha -r ts-node/register src/app/wordnet.spec.ts"
   },
   "private": true,
   "dependencies": {
@@ -36,6 +37,7 @@
     "ionic-logging-service": "^6.0.0",
     "mocha": "^5.2.0",
     "rxjs": "6.2.2",
+    "winston": "^3.1.0",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {
@@ -54,10 +56,11 @@
     "@types/hammerjs": "^2.0.36",
     "@types/jasmine": "~2.8.6",
     "@types/jasminewd2": "~2.0.3",
-    "@types/node": "~10.11.3",
+    "@types/node": "^10.11.7",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "codelyzer": "~4.5.0",
+    "dev-null": "^0.1.1",
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~3.0.0",

@@ -2,24 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as util from 'util';
 
-const read = util.promisify(fs.read);
 const INPUT_BUFFER_READ_LINE_SIZE = 256;
-
-export interface RegExpMatchArrayX10d extends RegExpMatchArray {
-    groups: {};
-}
-
-export interface RegExpMatchArrayGetsynsetPointerReGroups extends RegExpMatchArray {
-    groups: GetsynsetPointerReGroups;
-}
-
-export interface GetsynsetPointerReGroups {
-    pointerSymbol: string;
-    synsetOffset: number;
-    pos: string;
-    source: string;
-    target: string;
-}
 
 export class WordnetIndexEntry {
     // lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...]
@@ -46,10 +29,13 @@ export class WordnetIndexEntry {
     }
 
     get wordnetSenses(): WordnetSense[] {
+        Wordnet.logger.debug('get wordnetSenses from [%s]', this._wordnetSenses);
         if (!this._wordnetSenses.length) {
             this.synsetOffsets.forEach(synsetOffset => {
-                const line = Wordnet.dataFiles[this.pos]._getLineBySynsetOffset(synsetOffset);
-                this._wordnetSenses.push(WordnetSense.fromLine(line));
+                Wordnet.logger.debug('Try synsetOffset', synsetOffset, 'with pos', this.pos);
+                this._wordnetSenses.push(
+                    Wordnet.dataFiles[this.pos].getSense(synsetOffset)
+                );
             });
         }
         return this._wordnetSenses;
@@ -60,7 +46,7 @@ export class WordnetIndexEntry {
             this.wordnetSenses.forEach(sense => {
                 sense.ptrs.filter(ptr => ptr.pointerSymbol === '!').forEach(ptr => {
                     const word = WordnetSense.fromPointer(ptr);
-                    this._antonyms.push(word );
+                    this._antonyms.push(word);
                 });
             });
         }
@@ -118,8 +104,7 @@ export class WordnetSense {
     gloss: string;
 
     static fromPointer(ptr: WordnetPointer): WordnetSense {
-        const line = Wordnet.dataFiles[ptr.pos]._getLineBySynsetOffset(ptr.synsetOffset);
-        return WordnetSense.fromLine(line);
+        return Wordnet.dataFiles[ptr.pos].getSense(ptr.synsetOffset);
     }
 
     static fromLine(line: string): WordnetSense {
@@ -147,7 +132,7 @@ export class WordnetSourceFile {
     static descriptorCache: { [key: string]: number } = {};
 
     suffix: string;
-    type: string;
+    type: string; // aka pos, ssType
     path: string;
     fd: number;
 
@@ -158,82 +143,103 @@ export class WordnetSourceFile {
         this.fd = fs.openSync(this.path, 'r');
     }
 
-    findWord(subject: string) {
+    /**
+     * Returns a `WordnetIndexEntry` object for the supplied string.
+     * @param subject Word sought.
+     */
+    findIndexEntry(subject: string) {
         const stats = fs.fstatSync(this.fd);
-        const rv = this._findWordInIndex(
+        return this._findIndexEntry(
             subject.toLocaleLowerCase(),
             Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE),
             Math.floor(stats.size / 2),
             stats.size
         );
-        return rv;
     }
 
-    /**
+    /*
      * Binary search.
      * @param subject The subject of the search.
      * @param inputBuffer Preallocated input buffer.
      * @param pos Current position within the intput file.
      * @param totalLength Total length of the file.
      */
-    _findWordInIndex(
+    _findIndexEntry(
         subject: string,
         inputBuffer: Buffer,
         pos: number,
         totalLength: number
     ): WordnetIndexEntry | null {
         fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, pos);
-        // console.debug('\n[%s] Read from %d / %d: %s', subject, pos, totalLength, inputBuffer.toString());
+        // Wordnet.logger.debug('\n[%s] Read from %d / %d: %s', subject, pos, totalLength, inputBuffer.toString());
 
         const newlineStartPos = inputBuffer.indexOf('\n') + 1;
         const wordStartPos = newlineStartPos;
         const wordEndPos = inputBuffer.indexOf(` `, wordStartPos);
         const word = inputBuffer.toString().substring(wordStartPos, wordEndPos);
-        // console.debug('Reading word [%s] looking for [%s]', word, subject);
+        // Wordnet.logger.debug('Reading word [%s] looking for [%s]', word, subject);
 
         const comparision = subject.localeCompare(word);
         if (comparision === 0) {
-            // console.info('FOUND! [%s]');
+            // Wordnet.logger.info('FOUND! [%s]');
             let line = inputBuffer.toString().substring(newlineStartPos);
-            // console.info('Line [%s]', line);
+            // Wordnet.logger.info('Line [%s]', line);
             if (line.indexOf('\n') === -1) {
-                // console.log('Read more');
+                // Wordnet.logger.log('Read more');
                 fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, pos + newlineStartPos);
-                // console.info('Final read [%s]', inputBuffer);
+                // Wordnet.logger.info('Final read [%s]', inputBuffer);
                 line = line + inputBuffer.toString();
             }
             line = line.substring(0, line.indexOf('\n')).trimRight();
-            // console.info('\n\nFINAL FOUND LINE [%s] ', line);
+            // Wordnet.logger.info('\n\nFINAL FOUND LINE [%s] ', line);
             return new WordnetIndexEntry(line);
         }
 
         if (comparision < 0) {
             totalLength = pos;
             pos = Math.floor(pos = pos / 2);
-            // console.debug('<', pos);
+            // Wordnet.logger.debug('<', pos);
         } else {
             pos = pos + Math.floor((totalLength - pos) / 2);
-            // console.debug('>', pos, totalLength);
+            // Wordnet.logger.debug('>', pos, totalLength);
         }
 
-        if (pos >= totalLength || pos <= 0) {
-            console.warn('Not found', subject, pos, totalLength);
+        if (totalLength - pos <= INPUT_BUFFER_READ_LINE_SIZE) {
+            // return this._findWordInIndex(subject, inputBuffer, totalLength - INPUT_BUFFER_READ_LINE_SIZE, totalLength);
+            return null;
+        } else if (pos >= totalLength || pos <= 0) {
+            Wordnet.logger.warn('Not found', subject, pos, totalLength);
             return null;
         }
 
-        return this._findWordInIndex(subject, inputBuffer, pos, totalLength);
+        // Wordnet.logger.log('recurse ', subject, pos, totalLength);
+        return this._findIndexEntry(subject, inputBuffer, pos, totalLength);
+    }
+
+    /**
+     * Returns a Wordnet sense object representing  the given line.
+     * @param synsetOffset The line offset in the `data.${this.type}` file.
+     */
+    getSense(synsetOffset: number): WordnetSense {
+        Wordnet.logger.debug('getSense for pos [%s] synset [%d]', this.type, synsetOffset);
+        const line = this._getLineBySynsetOffset(synsetOffset);
+        Wordnet.logger.debug('Got line: ', line);
+        return WordnetSense.fromLine(line);
     }
 
     _getLineBySynsetOffset(synsetOffset: number): string {
-        if (!synsetOffset) {
-            throw new TypeError('Expected a synsetOffset');
+        if (!synsetOffset || typeof synsetOffset !== 'number') {
+            throw new TypeError('Expected a synsetOffset as a Number');
         }
+        let readFrom = synsetOffset;
         const inputBuffer = Buffer.alloc(INPUT_BUFFER_READ_LINE_SIZE);
-        fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, synsetOffset);
+        fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, readFrom);
         let line = inputBuffer.toString();
 
         while (line.indexOf('\n') === -1) {
-            fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, synsetOffset + INPUT_BUFFER_READ_LINE_SIZE);
+            readFrom += INPUT_BUFFER_READ_LINE_SIZE;
+            Wordnet.logger.debug('Read more from ', readFrom);
+            fs.readSync(this.fd, inputBuffer, 0, inputBuffer.byteLength, readFrom);
             line = line + inputBuffer.toString();
         }
 
@@ -259,8 +265,30 @@ export class Wordnet {
         v: new WordnetSourceFile('verb', 'v', path.resolve('src/assets/wordnet/data.verb'))
     };
 
-    static findWord(subject: string, filetypeKey: string) {
-        return Wordnet.indexFiles[filetypeKey].findWord(subject);
+    static _logger: any = console;
+
+    static set logger(_logger) {
+        this._logger = _logger;
+    }
+
+    static get logger() {
+        return Wordnet._logger;
+    }
+
+    static findWord(subject: string, filetypeKey?: string) {
+        const types = filetypeKey ? [filetypeKey] : Object.keys(this.indexFiles);
+        const rv = [];
+        types.forEach(type => {
+            const word = this.indexFiles[type].findIndexEntry(subject);
+            if (word !== null) {
+                rv.push(word);
+            }
+        });
+
+        if (filetypeKey) {
+            return rv.length ? rv[0] : null;
+        }
+        return rv;
     }
 
 }
